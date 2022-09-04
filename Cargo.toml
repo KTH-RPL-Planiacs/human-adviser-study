@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+    "study_backend",
+    "study_frontend"
+]
