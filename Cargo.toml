@@ -2,5 +2,6 @@
 
 members = [
     "study_backend",
-    "study_frontend"
+    "study_frontend",
+    "study_shared_types"
 ]

@@ -6,6 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-hyper = { version = "0.14", features = ["full"] }
+warp = "0.3"
 tokio = { version = "1", features = ["full"] }
 mysql_async = "0.30.0"
+study_shared_types = { path= "../study_shared_types" }
+dotenv = "0.15"
