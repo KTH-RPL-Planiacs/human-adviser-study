@@ -1,4 +1,5 @@
 use dotenv::dotenv;
+use log::error;
 use mysql_async::{prelude::*, OptsBuilder};
 use study_shared_types::GameResults;
 use warp::{http, Filter};
@@ -21,40 +22,45 @@ fn db_url() -> OptsBuilder {
         .db_name(Some(database_name))
 }
 
-async fn insert_user_data(id: u32) -> Result<impl warp::Reply, warp::Rejection> {
-    let game_result = GameResults { id };
-
-    println!("{:?}", game_result);
+async fn insert_user_data(game_result: GameResults) -> Result<impl warp::Reply, warp::Rejection> {
+    println!("GOT A RESULT {:?}", game_result);
 
     let pool = mysql_async::Pool::new(db_url());
     let mut conn = match pool.get_conn().await {
         Ok(c) => c,
-        Err(_) => return Ok(http::StatusCode::INTERNAL_SERVER_ERROR),
+        Err(e) => {
+            error!("Could not connect: {}", e);
+            return Ok(http::StatusCode::INTERNAL_SERVER_ERROR);
+        }
     };
 
-    // make sure the table exists
-    match r"CREATE TABLE if not exists study_data (
-        participant_id int not null
-    )"
-    .ignore(&mut conn)
-    .await
-    {
-        Ok(_) => (),
-        Err(_) => return Ok(http::StatusCode::INTERNAL_SERVER_ERROR),
+    let query = r"INSERT INTO study_data (participant_id)
+      VALUES (:participant_id)"
+        .with(params! {
+            "participant_id" => game_result.participant_id
+        });
+
+    // insert game result data
+    if let Err(e) = query.ignore(&mut conn).await {
+        error!("Could not insert: {}", e);
+        return Ok(http::StatusCode::INTERNAL_SERVER_ERROR);
     }
 
-    if let Err(_) = conn.disconnect().await {
+    if let Err(e) = conn.disconnect().await {
+        error!("Could not disconnect: {}", e);
         return Ok(http::StatusCode::INTERNAL_SERVER_ERROR);
     }
-    if let Err(_) = pool.disconnect().await {
+    if let Err(e) = pool.disconnect().await {
+        error!("Could not connect: {}", e);
         return Ok(http::StatusCode::INTERNAL_SERVER_ERROR);
     }
-    Ok(http::StatusCode::INTERNAL_SERVER_ERROR)
+    Ok(http::StatusCode::CREATED)
 }
 
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     dotenv().expect("Could not find .env file!");
+    pretty_env_logger::init();
 
     let pool = mysql_async::Pool::new(db_url());
     let mut conn = pool.get_conn().await?;
