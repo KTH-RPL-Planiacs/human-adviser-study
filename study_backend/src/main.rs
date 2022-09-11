@@ -2,7 +2,11 @@ use dotenv::dotenv;
 use log::error;
 use mysql_async::{prelude::*, OptsBuilder};
 use study_shared_types::GameResults;
-use warp::{http, Filter};
+use warp::{
+    http::{self, HeaderValue},
+    hyper::HeaderMap,
+    Filter,
+};
 
 fn db_url() -> OptsBuilder {
     let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set.");
@@ -75,14 +79,35 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     conn.disconnect().await?;
     pool.disconnect().await?;
 
+    // POST DATABASE ENTRY
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        "Cross-Origin-Resource-Policy",
+        HeaderValue::from_static("cross-origin"),
+    );
     let post_user_data = warp::post()
         .and(warp::path("data"))
         // Only accept bodies smaller than 16kb...
         .and(warp::body::content_length_limit(1024 * 16))
         .and(warp::body::json())
-        .and_then(insert_user_data);
+        .and_then(insert_user_data)
+        .with(warp::reply::with::headers(headers));
 
-    warp::serve(post_user_data)
+    // DEBUG GET
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        "Cross-Origin-Resource-Policy",
+        HeaderValue::from_static("cross-origin"),
+    );
+    let get_hello = warp::get()
+        .and(warp::path("hello"))
+        .map(|| {
+            println!("GET WOW!");
+            "Hello, World!"
+        })
+        .with(warp::reply::with::headers(headers));
+
+    warp::serve(post_user_data.or(get_hello))
         .run(([127, 0, 0, 1], 3030))
         .await;
 
