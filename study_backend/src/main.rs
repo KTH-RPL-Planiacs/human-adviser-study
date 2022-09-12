@@ -3,8 +3,7 @@ use log::error;
 use mysql_async::{prelude::*, OptsBuilder};
 use study_shared_types::GameResults;
 use warp::{
-    http::{self, HeaderValue},
-    hyper::HeaderMap,
+    http::{self},
     Filter,
 };
 
@@ -58,6 +57,8 @@ async fn insert_user_data(game_result: GameResults) -> Result<impl warp::Reply, 
         error!("Could not connect: {}", e);
         return Ok(http::StatusCode::INTERNAL_SERVER_ERROR);
     }
+
+    println!("SUCCESS");
     Ok(http::StatusCode::CREATED)
 }
 
@@ -80,34 +81,28 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     pool.disconnect().await?;
 
     // POST DATABASE ENTRY
-    let mut headers = HeaderMap::new();
-    headers.insert(
-        "Cross-Origin-Resource-Policy",
-        HeaderValue::from_static("cross-origin"),
-    );
     let post_user_data = warp::post()
         .and(warp::path("data"))
-        // Only accept bodies smaller than 16kb...
         .and(warp::body::content_length_limit(1024 * 16))
         .and(warp::body::json())
-        .and_then(insert_user_data)
-        .with(warp::reply::with::headers(headers));
+        .and_then(insert_user_data);
 
-    // DEBUG GET
-    let mut headers = HeaderMap::new();
-    headers.insert(
-        "Cross-Origin-Resource-Policy",
-        HeaderValue::from_static("cross-origin"),
-    );
-    let get_hello = warp::get()
-        .and(warp::path("hello"))
-        .map(|| {
-            println!("GET WOW!");
+    // HELLO DEBUG
+    let hello_world = warp::post()
+        .and(warp::path("data"))
+        .and(warp::body::json())
+        .map(|a: GameResults| {
+            println!("{:?}", a);
             "Hello, World!"
-        })
-        .with(warp::reply::with::headers(headers));
+        });
 
-    warp::serve(post_user_data.or(get_hello))
+    // CORS settings
+    let cors = warp::cors()
+        .allow_headers(vec!["content-type"])
+        .allow_methods(vec!["POST"])
+        .allow_any_origin();
+
+    warp::serve(hello_world.with(cors))
         .run(([127, 0, 0, 1], 3030))
         .await;
 
