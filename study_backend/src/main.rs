@@ -1,5 +1,5 @@
 use dotenv::dotenv;
-use log::error;
+use log::{error, info};
 use mysql_async::{prelude::*, OptsBuilder};
 use study_shared_types::GameResults;
 use warp::{
@@ -26,7 +26,7 @@ fn db_url() -> OptsBuilder {
 }
 
 async fn insert_user_data(game_result: GameResults) -> Result<impl warp::Reply, warp::Rejection> {
-    println!("GOT A RESULT {:?}", game_result);
+    info!("Received a result: {:?}", game_result);
 
     let pool = mysql_async::Pool::new(db_url());
     let mut conn = match pool.get_conn().await {
@@ -58,7 +58,7 @@ async fn insert_user_data(game_result: GameResults) -> Result<impl warp::Reply, 
         return Ok(http::StatusCode::INTERNAL_SERVER_ERROR);
     }
 
-    println!("SUCCESS");
+    info!("Result insertion succeeded.");
     Ok(http::StatusCode::CREATED)
 }
 
@@ -87,22 +87,13 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .and(warp::body::json())
         .and_then(insert_user_data);
 
-    // HELLO DEBUG
-    let hello_world = warp::post()
-        .and(warp::path("data"))
-        .and(warp::body::json())
-        .map(|a: GameResults| {
-            println!("{:?}", a);
-            "Hello, World!"
-        });
-
     // CORS settings
     let cors = warp::cors()
         .allow_headers(vec!["content-type"])
         .allow_methods(vec!["POST"])
         .allow_any_origin();
 
-    warp::serve(hello_world.with(cors))
+    warp::serve(post_user_data.with(cors))
         .run(([127, 0, 0, 1], 3030))
         .await;
 
