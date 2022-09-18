@@ -1,45 +1,57 @@
+mod menu;
+mod study;
+
 use bevy::prelude::*;
-use study_shared_types::GameResults;
-use wasm_bindgen::{JsCast, JsValue};
-use wasm_bindgen_futures::{spawn_local, JsFuture};
-use web_sys::{Headers, Request, RequestInit, RequestMode, Response};
+use bevy_asset_loader::prelude::*;
+use menu::{
+    end::send_study_data,
+    main::{update_part_id, update_part_id_display, update_start_btn},
+};
+use study::systems::{cleanup_study, setup_study, update_study};
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum AppState {
+    AssetLoading,
+    MenuMain,
+    Study,
+    End,
+}
+
+#[derive(AssetCollection)]
+pub struct FontAssets {
+    #[asset(path = "fonts/FiraSans-Bold.ttf")]
+    pub default_font: Handle<Font>,
+}
 
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_system(keyboard_input_system)
+        .add_loading_state(
+            LoadingState::new(AppState::AssetLoading)
+                .continue_to_state(AppState::MenuMain)
+                .with_collection::<FontAssets>(),
+        )
+        .add_state(AppState::AssetLoading)
+        // main menu
+        .add_system_set(SystemSet::on_enter(AppState::MenuMain).with_system(menu::main::setup_ui))
+        .add_system_set(
+            SystemSet::on_update(AppState::MenuMain)
+                .with_system(update_part_id)
+                .with_system(update_part_id_display)
+                .with_system(update_start_btn)
+                .with_system(menu::main::btn_visuals)
+                .with_system(menu::main::btn_listeners),
+        )
+        .add_system_set(SystemSet::on_exit(AppState::MenuMain).with_system(menu::main::cleanup_ui))
+        // study
+        .add_system_set(SystemSet::on_enter(AppState::Study).with_system(setup_study))
+        .add_system_set(SystemSet::on_update(AppState::Study).with_system(update_study))
+        .add_system_set(SystemSet::on_exit(AppState::Study).with_system(cleanup_study))
+        // end
+        .add_system_set(
+            SystemSet::on_enter(AppState::End)
+                .with_system(menu::end::setup_ui)
+                .with_system(send_study_data),
+        )
         .run();
-}
-
-fn keyboard_input_system(keyboard_input: Res<Input<KeyCode>>) {
-    if keyboard_input.just_pressed(KeyCode::A) {
-        info!("'A' just pressed");
-        let result = GameResults { participant_id: 7 };
-
-        // create request - hacky json encoding
-        let result_json = format!("{{\"participant_id\": {}}}", result.participant_id);
-        let body = JsValue::from_str(&result_json);
-        let headers = Headers::new().unwrap();
-        headers.set("content-type", "application/json").unwrap();
-        let url = format!("http://127.0.0.1:3030/data");
-        let mut opts = RequestInit::new();
-        opts.method("POST")
-            .mode(RequestMode::Cors)
-            .body(Some(&body))
-            .headers(&headers);
-        let request = Request::new_with_str_and_init(&url, &opts).unwrap();
-
-        // send request
-        let window = web_sys::window().unwrap();
-        spawn_local(async move {
-            match JsFuture::from(window.fetch_with_request(&request)).await {
-                Ok(resp_value) => {
-                    assert!(resp_value.is_instance_of::<Response>());
-                    let _resp: Response = resp_value.dyn_into().unwrap();
-                    // TODO: do something with the response
-                }
-                Err(e) => error!("Could not send results: {:?}", e),
-            }
-        });
-    }
 }
