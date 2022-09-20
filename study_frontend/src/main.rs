@@ -7,7 +7,7 @@ use menu::{
     end::send_study_data,
     start::{update_part_id, update_part_id_display, update_start_btn},
 };
-use study::systems::{cleanup_study, setup_study, update_study};
+use study::systems::*;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
@@ -63,7 +63,12 @@ fn main() {
         )
         // study
         .add_system_set(SystemSet::on_enter(AppState::Study).with_system(setup_study))
-        .add_system_set(SystemSet::on_update(AppState::Study).with_system(update_study))
+        .add_system_set(
+            SystemSet::on_update(AppState::Study)
+                .with_system(update_study)
+                .with_system(check_for_move)
+                .with_system(resolve_move),
+        )
         .add_system_set(SystemSet::on_exit(AppState::Study).with_system(cleanup_study))
         // end
         .add_system_set(

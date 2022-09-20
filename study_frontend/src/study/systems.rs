@@ -29,8 +29,56 @@ pub fn setup_study(mut commands: Commands, player_sprites: Res<CharacterAssets>)
         .insert(Study);
 }
 
-pub fn update_study(mut state: ResMut<State<AppState>>) {
-    //state.set(AppState::End).expect("Could not change state.");
+pub fn check_for_move(mut commands: Commands, keyboard_input: Res<Input<KeyCode>>) {
+    let mut next_move: Option<NextMove> = None;
+
+    if keyboard_input.just_pressed(KeyCode::Left) {
+        next_move = Some(NextMove::Left);
+    }
+
+    if keyboard_input.just_pressed(KeyCode::Right) {
+        next_move = Some(NextMove::Right)
+    }
+
+    if keyboard_input.just_pressed(KeyCode::Up) {
+        next_move = Some(NextMove::Up)
+    }
+
+    if keyboard_input.just_pressed(KeyCode::Down) {
+        next_move = Some(NextMove::Down)
+    }
+
+    if keyboard_input.just_pressed(KeyCode::Space) {
+        next_move = Some(NextMove::Interact)
+    }
+
+    if let Some(m) = next_move {
+        commands.insert_resource(m);
+    }
+}
+
+pub fn resolve_move(
+    mut commands: Commands,
+    next_move: Option<Res<NextMove>>,
+    mut state: ResMut<State<AppState>>,
+) {
+    if let Some(m) = next_move {
+        info!("{:?}", m);
+
+        match *m {
+            NextMove::Up => (),
+            NextMove::Down => (),
+            NextMove::Left => (),
+            NextMove::Right => (),
+            NextMove::Interact => state.set(AppState::End).expect("Could not change state."),
+        }
+
+        commands.remove_resource::<NextMove>();
+    }
+}
+
+pub fn update_study() {
+    //;
 }
 
 pub fn cleanup_study(
