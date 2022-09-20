@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 pub mod end;
-pub mod main;
+pub mod start;
 
 pub const DISABLED_BUTTON: Color = Color::rgb(0.8, 0.5, 0.5);
 pub const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);

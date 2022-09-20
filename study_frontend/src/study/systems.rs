@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use study_shared_types::GameResults;
 
-use crate::{menu::main::ParticipantId, AppState};
+use crate::{menu::start::ParticipantId, AppState};
 
 pub fn setup_study() {}
 

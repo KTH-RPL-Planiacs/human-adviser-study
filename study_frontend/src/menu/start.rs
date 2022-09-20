@@ -7,10 +7,10 @@ use super::{
 };
 
 #[derive(Component)]
-pub struct MenuMainUI;
+pub struct MenuStartUI;
 
 #[derive(Component)]
-pub enum MenuMainBtn {
+pub enum MenuStartBtn {
     Start,
 }
 
@@ -28,7 +28,7 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
     // ui camera
     commands
         .spawn_bundle(Camera2dBundle::default())
-        .insert(MenuMainUI);
+        .insert(MenuStartUI);
 
     // root node
     commands
@@ -107,10 +107,10 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
                         ..Default::default()
                     });
                 })
-                .insert(MenuMainBtn::Start)
+                .insert(MenuStartBtn::Start)
                 .insert(ButtonEnabled(false));
         })
-        .insert(MenuMainUI);
+        .insert(MenuStartUI);
 }
 
 pub fn update_part_id(
@@ -142,7 +142,7 @@ pub fn update_part_id_display(
 
 pub fn update_start_btn(
     text_query: Query<&Text, With<ParticipantIdText>>,
-    mut btn_query: Query<&mut ButtonEnabled, With<MenuMainBtn>>,
+    mut btn_query: Query<&mut ButtonEnabled, With<MenuStartBtn>>,
 ) {
     let mut lobby_id_complete = false;
     for text in text_query.iter() {
@@ -160,7 +160,7 @@ pub fn update_start_btn(
 pub fn btn_visuals(
     mut interaction_query: Query<
         (&Interaction, &mut UiColor, Option<&ButtonEnabled>),
-        With<MenuMainBtn>,
+        With<MenuStartBtn>,
     >,
 ) {
     for (interaction, mut color, enabled) in interaction_query.iter_mut() {
@@ -189,7 +189,7 @@ pub fn btn_visuals(
 pub fn btn_listeners(
     mut state: ResMut<State<AppState>>,
     mut interaction_query: Query<
-        (&Interaction, &MenuMainBtn, Option<&ButtonEnabled>),
+        (&Interaction, &MenuStartBtn, Option<&ButtonEnabled>),
         Changed<Interaction>,
     >,
 ) {
@@ -205,7 +205,7 @@ pub fn btn_listeners(
 
         if let Interaction::Clicked = *interaction {
             match btn {
-                MenuMainBtn::Start => {
+                MenuStartBtn::Start => {
                     state.set(AppState::Study).expect("Could not change state.");
                 }
             }
@@ -213,7 +213,7 @@ pub fn btn_listeners(
     }
 }
 
-pub fn cleanup_ui(query: Query<Entity, With<MenuMainUI>>, mut commands: Commands) {
+pub fn cleanup_ui(query: Query<Entity, With<MenuStartUI>>, mut commands: Commands) {
     for e in query.iter() {
         commands.entity(e).despawn_recursive();
     }
