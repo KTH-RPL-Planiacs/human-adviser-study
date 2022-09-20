@@ -23,16 +23,32 @@ pub struct FontAssets {
     pub default_font: Handle<Font>,
 }
 
+#[derive(AssetCollection)]
+pub struct MapAssets {
+    #[asset(path = "sprites/tile_floor.png")]
+    pub floor: Handle<Image>,
+}
+
+#[derive(AssetCollection)]
+pub struct CharacterAssets {
+    #[asset(path = "sprites/person.png")]
+    pub person: Handle<Image>,
+    #[asset(path = "sprites/robot.png")]
+    pub robot: Handle<Image>,
+}
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
         .add_loading_state(
             LoadingState::new(AppState::AssetLoading)
                 .continue_to_state(AppState::MenuStart)
-                .with_collection::<FontAssets>(),
+                .with_collection::<FontAssets>()
+                .with_collection::<MapAssets>()
+                .with_collection::<CharacterAssets>(),
         )
         .add_state(AppState::AssetLoading)
-        // main menu
+        // start menu
         .add_system_set(SystemSet::on_enter(AppState::MenuStart).with_system(menu::start::setup_ui))
         .add_system_set(
             SystemSet::on_update(AppState::MenuStart)
