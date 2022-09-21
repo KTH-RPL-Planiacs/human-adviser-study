@@ -1,12 +1,15 @@
 use bevy::{prelude::*, window::WindowResized};
 use study_shared_types::GameResults;
 
-use crate::{menu::start::ParticipantId, study::components::*, AppState, CharacterAssets};
+use crate::{
+    menu::start::ParticipantId, study::components::*, AppState, CharacterAssets, MapAssets,
+};
 
 use super::{NUM_TILES, PADDING};
 
 pub fn setup_study(
     mut commands: Commands,
+    tile_sprites: Res<MapAssets>,
     player_sprites: Res<CharacterAssets>,
     mut windows: ResMut<Windows>,
 ) {
@@ -15,27 +18,63 @@ pub fn setup_study(
         .spawn_bundle(Camera2dBundle::default())
         .insert(Study);
 
-    // parameters
+    // tiles
     let window = windows.get_primary_mut().unwrap();
     let width = window.width();
     let height = window.height();
-    let tile_size = (width.min(height) / NUM_TILES as f32) - (PADDING * 2.0);
+    let size_min = width.min(height);
+    let tile_size = (size_min - (PADDING * 2.0)) / NUM_TILES as f32;
     commands.insert_resource(TileSize(tile_size));
 
-    // player and robot
+    for x in 0..NUM_TILES {
+        for y in 0..NUM_TILES {
+            let pos_x: f32 = PADDING + tile_size * x as f32 - size_min * 0.5 + tile_size * 0.5;
+            let pos_y: f32 = PADDING + tile_size * y as f32 - size_min * 0.5 + tile_size * 0.5;
+            commands
+                .spawn_bundle(SpriteBundle {
+                    texture: tile_sprites.floor.clone(),
+                    transform: Transform {
+                        translation: Vec3::new(pos_x, pos_y, 0.),
+                        //scale: Vec3::new(tile_size, tile_size, 1.),
+                        ..default()
+                    },
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::new(tile_size, tile_size)),
+                        ..default()
+                    },
+                    ..default()
+                })
+                .insert(TileType::Floor)
+                .insert(Tile { x, y })
+                .insert(Study);
+        }
+    }
+
+    let player_size = 0.9 * tile_size;
+
+    // player
     commands
         .spawn_bundle(SpriteBundle {
             texture: player_sprites.person.clone(),
-            transform: Transform::from_xyz(100., 0., 0.),
+            transform: Transform::from_xyz(0., 0., 1.),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(player_size, player_size)),
+                ..default()
+            },
             ..default()
         })
         .insert(Player)
         .insert(Study);
 
+    // robot
     commands
         .spawn_bundle(SpriteBundle {
             texture: player_sprites.robot.clone(),
-            transform: Transform::from_xyz(150., 0., 0.),
+            transform: Transform::from_xyz(0., 0., 1.),
+            sprite: Sprite {
+                custom_size: Some(Vec2::new(player_size, player_size)),
+                ..default()
+            },
             ..default()
         })
         .insert(Robot)
@@ -45,11 +84,34 @@ pub fn setup_study(
 pub fn window_resize_listener(
     resize_event: Res<Events<WindowResized>>,
     mut tile_size: ResMut<TileSize>,
+    mut tiles: Query<(&mut Transform, &mut Sprite, &Tile), (Without<Player>, Without<Robot>)>,
+    mut players: Query<&mut Sprite, (With<Player>, Without<Tile>, Without<Robot>)>,
+    mut robots: Query<&mut Sprite, (With<Robot>, Without<Tile>, Without<Player>)>,
 ) {
     let mut reader = resize_event.get_reader();
     for e in reader.iter(&resize_event) {
-        let new_tile_size = (e.width.min(e.height) / NUM_TILES as f32) - (PADDING * 2.0);
+        let size_min = e.width.min(e.height);
+        let new_tile_size = (size_min - (PADDING * 2.0)) / NUM_TILES as f32;
         tile_size.0 = new_tile_size;
+
+        // resize tiles
+        for (mut t, mut sprite, tile) in tiles.iter_mut() {
+            let pos_x: f32 =
+                PADDING + new_tile_size * tile.x as f32 - size_min * 0.5 + new_tile_size * 0.5;
+            let pos_y: f32 =
+                PADDING + new_tile_size * tile.y as f32 - size_min * 0.5 + new_tile_size * 0.5;
+            t.translation = Vec3::new(pos_x, pos_y, 0.);
+            sprite.custom_size = Some(Vec2::new(new_tile_size, new_tile_size));
+        }
+
+        // resize players and robots
+        let player_size = 0.9 * new_tile_size;
+        for mut sprite in players.iter_mut() {
+            sprite.custom_size = Some(Vec2::new(player_size, player_size));
+        }
+        for mut sprite in robots.iter_mut() {
+            sprite.custom_size = Some(Vec2::new(player_size, player_size));
+        }
     }
 }
 
@@ -102,7 +164,7 @@ pub fn resolve_move(
 }
 
 pub fn update_study() {
-    //;
+    //
 }
 
 pub fn cleanup_study(

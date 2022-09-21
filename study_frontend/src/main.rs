@@ -1,7 +1,7 @@
 mod menu;
 mod study;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, render::texture::ImageSettings};
 use bevy_asset_loader::prelude::*;
 use menu::{
     end::send_study_data,
@@ -39,6 +39,7 @@ pub struct CharacterAssets {
 
 fn main() {
     App::new()
+        .insert_resource(ImageSettings::default_nearest())
         .insert_resource(WindowDescriptor {
             fit_canvas_to_parent: true,
             ..default()

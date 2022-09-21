@@ -18,5 +18,16 @@ pub enum NextMove {
     Interact,
 }
 
-#[derive(Debug)]
+#[derive(Component, Debug, Copy, Clone)]
+pub struct Tile {
+    pub x: usize,
+    pub y: usize,
+}
+
+#[derive(Component, Debug, Copy, Clone)]
+pub enum TileType {
+    Floor,
+}
+
+#[derive(Debug, Copy, Clone)]
 pub struct TileSize(pub f32);
