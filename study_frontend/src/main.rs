@@ -39,6 +39,10 @@ pub struct CharacterAssets {
 
 fn main() {
     App::new()
+        .insert_resource(WindowDescriptor {
+            fit_canvas_to_parent: true,
+            ..default()
+        })
         .add_plugins(DefaultPlugins)
         .add_loading_state(
             LoadingState::new(AppState::AssetLoading)
@@ -65,6 +69,7 @@ fn main() {
         .add_system_set(SystemSet::on_enter(AppState::Study).with_system(setup_study))
         .add_system_set(
             SystemSet::on_update(AppState::Study)
+                .with_system(window_resize_listener)
                 .with_system(update_study)
                 .with_system(check_for_move)
                 .with_system(resolve_move),

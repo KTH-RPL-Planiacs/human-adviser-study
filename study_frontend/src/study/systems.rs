@@ -1,13 +1,26 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowResized};
 use study_shared_types::GameResults;
 
 use crate::{menu::start::ParticipantId, study::components::*, AppState, CharacterAssets};
 
-pub fn setup_study(mut commands: Commands, player_sprites: Res<CharacterAssets>) {
+use super::{NUM_TILES, PADDING};
+
+pub fn setup_study(
+    mut commands: Commands,
+    player_sprites: Res<CharacterAssets>,
+    mut windows: ResMut<Windows>,
+) {
     // 2d camera
     commands
         .spawn_bundle(Camera2dBundle::default())
         .insert(Study);
+
+    // parameters
+    let window = windows.get_primary_mut().unwrap();
+    let width = window.width();
+    let height = window.height();
+    let tile_size = (width.min(height) / NUM_TILES as f32) - (PADDING * 2.0);
+    commands.insert_resource(TileSize(tile_size));
 
     // player and robot
     commands
@@ -27,6 +40,17 @@ pub fn setup_study(mut commands: Commands, player_sprites: Res<CharacterAssets>)
         })
         .insert(Robot)
         .insert(Study);
+}
+
+pub fn window_resize_listener(
+    resize_event: Res<Events<WindowResized>>,
+    mut tile_size: ResMut<TileSize>,
+) {
+    let mut reader = resize_event.get_reader();
+    for e in reader.iter(&resize_event) {
+        let new_tile_size = (e.width.min(e.height) / NUM_TILES as f32) - (PADDING * 2.0);
+        tile_size.0 = new_tile_size;
+    }
 }
 
 pub fn check_for_move(mut commands: Commands, keyboard_input: Res<Input<KeyCode>>) {

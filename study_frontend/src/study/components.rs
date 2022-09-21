@@ -17,3 +17,6 @@ pub enum NextMove {
     Right,
     Interact,
 }
+
+#[derive(Debug)]
+pub struct TileSize(pub f32);
