@@ -11,6 +11,7 @@ pub struct Robot;
 
 #[derive(Debug, Copy, Clone)]
 pub enum NextMove {
+    Idle,
     Up,
     Down,
     Left,

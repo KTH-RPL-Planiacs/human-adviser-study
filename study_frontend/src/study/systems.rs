@@ -145,20 +145,28 @@ pub fn resolve_move(
     mut commands: Commands,
     next_move: Option<Res<NextMove>>,
     mut state: ResMut<State<AppState>>,
+    mut players: Query<&mut Position, With<Player>>,
 ) {
     if let Some(m) = next_move {
-        info!("{:?}", m);
+        let robot_move = next_robot_move();
 
-        match *m {
-            NextMove::Up => (),
-            NextMove::Down => (),
-            NextMove::Left => (),
-            NextMove::Right => (),
-            NextMove::Interact => state.set(AppState::End).expect("Could not change state."),
+        for mut pos in players.iter_mut() {
+            match *m {
+                NextMove::Idle => (),
+                NextMove::Up => pos.y += 1,
+                NextMove::Down => pos.y -= 1,
+                NextMove::Left => pos.x -= 1,
+                NextMove::Right => pos.x += 1,
+                NextMove::Interact => state.set(AppState::End).expect("Could not change state."),
+            }
         }
 
         commands.remove_resource::<NextMove>();
     }
+}
+
+fn next_robot_move() -> NextMove {
+    NextMove::Idle
 }
 
 pub fn draw_actor_to_pos(
