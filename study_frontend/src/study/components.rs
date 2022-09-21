@@ -25,6 +25,12 @@ pub struct Tile {
 }
 
 #[derive(Component, Debug, Copy, Clone)]
+pub struct Position {
+    pub x: usize,
+    pub y: usize,
+}
+
+#[derive(Component, Debug, Copy, Clone)]
 pub enum TileType {
     Floor,
 }

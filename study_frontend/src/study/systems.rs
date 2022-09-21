@@ -11,7 +11,7 @@ pub fn setup_study(
     mut commands: Commands,
     tile_sprites: Res<MapAssets>,
     player_sprites: Res<CharacterAssets>,
-    mut windows: ResMut<Windows>,
+    windows: Res<Windows>,
 ) {
     // 2d camera
     commands
@@ -19,7 +19,7 @@ pub fn setup_study(
         .insert(Study);
 
     // tiles
-    let window = windows.get_primary_mut().unwrap();
+    let window = windows.get_primary().unwrap();
     let width = window.width();
     let height = window.height();
     let size_min = width.min(height);
@@ -63,6 +63,7 @@ pub fn setup_study(
             },
             ..default()
         })
+        .insert(Position { x: 4, y: 5 })
         .insert(Player)
         .insert(Study);
 
@@ -77,6 +78,7 @@ pub fn setup_study(
             },
             ..default()
         })
+        .insert(Position { x: 5, y: 4 })
         .insert(Robot)
         .insert(Study);
 }
@@ -85,8 +87,7 @@ pub fn window_resize_listener(
     resize_event: Res<Events<WindowResized>>,
     mut tile_size: ResMut<TileSize>,
     mut tiles: Query<(&mut Transform, &mut Sprite, &Tile), (Without<Player>, Without<Robot>)>,
-    mut players: Query<&mut Sprite, (With<Player>, Without<Tile>, Without<Robot>)>,
-    mut robots: Query<&mut Sprite, (With<Robot>, Without<Tile>, Without<Player>)>,
+    mut players: Query<&mut Sprite, (Or<(With<Player>, With<Robot>)>, Without<Tile>)>,
 ) {
     let mut reader = resize_event.get_reader();
     for e in reader.iter(&resize_event) {
@@ -107,9 +108,6 @@ pub fn window_resize_listener(
         // resize players and robots
         let player_size = 0.9 * new_tile_size;
         for mut sprite in players.iter_mut() {
-            sprite.custom_size = Some(Vec2::new(player_size, player_size));
-        }
-        for mut sprite in robots.iter_mut() {
             sprite.custom_size = Some(Vec2::new(player_size, player_size));
         }
     }
@@ -163,8 +161,16 @@ pub fn resolve_move(
     }
 }
 
-pub fn update_study() {
-    //
+pub fn draw_player_position(
+    mut players: Query<(&mut Transform, &Position), Or<(With<Robot>, With<Player>)>>,
+    tile_size: Res<TileSize>,
+) {
+    let win_size = 2. * PADDING + NUM_TILES as f32 * tile_size.0;
+    for (mut t, pos) in players.iter_mut() {
+        let x: f32 = PADDING + tile_size.0 * pos.x as f32 - win_size * 0.5 + tile_size.0 * 0.5;
+        let y: f32 = PADDING + tile_size.0 * pos.y as f32 - win_size * 0.5 + tile_size.0 * 0.5;
+        t.translation = Vec3::new(x, y, 1.);
+    }
 }
 
 pub fn cleanup_study(
