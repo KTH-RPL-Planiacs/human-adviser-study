@@ -87,7 +87,7 @@ pub fn window_resize_listener(
     resize_event: Res<Events<WindowResized>>,
     mut tile_size: ResMut<TileSize>,
     mut tiles: Query<(&mut Transform, &mut Sprite, &Tile), (Without<Player>, Without<Robot>)>,
-    mut players: Query<&mut Sprite, (Or<(With<Player>, With<Robot>)>, Without<Tile>)>,
+    mut actors: Query<&mut Sprite, (Or<(With<Player>, With<Robot>)>, Without<Tile>)>,
 ) {
     let mut reader = resize_event.get_reader();
     for e in reader.iter(&resize_event) {
@@ -105,9 +105,9 @@ pub fn window_resize_listener(
             sprite.custom_size = Some(Vec2::new(new_tile_size, new_tile_size));
         }
 
-        // resize players and robots
+        // resize actors
         let player_size = 0.9 * new_tile_size;
-        for mut sprite in players.iter_mut() {
+        for mut sprite in actors.iter_mut() {
             sprite.custom_size = Some(Vec2::new(player_size, player_size));
         }
     }
@@ -161,7 +161,7 @@ pub fn resolve_move(
     }
 }
 
-pub fn draw_player_position(
+pub fn draw_actor_to_pos(
     mut players: Query<(&mut Transform, &Position), Or<(With<Robot>, With<Player>)>>,
     tile_size: Res<TileSize>,
 ) {

@@ -71,7 +71,7 @@ fn main() {
         .add_system_set(
             SystemSet::on_update(AppState::Study)
                 .with_system(window_resize_listener)
-                .with_system(draw_player_position)
+                .with_system(draw_actor_to_pos)
                 .with_system(check_for_move)
                 .with_system(resolve_move),
         )
