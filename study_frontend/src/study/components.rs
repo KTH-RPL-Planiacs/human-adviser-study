@@ -1,5 +1,11 @@
 use bevy::prelude::*;
 
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum StudyState {
+    Idle,
+    Animation,
+}
+
 #[derive(Component)]
 pub struct Study;
 
@@ -9,7 +15,7 @@ pub struct Player;
 #[derive(Component)]
 pub struct Robot;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum NextMove {
     Idle,
     Up,
@@ -32,9 +38,18 @@ pub struct Position {
 }
 
 #[derive(Component, Debug, Copy, Clone)]
+pub struct NextPosition {
+    pub x: usize,
+    pub y: usize,
+}
+
+#[derive(Component, Debug, Copy, Clone)]
 pub enum TileType {
     Floor,
 }
 
 #[derive(Debug, Copy, Clone)]
 pub struct TileSize(pub f32);
+
+#[derive(Default)]
+pub struct AnimationTimer(pub Timer);
