@@ -150,7 +150,7 @@ pub fn resolve_move(
     mut study_state: ResMut<StudyState>,
     mut commands: Commands,
     mut anim_timer: ResMut<AnimationTimer>,
-    next_move: Option<Res<NextMove>>,
+    next_move: Option<ResMut<NextMove>>,
     mut state: ResMut<State<AppState>>,
     mut player: Query<(&Position, &mut NextPosition), (With<Player>, Without<Robot>)>,
     mut robot: Query<(&Position, &mut NextPosition), (With<Robot>, Without<Player>)>,
@@ -160,7 +160,7 @@ pub fn resolve_move(
         return;
     }
 
-    if let Some(human_move) = next_move {
+    if let Some(mut human_move) = next_move {
         // animation timer
         *study_state = StudyState::Animation;
         anim_timer.0.reset();
@@ -177,6 +177,10 @@ pub fn resolve_move(
             .get_single_mut()
             .expect("There should only be one player.");
         *next_pos_h = next_pos_from_move(cur_pos_h, *human_move);
+
+        if !is_move_legal(*human_move) {
+            *human_move = NextMove::Idle;
+        }
 
         // debug end game
         if *human_move == NextMove::Interact {
@@ -230,6 +234,10 @@ fn next_pos_from_move(cur_pos: &Position, next_move: NextMove) -> NextPosition {
 
 fn next_robot_move() -> NextMove {
     NextMove::Idle
+}
+
+fn is_move_legal(next_move: NextMove) -> bool {
+    true
 }
 
 pub fn draw_actor_to_pos(
