@@ -24,6 +24,7 @@ pub enum AppState {
 fn main() {
     App::new()
         .insert_resource(ImageSettings::default_nearest())
+        .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
             fit_canvas_to_parent: true,
             ..default()
@@ -35,16 +36,13 @@ fn main() {
                 .continue_to_state(AppState::JsonLoading)
                 .with_collection::<FontAssets>()
                 .with_collection::<MapAssets>()
-                .with_collection::<CharacterAssets>(),
+                .with_collection::<CharacterAssets>()
+                .with_collection::<BurgerAssets>(),
         )
         .add_state(AppState::AssetLoading)
         // json loading
-        .add_system_set(
-            SystemSet::on_enter(AppState::JsonLoading).with_system(setup_json),
-        )
-        .add_system_set(
-            SystemSet::on_update(AppState::JsonLoading).with_system(load_json),
-        )
+        .add_system_set(SystemSet::on_enter(AppState::JsonLoading).with_system(setup_json))
+        .add_system_set(SystemSet::on_update(AppState::JsonLoading).with_system(load_json))
         // start menu
         .add_system_set(SystemSet::on_enter(AppState::MenuStart).with_system(menu::start::setup_ui))
         .add_system_set(
@@ -59,10 +57,17 @@ fn main() {
             SystemSet::on_exit(AppState::MenuStart).with_system(menu::start::cleanup_ui),
         )
         // study
-        .add_system_set(SystemSet::on_enter(AppState::Study).with_system(setup_study))
+        .add_system_set(
+            SystemSet::on_enter(AppState::Study)
+                .with_system(setup_study)
+                .with_system(setup_tiles)
+                .with_system(setup_actors),
+        )
         .add_system_set(
             SystemSet::on_update(AppState::Study)
                 .with_system(window_resize_listener)
+                .with_system(resize_tiles)
+                .with_system(resize_actors)
                 .with_system(draw_actor_to_pos)
                 .with_system(check_for_move)
                 .with_system(resolve_move),

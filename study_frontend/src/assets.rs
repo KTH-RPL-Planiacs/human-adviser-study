@@ -37,6 +37,22 @@ pub struct CharacterAssets {
     pub robot: Handle<Image>,
 }
 
+#[derive(AssetCollection)]
+pub struct BurgerAssets {
+    #[asset(path = "sprites/burger_inactive.png")]
+    pub inactive: Handle<Image>,
+    #[asset(path = "sprites/burger_patty.png")]
+    pub patty: Handle<Image>,
+    #[asset(path = "sprites/burger_buns.png")]
+    pub buns: Handle<Image>,
+    #[asset(path = "sprites/burger_tomato.png")]
+    pub tomato: Handle<Image>,
+    #[asset(path = "sprites/burger_sauce.png")]
+    pub sauce: Handle<Image>,
+    #[asset(path = "sprites/burger_lettuce.png")]
+    pub lettuce: Handle<Image>,
+}
+
 #[derive(Deserialize, TypeUuid, Debug)]
 #[uuid = "413be529-bfeb-41b3-9db0-4b8b380a2c46"]
 pub struct TileData {
@@ -85,7 +101,6 @@ pub fn load_json(
     mut state: ResMut<State<AppState>>,
 ) {
     if let Some(tile_data) = tile_asset.remove(handle.id) {
-        info!("{:?}", tile_data);
         commands.insert_resource(tile_data);
         state
             .set(AppState::MenuStart)

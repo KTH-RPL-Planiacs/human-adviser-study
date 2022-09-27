@@ -15,6 +15,9 @@ pub struct Player;
 #[derive(Component)]
 pub struct Robot;
 
+#[derive(Component)]
+pub struct BurgerUi;
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum NextMove {
     Idle,
