@@ -1,8 +1,11 @@
+mod assets;
 mod menu;
 mod study;
 
+use assets::*;
 use bevy::{prelude::*, render::texture::ImageSettings};
 use bevy_asset_loader::prelude::*;
+use bevy_common_assets::json::JsonAssetPlugin;
 use menu::{
     end::send_study_data,
     start::{update_part_id, update_part_id_display, update_start_btn},
@@ -12,29 +15,10 @@ use study::systems::*;
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
     AssetLoading,
+    JsonLoading,
     MenuStart,
     Study,
     End,
-}
-
-#[derive(AssetCollection)]
-pub struct FontAssets {
-    #[asset(path = "fonts/FiraSans-Bold.ttf")]
-    pub default_font: Handle<Font>,
-}
-
-#[derive(AssetCollection)]
-pub struct MapAssets {
-    #[asset(path = "sprites/tile_floor.png")]
-    pub floor: Handle<Image>,
-}
-
-#[derive(AssetCollection)]
-pub struct CharacterAssets {
-    #[asset(path = "sprites/person.png")]
-    pub person: Handle<Image>,
-    #[asset(path = "sprites/robot.png")]
-    pub robot: Handle<Image>,
 }
 
 fn main() {
@@ -45,14 +29,22 @@ fn main() {
             ..default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(JsonAssetPlugin::<TileData>::new(&["json.tiles"]))
         .add_loading_state(
             LoadingState::new(AppState::AssetLoading)
-                .continue_to_state(AppState::MenuStart)
+                .continue_to_state(AppState::JsonLoading)
                 .with_collection::<FontAssets>()
                 .with_collection::<MapAssets>()
                 .with_collection::<CharacterAssets>(),
         )
         .add_state(AppState::AssetLoading)
+        // json loading
+        .add_system_set(
+            SystemSet::on_enter(AppState::JsonLoading).with_system(setup_json),
+        )
+        .add_system_set(
+            SystemSet::on_update(AppState::JsonLoading).with_system(load_json),
+        )
         // start menu
         .add_system_set(SystemSet::on_enter(AppState::MenuStart).with_system(menu::start::setup_ui))
         .add_system_set(

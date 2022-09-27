@@ -45,7 +45,13 @@ pub struct NextPosition {
 
 #[derive(Component, Debug, Copy, Clone)]
 pub enum TileType {
+    Default,
     Floor,
+    Buns,
+    Patty,
+    Lettuce,
+    Tomato,
+    Sauce,
 }
 
 #[derive(Debug, Copy, Clone)]

@@ -2,7 +2,10 @@ use bevy::{prelude::*, window::WindowResized};
 use study_shared_types::GameResults;
 
 use crate::{
-    menu::start::ParticipantId, study::components::*, AppState, CharacterAssets, MapAssets,
+    assets::{CharacterAssets, MapAssets, TileData},
+    menu::start::ParticipantId,
+    study::components::*,
+    AppState,
 };
 
 use super::{ANIM_DURATION, NUM_TILES, PADDING};
@@ -12,6 +15,7 @@ pub fn setup_study(
     tile_sprites: Res<MapAssets>,
     player_sprites: Res<CharacterAssets>,
     windows: Res<Windows>,
+    tile_data: Res<TileData>,
 ) {
     commands.insert_resource(StudyState::Idle);
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
@@ -33,9 +37,21 @@ pub fn setup_study(
         for y in 0..NUM_TILES {
             let pos_x: f32 = PADDING + tile_size * x as f32 - size_min * 0.5 + tile_size * 0.5;
             let pos_y: f32 = PADDING + tile_size * y as f32 - size_min * 0.5 + tile_size * 0.5;
+
+            let tile_type = tile_data.tile_by_coord(x, y);
+            let tile_texture = match tile_type {
+                TileType::Default => tile_sprites.default.clone(),
+                TileType::Floor => tile_sprites.floor.clone(),
+                TileType::Buns => tile_sprites.buns.clone(),
+                TileType::Patty => tile_sprites.patty.clone(),
+                TileType::Lettuce => tile_sprites.lettuce.clone(),
+                TileType::Tomato => tile_sprites.tomato.clone(),
+                TileType::Sauce => tile_sprites.sauce.clone(),
+            };
+
             commands
                 .spawn_bundle(SpriteBundle {
-                    texture: tile_sprites.floor.clone(),
+                    texture: tile_texture,
                     transform: Transform {
                         translation: Vec3::new(pos_x, pos_y, 0.),
                         //scale: Vec3::new(tile_size, tile_size, 1.),
@@ -47,7 +63,7 @@ pub fn setup_study(
                     },
                     ..default()
                 })
-                .insert(TileType::Floor)
+                .insert(tile_type)
                 .insert(Tile { x, y })
                 .insert(Study);
         }
