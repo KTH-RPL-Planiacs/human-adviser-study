@@ -26,7 +26,9 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
-            fit_canvas_to_parent: true,
+            //fit_canvas_to_parent: true,
+            height: 720.0,
+            width: 1280.0,
             ..default()
         })
         .add_plugins(DefaultPlugins)
@@ -37,7 +39,7 @@ fn main() {
                 .with_collection::<FontAssets>()
                 .with_collection::<MapAssets>()
                 .with_collection::<CharacterAssets>()
-                .with_collection::<BurgerAssets>(),
+                .with_collection::<BurgerUiAssets>(),
         )
         .add_state(AppState::AssetLoading)
         // json loading
@@ -59,6 +61,7 @@ fn main() {
         // study
         .add_system_set(
             SystemSet::on_enter(AppState::Study)
+                .with_system(setup_burger_ui)
                 .with_system(setup_study)
                 .with_system(setup_tiles)
                 .with_system(setup_actors),
@@ -66,6 +69,7 @@ fn main() {
         .add_system_set(
             SystemSet::on_update(AppState::Study)
                 .with_system(window_resize_listener)
+                .with_system(scale_burger_ui)
                 .with_system(resize_tiles)
                 .with_system(resize_actors)
                 .with_system(draw_actor_to_pos)

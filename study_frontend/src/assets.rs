@@ -38,7 +38,7 @@ pub struct CharacterAssets {
 }
 
 #[derive(AssetCollection)]
-pub struct BurgerAssets {
+pub struct BurgerUiAssets {
     #[asset(path = "sprites/burger_inactive.png")]
     pub inactive: Handle<Image>,
     #[asset(path = "sprites/burger_patty.png")]

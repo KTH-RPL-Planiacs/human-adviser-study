@@ -60,5 +60,11 @@ pub enum TileType {
 #[derive(Debug, Copy, Clone)]
 pub struct TileSize(pub f32);
 
+#[derive(Debug, Copy, Clone)]
+pub struct WindowSize {
+    pub width: f32,
+    pub height: f32,
+}
+
 #[derive(Default)]
 pub struct AnimationTimer(pub Timer);
