@@ -34,6 +34,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(JsonAssetPlugin::<TileData>::new(&["json.tiles"]))
         .add_plugin(JsonAssetPlugin::<Strategy>::new(&["json.strat"]))
+        .add_plugin(JsonAssetPlugin::<GameData>::new(&["json.game"]))
         .add_loading_state(
             LoadingState::new(AppState::AssetLoading)
                 .continue_to_state(AppState::JsonLoading)
@@ -49,6 +50,7 @@ fn main() {
             SystemSet::on_update(AppState::JsonLoading)
                 .with_system(load_tile_data)
                 .with_system(load_strat_data)
+                .with_system(load_game_data)
                 .with_system(finish_loading),
         )
         // start menu

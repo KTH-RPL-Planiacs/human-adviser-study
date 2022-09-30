@@ -54,7 +54,7 @@ pub struct BurgerUiAssets {
 }
 
 #[derive(Deserialize, TypeUuid, Debug)]
-#[uuid = "413be529-bfeb-41b3-9db0-4b8b380a2c46"]
+#[uuid = "67c1c60e-2072-469a-8129-a46c8d1f80f2"]
 pub struct TileData {
     pub floor: Vec<[usize; 2]>,
     pub patty: Vec<[usize; 2]>,
@@ -70,6 +70,39 @@ pub struct Strategy {
     pub strat: HashMap<String, String>,
     pub safe_edges: Vec<String>,
     pub fair_edges: Vec<String>,
+}
+
+#[derive(Deserialize, TypeUuid, Debug)]
+#[uuid = "16ec115f-0c6f-4513-a2b1-7b07fedb5314"]
+pub struct GameData {
+    pub directed: bool,
+    pub multigraph: bool,
+    pub graph: Graph,
+    pub nodes: Vec<NodeData>,
+}
+
+pub type GraphState = (String, String, String, u8);
+#[derive(Deserialize, Debug)]
+pub struct Graph {
+    pub acc: Vec<GraphState>,
+    pub init: GraphState,
+    pub ap_r: Vec<String>,
+    pub ap_h: Vec<String>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct NodeData {
+    pub player: u8,
+    pub ap: Option<String>,
+    pub id: GraphState,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct LinkData {
+    pub act: Option<String>,
+    pub prob: Option<f32>,
+    pub source: GraphState,
+    pub target: GraphState,
 }
 
 impl TileData {
@@ -102,6 +135,8 @@ pub fn setup_json(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(tile_handle);
     let strat_handle: Handle<Strategy> = asset_server.load("data/strat.json.strat");
     commands.insert_resource(strat_handle);
+    let game_handle: Handle<GameData> = asset_server.load("data/game.json.game");
+    commands.insert_resource(game_handle);
 }
 
 pub fn load_tile_data(
@@ -124,12 +159,24 @@ pub fn load_strat_data(
     }
 }
 
+pub fn load_game_data(
+    mut commands: Commands,
+    game_handle: Res<Handle<GameData>>,
+    mut game_asset: ResMut<Assets<GameData>>,
+) {
+    if let Some(game_data) = game_asset.remove(game_handle.id) {
+        info!("{:?}", game_data);
+        commands.insert_resource(game_data);
+    }
+}
+
 pub fn finish_loading(
     mut state: ResMut<State<AppState>>,
     tile_data: Option<Res<TileData>>,
     strategy: Option<Res<Strategy>>,
+    synth_game: Option<Res<GameData>>,
 ) {
-    if tile_data.is_some() && strategy.is_some() {
+    if tile_data.is_some() && strategy.is_some() && synth_game.is_some() {
         state
             .set(AppState::MenuStart)
             .expect("Could not change state.");
