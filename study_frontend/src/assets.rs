@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use bevy::reflect::TypeUuid;
+use bevy::{prelude::*, utils::HashMap};
 use bevy_asset_loader::prelude::*;
 use serde::Deserialize;
 
@@ -64,6 +64,14 @@ pub struct TileData {
     pub lettuce: Vec<[usize; 2]>,
 }
 
+#[derive(Deserialize, TypeUuid, Debug)]
+#[uuid = "58aa3298-015d-421d-b7d6-fa62a441f7f5"]
+pub struct Strategy {
+    pub strat: HashMap<String, String>,
+    pub safe_edges: Vec<String>,
+    pub fair_edges: Vec<String>,
+}
+
 impl TileData {
     pub fn tile_by_coord(&self, x: usize, y: usize) -> TileType {
         if self.floor.contains(&[x, y]) {
@@ -90,18 +98,38 @@ impl TileData {
 }
 
 pub fn setup_json(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let handle: Handle<TileData> = asset_server.load("data/tiles.json.tiles");
-    commands.insert_resource(handle);
+    let tile_handle: Handle<TileData> = asset_server.load("data/tiles.json.tiles");
+    commands.insert_resource(tile_handle);
+    let strat_handle: Handle<Strategy> = asset_server.load("data/strat.json.strat");
+    commands.insert_resource(strat_handle);
 }
 
-pub fn load_json(
+pub fn load_tile_data(
     mut commands: Commands,
-    handle: Res<Handle<TileData>>,
+    tile_handle: Res<Handle<TileData>>,
     mut tile_asset: ResMut<Assets<TileData>>,
-    mut state: ResMut<State<AppState>>,
 ) {
-    if let Some(tile_data) = tile_asset.remove(handle.id) {
+    if let Some(tile_data) = tile_asset.remove(tile_handle.id) {
         commands.insert_resource(tile_data);
+    }
+}
+
+pub fn load_strat_data(
+    mut commands: Commands,
+    strat_handle: Res<Handle<Strategy>>,
+    mut strat_asset: ResMut<Assets<Strategy>>,
+) {
+    if let Some(strat_data) = strat_asset.remove(strat_handle.id) {
+        commands.insert_resource(strat_data);
+    }
+}
+
+pub fn finish_loading(
+    mut state: ResMut<State<AppState>>,
+    tile_data: Option<Res<TileData>>,
+    strategy: Option<Res<Strategy>>,
+) {
+    if tile_data.is_some() && strategy.is_some() {
         state
             .set(AppState::MenuStart)
             .expect("Could not change state.");
