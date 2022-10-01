@@ -3,6 +3,7 @@ use bevy::{prelude::*, utils::HashMap};
 use bevy_asset_loader::prelude::*;
 use serde::Deserialize;
 
+use crate::study::components::NextMove;
 use crate::{study::components::TileType, AppState};
 
 #[derive(AssetCollection)]
@@ -72,16 +73,88 @@ pub struct Strategy {
     pub fair_edges: Vec<String>,
 }
 
+impl Strategy {
+    pub fn next_move(&self, state: &GraphState) -> Option<NextMove> {
+        let state_string: String = format!(
+            "(\'{}\', \'{}\', \'{}\', {})",
+            state.0, state.1, state.2, state.3
+        );
+
+        if let Some(move_string) = self.strat.get(&state_string) {
+            match move_string.as_str() {
+                "idle" => Some(NextMove::Idle),
+                "up" => Some(NextMove::Up),
+                "left" => Some(NextMove::Left),
+                "right" => Some(NextMove::Right),
+                "down" => Some(NextMove::Down),
+                "interact" => Some(NextMove::Interact),
+                _ => {
+                    error!(
+                        "Invalid move found in strategy!, state: {}, move: {}",
+                        state_string, move_string
+                    );
+                    None
+                }
+            }
+        } else {
+            error!("No move found in strategy!, state: {}", state_string);
+            None
+        }
+    }
+}
+
+pub type GraphState = (String, String, String, u8);
+
 #[derive(Deserialize, TypeUuid, Debug)]
 #[uuid = "16ec115f-0c6f-4513-a2b1-7b07fedb5314"]
-pub struct GameData {
+pub struct SynthGame {
     pub directed: bool,
     pub multigraph: bool,
     pub graph: Graph,
     pub nodes: Vec<NodeData>,
+    pub links: Vec<LinkData>,
 }
 
-pub type GraphState = (String, String, String, u8);
+impl SynthGame {
+    pub fn is_accepting(&self, state: &GraphState) -> bool {
+        self.graph.acc.contains(state)
+    }
+
+    pub fn next_state(&self, cur_state: &GraphState, next_move: NextMove) -> GraphState {
+        for edge in &self.links {
+            if edge.source == *cur_state && edge.act() == next_move {
+                return edge.target.clone();
+            }
+        }
+
+        panic!("No next state found!");
+    }
+
+    // hacky hacky TODO: improve this into a method that probabilistically moves forward.
+    // For now this works since we assume only one outgoing edge (prob = 1.0).
+    pub fn skip_prob_state(&self, prob_state: &GraphState) -> GraphState {
+        for edge in &self.links {
+            if edge.source == *prob_state {
+                return edge.target.clone();
+            }
+        }
+
+        panic!("No next state found!");
+    }
+
+    pub fn valid_moves(&self, cur_state: &GraphState) -> Vec<NextMove> {
+        let mut valid_moves = Vec::new();
+
+        for edge in &self.links {
+            if edge.source == *cur_state {
+                valid_moves.push(edge.act())
+            }
+        }
+
+        valid_moves
+    }
+}
+
 #[derive(Deserialize, Debug)]
 pub struct Graph {
     pub acc: Vec<GraphState>,
@@ -103,6 +176,20 @@ pub struct LinkData {
     pub prob: Option<f32>,
     pub source: GraphState,
     pub target: GraphState,
+}
+
+impl LinkData {
+    pub fn act(&self) -> NextMove {
+        match self.act.as_ref().expect("Edge without act label!").as_str() {
+            "idle" => NextMove::Idle,
+            "up" => NextMove::Up,
+            "down" => NextMove::Down,
+            "left" => NextMove::Left,
+            "right" => NextMove::Right,
+            "interact" => NextMove::Interact,
+            _ => panic!("Edge with invalid act label!"),
+        }
+    }
 }
 
 impl TileData {
@@ -135,7 +222,7 @@ pub fn setup_json(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.insert_resource(tile_handle);
     let strat_handle: Handle<Strategy> = asset_server.load("data/strat.json.strat");
     commands.insert_resource(strat_handle);
-    let game_handle: Handle<GameData> = asset_server.load("data/game.json.game");
+    let game_handle: Handle<SynthGame> = asset_server.load("data/game.json.game");
     commands.insert_resource(game_handle);
 }
 
@@ -159,13 +246,15 @@ pub fn load_strat_data(
     }
 }
 
+pub struct SynthGameState(pub GraphState);
+
 pub fn load_game_data(
     mut commands: Commands,
-    game_handle: Res<Handle<GameData>>,
-    mut game_asset: ResMut<Assets<GameData>>,
+    game_handle: Res<Handle<SynthGame>>,
+    mut game_asset: ResMut<Assets<SynthGame>>,
 ) {
     if let Some(game_data) = game_asset.remove(game_handle.id) {
-        info!("{:?}", game_data);
+        commands.insert_resource(SynthGameState(game_data.graph.init.clone()));
         commands.insert_resource(game_data);
     }
 }
@@ -174,7 +263,7 @@ pub fn finish_loading(
     mut state: ResMut<State<AppState>>,
     tile_data: Option<Res<TileData>>,
     strategy: Option<Res<Strategy>>,
-    synth_game: Option<Res<GameData>>,
+    synth_game: Option<Res<SynthGame>>,
 ) {
     if tile_data.is_some() && strategy.is_some() && synth_game.is_some() {
         state

@@ -34,7 +34,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(JsonAssetPlugin::<TileData>::new(&["json.tiles"]))
         .add_plugin(JsonAssetPlugin::<Strategy>::new(&["json.strat"]))
-        .add_plugin(JsonAssetPlugin::<GameData>::new(&["json.game"]))
+        .add_plugin(JsonAssetPlugin::<SynthGame>::new(&["json.game"]))
         .add_loading_state(
             LoadingState::new(AppState::AssetLoading)
                 .continue_to_state(AppState::JsonLoading)
@@ -82,7 +82,7 @@ fn main() {
                 .with_system(resize_actors)
                 .with_system(draw_actor_to_pos)
                 .with_system(check_for_move)
-                .with_system(resolve_move),
+                .with_system(resolve_moves),
         )
         .add_system_set(SystemSet::on_exit(AppState::Study).with_system(cleanup_study))
         // end

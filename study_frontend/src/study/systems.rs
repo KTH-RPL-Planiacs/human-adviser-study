@@ -2,10 +2,12 @@ use bevy::{prelude::*, window::WindowResized};
 use study_shared_types::GameResults;
 
 use crate::{
-    assets::{BurgerUiAssets, CharacterAssets, MapAssets, TileData},
+    assets::{
+        BurgerUiAssets, CharacterAssets, GraphState, MapAssets, Strategy, SynthGame,
+        SynthGameState, TileData,
+    },
     menu::start::ParticipantId,
     study::components::*,
-    AppState,
 };
 
 use super::{ANIM_DURATION, BURGER_UI_WIDTH, MENU_Z, NUM_TILES, PADDING};
@@ -67,8 +69,8 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
             transform: Transform::from_xyz(0., 0., 1.),
             ..default()
         })
-        .insert(Position { x: 2, y: 0 })
-        .insert(NextPosition { x: 2, y: 0 })
+        .insert(Position { x: 2, y: 4 })
+        .insert(NextPosition { x: 2, y: 4 })
         .insert(Player)
         .insert(Study);
 
@@ -79,8 +81,8 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
             transform: Transform::from_xyz(0., 0., 1.),
             ..default()
         })
-        .insert(Position { x: 2, y: 4 })
-        .insert(NextPosition { x: 2, y: 4 })
+        .insert(Position { x: 2, y: 0 })
+        .insert(NextPosition { x: 2, y: 0 })
         .insert(Robot)
         .insert(Study);
 }
@@ -184,14 +186,16 @@ pub fn check_for_move(mut commands: Commands, keyboard_input: Res<Input<KeyCode>
     }
 }
 
-pub fn resolve_move(
-    mut study_state: ResMut<StudyState>,
+pub fn resolve_moves(
     mut commands: Commands,
-    mut anim_timer: ResMut<AnimationTimer>,
-    next_move: Option<ResMut<NextMove>>,
-    mut state: ResMut<State<AppState>>,
     mut player: Query<(&Position, &mut NextPosition), (With<Player>, Without<Robot>)>,
     mut robot: Query<(&Position, &mut NextPosition), (With<Robot>, Without<Player>)>,
+    mut study_state: ResMut<StudyState>,
+    mut anim_timer: ResMut<AnimationTimer>,
+    mut synth_game_state: ResMut<SynthGameState>,
+    strategy: Res<Strategy>,
+    synth_game: Res<SynthGame>,
+    next_move: Option<ResMut<NextMove>>,
 ) {
     // we only apply the next move if the simulation is ready
     if *study_state != StudyState::Idle {
@@ -199,33 +203,46 @@ pub fn resolve_move(
     }
 
     if let Some(mut human_move) = next_move {
-        // animation timer
+        commands.remove_resource::<NextMove>();
+
+        // reset animation timer
         *study_state = StudyState::Animation;
         anim_timer.0.reset();
 
-        // robot move
+        // find robot move from strategy
         let (cur_pos_r, mut next_pos_r) = robot
             .get_single_mut()
             .expect("There should only be one player.");
-        let robot_move = next_robot_move();
-        *next_pos_r = next_pos_from_move(cur_pos_r, robot_move);
+
+        let robot_move = if let Some(next_move) = strategy.next_move(&synth_game_state.0) {
+            next_move
+        } else {
+            let valid_moves = synth_game.valid_moves(&synth_game_state.0);
+            valid_moves[0]
+        };
+
+        // get next state from game
+        let prob_state: GraphState = synth_game.next_state(&synth_game_state.0, robot_move);
+        let human_state: GraphState = synth_game.skip_prob_state(&prob_state);
 
         // human move
         let (cur_pos_h, mut next_pos_h) = player
             .get_single_mut()
             .expect("There should only be one player.");
+
+        // make sure the human move is valid, if not, just pick the first valid one
+        let valid_moves = synth_game.valid_moves(&human_state);
+        if !valid_moves.contains(&human_move) {
+            *human_move = valid_moves[0];
+        }
+
+        // get next state from game
+        let prob_state: GraphState = synth_game.next_state(&human_state, *human_move);
+        synth_game_state.0 = synth_game.skip_prob_state(&prob_state);
+
+        // update grid positions for position interpolation
+        *next_pos_r = next_pos_from_move(cur_pos_r, robot_move);
         *next_pos_h = next_pos_from_move(cur_pos_h, *human_move);
-
-        if !is_move_legal(*human_move) {
-            *human_move = NextMove::Idle;
-        }
-
-        // debug end game
-        if *human_move == NextMove::Interact {
-            state.set(AppState::End).expect("Could not change state.");
-        }
-
-        commands.remove_resource::<NextMove>();
     }
 }
 
@@ -268,14 +285,6 @@ fn next_pos_from_move(cur_pos: &Position, next_move: NextMove) -> NextPosition {
             };
         }
     }
-}
-
-fn next_robot_move() -> NextMove {
-    NextMove::Idle
-}
-
-fn is_move_legal(next_move: NextMove) -> bool {
-    true
 }
 
 pub fn draw_actor_to_pos(
