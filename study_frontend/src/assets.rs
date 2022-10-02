@@ -13,6 +13,12 @@ pub struct FontAssets {
 }
 
 #[derive(AssetCollection)]
+pub struct MenuAssets {
+    #[asset(path = "sprites/menu_sidebar.png")]
+    pub sidebar_bg: Handle<Image>,
+}
+
+#[derive(AssetCollection)]
 pub struct MapAssets {
     #[asset(path = "sprites/tile_default.png")]
     pub default: Handle<Image>,

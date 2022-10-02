@@ -3,14 +3,14 @@ use study_shared_types::GameResults;
 
 use crate::{
     assets::{
-        BurgerUiAssets, CharacterAssets, GraphState, MapAssets, Strategy, SynthGame,
+        BurgerUiAssets, CharacterAssets, GraphState, MapAssets, MenuAssets, Strategy, SynthGame,
         SynthGameState, TileData,
     },
     menu::start::ParticipantId,
     study::components::*,
 };
 
-use super::{ANIM_DURATION, BURGER_UI_WIDTH, MENU_Z, NUM_TILES, PADDING};
+use super::{ANIM_DURATION, MENU_Z, NUM_TILES, PADDING, SIDEBAR_WIDTH};
 
 /*
 *   SETUP
@@ -87,14 +87,25 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
         .insert(Study);
 }
 
-pub fn setup_burger_ui(mut commands: Commands, burger_sprites: Res<BurgerUiAssets>) {
+pub fn setup_burger_ui(mut commands: Commands, menu_sprites: Res<MenuAssets>) {
     commands
         .spawn_bundle(SpriteBundle {
-            texture: burger_sprites.inactive.clone(),
+            texture: menu_sprites.sidebar_bg.clone(),
             ..default()
         })
         .insert(Study)
         .insert(BurgerUi)
+        .add_children(|parent| {});
+}
+
+pub fn setup_adviser_ui(mut commands: Commands, menu_sprites: Res<MenuAssets>) {
+    commands
+        .spawn_bundle(SpriteBundle {
+            texture: menu_sprites.sidebar_bg.clone(),
+            ..default()
+        })
+        .insert(Study)
+        .insert(AdviserUi)
         .add_children(|parent| {});
 }
 
@@ -118,14 +129,26 @@ pub fn window_resize_listener(
 }
 
 pub fn scale_burger_ui(
-    mut burger_ui: Query<(&mut Transform, &mut Sprite), With<BurgerUi>>,
+    mut burger_ui: Query<(&mut Transform, &mut Sprite), (With<BurgerUi>, Without<AdviserUi>)>,
     window_size: Res<WindowSize>,
 ) {
     if window_size.is_changed() {
         let (mut transf, mut sprite) = burger_ui.single_mut();
-        let x_pos = window_size.width * -0.5 + BURGER_UI_WIDTH * 0.5;
+        let x_pos = window_size.width * -0.5 + SIDEBAR_WIDTH * 0.5;
         transf.translation = Vec3::new(x_pos, 0., MENU_Z);
-        sprite.custom_size = Some(Vec2::new(BURGER_UI_WIDTH, window_size.height));
+        sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
+    }
+}
+
+pub fn scale_adviser_ui(
+    mut adviser_ui: Query<(&mut Transform, &mut Sprite), (With<AdviserUi>, Without<BurgerUi>)>,
+    window_size: Res<WindowSize>,
+) {
+    if window_size.is_changed() {
+        let (mut transf, mut sprite) = adviser_ui.single_mut();
+        let x_pos = window_size.width * 0.5 - SIDEBAR_WIDTH * 0.5;
+        transf.translation = Vec3::new(x_pos, 0., MENU_Z);
+        sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
     }
 }
 

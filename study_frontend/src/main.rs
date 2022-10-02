@@ -40,6 +40,7 @@ fn main() {
                 .continue_to_state(AppState::JsonLoading)
                 .with_collection::<FontAssets>()
                 .with_collection::<MapAssets>()
+                .with_collection::<MenuAssets>()
                 .with_collection::<CharacterAssets>()
                 .with_collection::<BurgerUiAssets>(),
         )
@@ -70,6 +71,7 @@ fn main() {
         .add_system_set(
             SystemSet::on_enter(AppState::Study)
                 .with_system(setup_burger_ui)
+                .with_system(setup_adviser_ui)
                 .with_system(setup_study)
                 .with_system(setup_tiles)
                 .with_system(setup_actors),
@@ -78,6 +80,7 @@ fn main() {
             SystemSet::on_update(AppState::Study)
                 .with_system(window_resize_listener)
                 .with_system(scale_burger_ui)
+                .with_system(scale_adviser_ui)
                 .with_system(resize_tiles)
                 .with_system(resize_actors)
                 .with_system(draw_actor_to_pos)

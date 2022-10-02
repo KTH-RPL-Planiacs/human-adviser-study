@@ -18,6 +18,9 @@ pub struct Robot;
 #[derive(Component)]
 pub struct BurgerUi;
 
+#[derive(Component)]
+pub struct AdviserUi;
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum NextMove {
     Idle,
