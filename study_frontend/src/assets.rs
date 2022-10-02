@@ -94,16 +94,9 @@ impl Strategy {
                 "right" => Some(NextMove::Right),
                 "down" => Some(NextMove::Down),
                 "interact" => Some(NextMove::Interact),
-                _ => {
-                    error!(
-                        "Invalid move found in strategy!, state: {}, move: {}",
-                        state_string, move_string
-                    );
-                    None
-                }
+                _ => None,
             }
         } else {
-            error!("No move found in strategy!, state: {}", state_string);
             None
         }
     }

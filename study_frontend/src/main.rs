@@ -10,7 +10,7 @@ use menu::{
     end::send_study_data,
     start::{update_part_id, update_part_id_display, update_start_btn},
 };
-use study::systems::*;
+use study::{logic_systems::*, ui_systems::*};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
@@ -26,7 +26,6 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
-            //fit_canvas_to_parent: true,
             height: 720.0,
             width: 1280.0,
             ..default()
@@ -84,7 +83,8 @@ fn main() {
                 .with_system(resize_tiles)
                 .with_system(resize_actors)
                 .with_system(draw_actor_to_pos)
-                .with_system(check_for_move)
+                .with_system(prepare_human_move)
+                .with_system(prepare_robot_move)
                 .with_system(resolve_moves),
         )
         .add_system_set(SystemSet::on_exit(AppState::Study).with_system(cleanup_study))

@@ -31,6 +31,12 @@ pub enum NextMove {
     Interact,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct HumanNextMove(pub NextMove);
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct RobotNextMove(pub NextMove);
+
 #[derive(Component, Debug, Copy, Clone)]
 pub struct Tile {
     pub x: usize,
@@ -71,3 +77,13 @@ pub struct WindowSize {
 
 #[derive(Default)]
 pub struct AnimationTimer(pub Timer);
+
+#[derive(Default, Debug, Copy, Clone)]
+pub struct BurgerStatus {
+    pub assembled: u32,
+    pub buns: bool,
+    pub patty: bool,
+    pub lettuce: bool,
+    pub tomato: bool,
+    pub sauce: bool,
+}
