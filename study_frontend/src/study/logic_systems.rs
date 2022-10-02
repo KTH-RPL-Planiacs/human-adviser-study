@@ -9,7 +9,7 @@ use crate::{
     study::components::*,
 };
 
-use super::{ANIM_DURATION, NUM_TILES, PADDING};
+use super::*;
 
 /*
 *   SETUP
@@ -18,7 +18,7 @@ use super::{ANIM_DURATION, NUM_TILES, PADDING};
 pub fn setup_study(mut commands: Commands, windows: Res<Windows>) {
     commands.insert_resource(StudyState::Idle);
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
-    commands.insert_resource(BurgerStatus::default());
+    commands.insert_resource(BurgerProgress::default());
 
     // 2d camera
     commands
@@ -169,6 +169,7 @@ pub fn resolve_moves(
     mut study_state: ResMut<StudyState>,
     mut anim_timer: ResMut<AnimationTimer>,
     mut synth_game_state: ResMut<SynthGameState>,
+    mut burger_progress: ResMut<BurgerProgress>,
     synth_game: Res<SynthGame>,
     next_move_r: Option<ResMut<RobotNextMove>>,
     next_move_h: Option<ResMut<HumanNextMove>>,
@@ -187,10 +188,23 @@ pub fn resolve_moves(
             *study_state = StudyState::Animation;
             anim_timer.0.reset();
 
+            // fetch current and next positions
+            let (cur_pos_r, mut next_pos_r) = robot
+                .get_single_mut()
+                .expect("There should only be one robot.");
+            let (cur_pos_h, mut next_pos_h) = player
+                .get_single_mut()
+                .expect("There should only be one human.");
+
             // make sure the human move is valid, if not, just pick the first valid one
             let valid_moves = synth_game.valid_moves(&synth_game_state.0);
             if !valid_moves.contains(&human_move.0) {
                 human_move.0 = valid_moves[0];
+            }
+
+            // if human move is interact, we change burger progress
+            if human_move.0 == NextMove::Interact {
+                update_burger_status(&mut burger_progress, cur_pos_h);
             }
 
             // get next state from game
@@ -198,17 +212,35 @@ pub fn resolve_moves(
             synth_game_state.0 = synth_game.skip_prob_state(&prob_state);
 
             // update grid positions for position interpolation
-            let (cur_pos_r, mut next_pos_r) = robot
-                .get_single_mut()
-                .expect("There should only be one robot.");
-
-            let (cur_pos_h, mut next_pos_h) = player
-                .get_single_mut()
-                .expect("There should only be one human.");
-
             *next_pos_r = next_pos_from_move(cur_pos_r, robot_move.0);
             *next_pos_h = next_pos_from_move(cur_pos_h, human_move.0);
         }
+    }
+}
+
+fn update_burger_status(burger_progress: &mut BurgerProgress, cur_pos: &Position) {
+    if cur_pos.x == DELIVERY_POS_H.0 && cur_pos.y == DELIVERY_POS_H.1 {
+        burger_progress.make_burger();
+    }
+
+    if cur_pos.x == PATTY_POS_H.0 && cur_pos.y == PATTY_POS_H.1 {
+        burger_progress.patty = true;
+    }
+
+    if cur_pos.x == BUNS_POS_H.0 && cur_pos.y == BUNS_POS_H.1 {
+        burger_progress.buns = true;
+    }
+
+    if cur_pos.x == LETTUCE_POS_H.0 && cur_pos.y == LETTUCE_POS_H.1 {
+        burger_progress.lettuce = true;
+    }
+
+    if cur_pos.x == TOMATO_POS_H.0 && cur_pos.y == TOMATO_POS_H.1 {
+        burger_progress.tomato = true;
+    }
+
+    if cur_pos.x == SAUCE_POS_H.0 && cur_pos.y == SAUCE_POS_H.1 {
+        burger_progress.sauce = true;
     }
 }
 

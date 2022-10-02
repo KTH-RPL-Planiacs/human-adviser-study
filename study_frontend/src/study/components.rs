@@ -79,11 +79,29 @@ pub struct WindowSize {
 pub struct AnimationTimer(pub Timer);
 
 #[derive(Default, Debug, Copy, Clone)]
-pub struct BurgerStatus {
+pub struct BurgerProgress {
     pub assembled: u32,
     pub buns: bool,
     pub patty: bool,
     pub lettuce: bool,
     pub tomato: bool,
     pub sauce: bool,
+}
+
+impl BurgerProgress {
+    fn ready(&self) -> bool {
+        self.buns && self.patty && self.lettuce && self.tomato && self.sauce
+    }
+
+    pub fn make_burger(&mut self) {
+        if self.ready() {
+            self.assembled += 1;
+            self.buns = false;
+            self.patty = false;
+            self.lettuce = false;
+            self.tomato = false;
+            self.sauce = false;
+            info!("MADE BURGER");
+        }
+    }
 }
