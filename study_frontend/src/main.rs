@@ -26,8 +26,8 @@ fn main() {
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(Color::BLACK))
         .insert_resource(WindowDescriptor {
-            height: 720.0,
-            width: 1280.0,
+            height: 768.0,
+            width: 1366.0,
             ..default()
         })
         .add_plugins(DefaultPlugins)

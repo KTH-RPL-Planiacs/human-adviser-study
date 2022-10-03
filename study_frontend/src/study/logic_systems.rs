@@ -179,43 +179,56 @@ pub fn resolve_moves(
         return;
     }
 
-    if let Some(mut human_move) = next_move_h {
-        if let Some(robot_move) = next_move_r {
-            commands.remove_resource::<HumanNextMove>();
-            commands.remove_resource::<RobotNextMove>();
+    let robot_move = if let Some(m) = next_move_r {
+        m.0
+    } else {
+        return;
+    };
 
-            // reset animation timer
-            *study_state = StudyState::Animation;
-            anim_timer.0.reset();
-
-            // fetch current and next positions
-            let (cur_pos_r, mut next_pos_r) = robot
-                .get_single_mut()
-                .expect("There should only be one robot.");
-            let (cur_pos_h, mut next_pos_h) = player
-                .get_single_mut()
-                .expect("There should only be one human.");
-
-            // make sure the human move is valid, if not, just pick the first valid one
-            let valid_moves = synth_game.valid_moves(&synth_game_state.0);
-            if !valid_moves.contains(&human_move.0) {
-                human_move.0 = valid_moves[0];
-            }
-
-            // if human move is interact, we change burger progress
-            if human_move.0 == NextMove::Interact {
-                update_burger_status(&mut burger_progress, cur_pos_h);
-            }
-
-            // get next state from game
-            let prob_state: GraphState = synth_game.next_state(&synth_game_state.0, human_move.0);
-            synth_game_state.0 = synth_game.skip_prob_state(&prob_state);
-
-            // update grid positions for position interpolation
-            *next_pos_r = next_pos_from_move(cur_pos_r, robot_move.0);
-            *next_pos_h = next_pos_from_move(cur_pos_h, human_move.0);
+    let valid_moves = synth_game.valid_moves(&synth_game_state.0);
+    let human_move = if let Some(m) = next_move_h {
+        // make sure the human move is valid, if not, just pick the first valid one
+        if valid_moves.contains(&m.0) {
+            m.0
+        } else {
+            valid_moves[0]
         }
+    } else if valid_moves.len() == 1 && valid_moves[0] == NextMove::Interact {
+        // if the only option is to interact, we queue the move
+        NextMove::Interact
+    } else {
+        return;
+    };
+
+    commands.remove_resource::<HumanNextMove>();
+    commands.remove_resource::<RobotNextMove>();
+
+    // reset animation timer
+    *study_state = StudyState::Animation;
+    anim_timer.0.reset();
+
+    info!("step");
+
+    // fetch current and next positions
+    let (cur_pos_r, mut next_pos_r) = robot
+        .get_single_mut()
+        .expect("There should only be one robot.");
+    let (cur_pos_h, mut next_pos_h) = player
+        .get_single_mut()
+        .expect("There should only be one human.");
+
+    // if human move is interact, we change burger progress
+    if human_move == NextMove::Interact {
+        update_burger_status(&mut burger_progress, cur_pos_h);
     }
+
+    // get next state from game
+    let prob_state: GraphState = synth_game.next_state(&synth_game_state.0, human_move);
+    synth_game_state.0 = synth_game.skip_prob_state(&prob_state);
+
+    // update grid positions for position interpolation
+    *next_pos_r = next_pos_from_move(cur_pos_r, robot_move);
+    *next_pos_h = next_pos_from_move(cur_pos_h, human_move);
 }
 
 fn update_burger_status(burger_progress: &mut BurgerProgress, cur_pos: &Position) {
