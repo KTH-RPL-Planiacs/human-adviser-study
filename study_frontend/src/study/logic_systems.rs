@@ -207,8 +207,6 @@ pub fn resolve_moves(
     *study_state = StudyState::Animation;
     anim_timer.0.reset();
 
-    info!("step");
-
     // fetch current and next positions
     let (cur_pos_r, mut next_pos_r) = robot
         .get_single_mut()
