@@ -193,9 +193,9 @@ pub fn resolve_moves(
         } else {
             valid_moves[0]
         }
-    } else if valid_moves.len() == 1 && valid_moves[0] == NextMove::Interact {
+    } else if valid_moves.len() == 1 {
         // if the only option is to interact, we queue the move
-        NextMove::Interact
+        valid_moves[0]
     } else {
         return;
     };
