@@ -4,7 +4,11 @@ use crate::{assets::*, study::components::*};
 
 use super::*;
 
-pub fn setup_burger_ui(mut commands: Commands, menu_sprites: Res<MenuAssets>) {
+pub fn setup_burger_ui(
+    mut commands: Commands,
+    menu_sprites: Res<MenuAssets>,
+    burger_components: Res<BurgerUiAssets>,
+) {
     commands
         .spawn_bundle(SpriteBundle {
             texture: menu_sprites.sidebar_bg.clone(),
@@ -12,7 +16,38 @@ pub fn setup_burger_ui(mut commands: Commands, menu_sprites: Res<MenuAssets>) {
         })
         .insert(Study)
         .insert(BurgerUi)
-        .add_children(|parent| {});
+        .add_children(|parent| {
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.buns_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Buns);
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.patty_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Patty);
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.lettuce_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Lettuce);
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.tomato_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Tomato);
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.sauce_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Sauce);
+        });
 }
 
 pub fn setup_adviser_ui(mut commands: Commands, menu_sprites: Res<MenuAssets>) {
@@ -22,14 +57,61 @@ pub fn setup_adviser_ui(mut commands: Commands, menu_sprites: Res<MenuAssets>) {
             ..default()
         })
         .insert(Study)
-        .insert(AdviserUi)
-        .add_children(|parent| {});
+        .insert(AdviserUi);
 }
 
-pub fn update_burger_ui() {}
+pub fn update_burger_ui(
+    mut burger_components: Query<(&mut Handle<Image>, &BurgerComponent)>,
+    progress: Res<BurgerProgress>,
+    assets: Res<BurgerUiAssets>,
+) {
+    for (mut tex, bc) in burger_components.iter_mut() {
+        match *bc {
+            BurgerComponent::Buns => {
+                *tex = if progress.buns {
+                    assets.buns.clone()
+                } else {
+                    assets.buns_inactive.clone()
+                };
+            }
+            BurgerComponent::Patty => {
+                *tex = if progress.patty {
+                    assets.patty.clone()
+                } else {
+                    assets.patty_inactive.clone()
+                };
+            }
+            BurgerComponent::Lettuce => {
+                *tex = if progress.lettuce {
+                    assets.lettuce.clone()
+                } else {
+                    assets.lettuce_inactive.clone()
+                };
+            }
+            BurgerComponent::Tomato => {
+                *tex = if progress.tomato {
+                    assets.tomato.clone()
+                } else {
+                    assets.tomato_inactive.clone()
+                };
+            }
+            BurgerComponent::Sauce => {
+                *tex = if progress.sauce {
+                    assets.sauce.clone()
+                } else {
+                    assets.sauce_inactive.clone()
+                };
+            }
+        }
+    }
+}
 
 pub fn scale_burger_ui(
-    mut burger_ui: Query<(&mut Transform, &mut Sprite), (With<BurgerUi>, Without<AdviserUi>)>,
+    mut burger_ui: Query<(&mut Transform, &mut Sprite), (With<BurgerUi>, Without<BurgerComponent>)>,
+    mut burger_components: Query<
+        (&mut Transform, &mut Sprite, &BurgerComponent),
+        (With<BurgerComponent>, Without<BurgerUi>),
+    >,
     window_size: Res<WindowSize>,
 ) {
     if window_size.is_changed() {
@@ -37,11 +119,35 @@ pub fn scale_burger_ui(
         let x_pos = window_size.width * -0.5 + SIDEBAR_WIDTH * 0.5;
         transf.translation = Vec3::new(x_pos, 0., MENU_Z);
         sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
+
+        let fifth = window_size.height * 0.2;
+        let window_upper = window_size.height * 0.5;
+        let component_scale = SIDEBAR_WIDTH * 0.5;
+        for (mut bc_transf, mut bc_sprite, bc) in burger_components.iter_mut() {
+            bc_sprite.custom_size = Some(Vec2::new(component_scale, component_scale));
+            match *bc {
+                BurgerComponent::Buns => {
+                    bc_transf.translation = Vec3::new(0., window_upper - 0.5 * fifth, MENU_Z + 1.0)
+                }
+                BurgerComponent::Patty => {
+                    bc_transf.translation = Vec3::new(0., window_upper - 1.5 * fifth, MENU_Z + 1.0)
+                }
+                BurgerComponent::Lettuce => {
+                    bc_transf.translation = Vec3::new(0., window_upper - 2.5 * fifth, MENU_Z + 1.0)
+                }
+                BurgerComponent::Tomato => {
+                    bc_transf.translation = Vec3::new(0., window_upper - 3.5 * fifth, MENU_Z + 1.0)
+                }
+                BurgerComponent::Sauce => {
+                    bc_transf.translation = Vec3::new(0., window_upper - 4.5 * fifth, MENU_Z + 1.0)
+                }
+            }
+        }
     }
 }
 
 pub fn scale_adviser_ui(
-    mut adviser_ui: Query<(&mut Transform, &mut Sprite), (With<AdviserUi>, Without<BurgerUi>)>,
+    mut adviser_ui: Query<(&mut Transform, &mut Sprite), With<AdviserUi>>,
     window_size: Res<WindowSize>,
 ) {
     if window_size.is_changed() {

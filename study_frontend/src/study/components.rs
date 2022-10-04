@@ -19,6 +19,15 @@ pub struct Robot;
 pub struct BurgerUi;
 
 #[derive(Component)]
+pub enum BurgerComponent {
+    Buns,
+    Patty,
+    Lettuce,
+    Tomato,
+    Sauce,
+}
+
+#[derive(Component)]
 pub struct AdviserUi;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]

@@ -79,6 +79,7 @@ fn main() {
             SystemSet::on_update(AppState::Study)
                 .with_system(window_resize_listener)
                 .with_system(scale_burger_ui)
+                .with_system(update_burger_ui)
                 .with_system(scale_adviser_ui)
                 .with_system(resize_tiles)
                 .with_system(resize_actors)
