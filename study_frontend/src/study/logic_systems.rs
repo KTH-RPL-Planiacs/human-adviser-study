@@ -236,7 +236,7 @@ pub fn resolve_moves(
     // interaction - robot
     if robot_move == NextMove::Interact {
         let interact_pos_r = interacting_pos(cur_pos_r);
-        if valid_moves.len() == 1 {
+        if matches!(*interact_r, Interact::In(_)) {
             *interact_r = Interact::Out(interact_pos_r);
         } else {
             *interact_r = Interact::In(interact_pos_r);
@@ -255,18 +255,38 @@ pub fn resolve_moves(
 }
 
 fn interacting_pos(cur_pos: &Position) -> Position {
-    if cur_pos.x == DELIVERY_POS_H.0 && cur_pos.y == DELIVERY_POS_H.1 {
+    if cur_pos.is_equal(DELIVERY_POS_H) || cur_pos.is_equal(DELIVERY_POS_R) {
         return Position {
             x: cur_pos.x - 1,
             y: cur_pos.y,
         };
     }
 
-    // TODO: actual position
-    return Position {
-        x: cur_pos.x,
-        y: cur_pos.y,
-    };
+    if cur_pos.is_equal(PATTY_POS_H)
+        || cur_pos.is_equal(BUNS_POS_H)
+        || cur_pos.is_equal(LETTUCE_POS_H)
+        || cur_pos.is_equal(TOMATO_POS_H)
+        || cur_pos.is_equal(SAUCE_POS_H)
+    {
+        return Position {
+            x: cur_pos.x,
+            y: cur_pos.y - 1,
+        };
+    }
+
+    if cur_pos.is_equal(PATTY_POS_R)
+        || cur_pos.is_equal(BUNS_POS_R)
+        || cur_pos.is_equal(LETTUCE_POS_R)
+        || cur_pos.is_equal(TOMATO_POS_R)
+        || cur_pos.is_equal(SAUCE_POS_R)
+    {
+        return Position {
+            x: cur_pos.x,
+            y: cur_pos.y + 1,
+        };
+    }
+
+    panic!("No interacting_pos found!");
 }
 
 fn update_burger_status(burger_progress: &mut BurgerProgress, cur_pos: &Position) {

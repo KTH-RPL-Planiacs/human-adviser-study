@@ -18,3 +18,10 @@ pub const LETTUCE_POS_H: (usize, usize) = (4, 3);
 pub const PATTY_POS_H: (usize, usize) = (0, 3);
 pub const TOMATO_POS_H: (usize, usize) = (2, 3);
 pub const SAUCE_POS_H: (usize, usize) = (3, 3);
+
+pub const DELIVERY_POS_R: (usize, usize) = (2, 0);
+pub const BUNS_POS_R: (usize, usize) = (1, 1);
+pub const LETTUCE_POS_R: (usize, usize) = (4, 1);
+pub const PATTY_POS_R: (usize, usize) = (0, 1);
+pub const TOMATO_POS_R: (usize, usize) = (2, 1);
+pub const SAUCE_POS_R: (usize, usize) = (3, 1);

@@ -1,3 +1,5 @@
+use std::usize;
+
 use bevy::prelude::*;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -63,6 +65,12 @@ pub struct Tile {
 pub struct Position {
     pub x: usize,
     pub y: usize,
+}
+
+impl Position {
+    pub fn is_equal(&self, coords: (usize, usize)) -> bool {
+        self.x == coords.0 && self.y == coords.1
+    }
 }
 
 #[derive(Component, Debug, Copy, Clone)]
