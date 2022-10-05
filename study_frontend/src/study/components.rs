@@ -27,6 +27,13 @@ pub enum BurgerComponent {
     Sauce,
 }
 
+#[derive(Component, Debug)]
+pub enum Interact {
+    No,
+    In(Position),
+    Out(Position),
+}
+
 #[derive(Component)]
 pub struct AdviserUi;
 

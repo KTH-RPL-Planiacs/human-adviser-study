@@ -207,7 +207,7 @@ pub fn draw_actor_to_pos(
     time: Res<Time>,
     mut anim_timer: ResMut<AnimationTimer>,
     mut players: Query<
-        (&mut Transform, &mut Position, &NextPosition),
+        (&mut Transform, &mut Position, &NextPosition, &Interact),
         Or<(With<Robot>, With<Player>)>,
     >,
     tile_size: Res<TileSize>,
@@ -218,14 +218,34 @@ pub fn draw_actor_to_pos(
     t = t * t * (3. - 2. * t);
 
     let win_size = 2. * PADDING + NUM_TILES as f32 * tile_size.0;
-    for (mut trans, mut pos, next_pos) in players.iter_mut() {
+    for (mut trans, mut pos, next_pos, interact) in players.iter_mut() {
         let cur_x: f32 = PADDING + tile_size.0 * pos.x as f32 - win_size * 0.5 + tile_size.0 * 0.5;
-        let cur_y: f32 = PADDING + tile_size.0 * pos.y as f32 - win_size * 0.5 + tile_size.0 * 0.5;
+        let mut cur_y: f32 =
+            PADDING + tile_size.0 * pos.y as f32 - win_size * 0.5 + tile_size.0 * 0.5;
 
         let next_x: f32 =
             PADDING + tile_size.0 * next_pos.x as f32 - win_size * 0.5 + tile_size.0 * 0.5;
-        let next_y: f32 =
+        let mut next_y: f32 =
             PADDING + tile_size.0 * next_pos.y as f32 - win_size * 0.5 + tile_size.0 * 0.5;
+
+        /*/ interact animation offset
+        match *interact {
+            Interact::No => (),
+            Interact::In => {
+                if next_pos.y > 2 {
+                    next_y -= tile_size.0 * 0.5;
+                } else {
+                    next_y += tile_size.0 * 0.5;
+                }
+            }
+            Interact::Out => {
+                if pos.y > 2 {
+                    cur_y -= tile_size.0 * 0.5;
+                } else {
+                    cur_y += tile_size.0 * 0.5;
+                }
+            }
+        }*/
 
         let x = (1. - t) * cur_x + t * next_x;
         let y = (1. - t) * cur_y + t * next_y;

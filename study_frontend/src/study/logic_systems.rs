@@ -79,6 +79,7 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
             x: HUMAN_START.0,
             y: HUMAN_START.1,
         })
+        .insert(Interact::No)
         .insert(Player)
         .insert(Study);
 
@@ -97,6 +98,7 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
             x: ROBOT_START.0,
             y: ROBOT_START.1,
         })
+        .insert(Interact::No)
         .insert(Robot)
         .insert(Study);
 }
@@ -164,8 +166,11 @@ pub fn prepare_human_move(mut commands: Commands, keyboard_input: Res<Input<KeyC
 
 pub fn resolve_moves(
     mut commands: Commands,
-    mut player: Query<(&Position, &mut NextPosition), (With<Player>, Without<Robot>)>,
-    mut robot: Query<(&Position, &mut NextPosition), (With<Robot>, Without<Player>)>,
+    mut player: Query<
+        (&Position, &mut Interact, &mut NextPosition),
+        (With<Player>, Without<Robot>),
+    >,
+    mut robot: Query<(&Position, &mut Interact, &mut NextPosition), (With<Robot>, Without<Player>)>,
     mut study_state: ResMut<StudyState>,
     mut anim_timer: ResMut<AnimationTimer>,
     mut synth_game_state: ResMut<SynthGameState>,
@@ -208,16 +213,36 @@ pub fn resolve_moves(
     anim_timer.0.reset();
 
     // fetch current and next positions
-    let (cur_pos_r, mut next_pos_r) = robot
+    let (cur_pos_r, mut interact_r, mut next_pos_r) = robot
         .get_single_mut()
         .expect("There should only be one robot.");
-    let (cur_pos_h, mut next_pos_h) = player
+    let (cur_pos_h, mut interact_h, mut next_pos_h) = player
         .get_single_mut()
         .expect("There should only be one human.");
 
-    // if human move is interact, we change burger progress
+    // interaction - human
     if human_move == NextMove::Interact {
-        update_burger_status(&mut burger_progress, cur_pos_h);
+        let interact_pos_h = interacting_pos(cur_pos_h);
+        if valid_moves.len() == 1 {
+            *interact_h = Interact::Out(interact_pos_h);
+            update_burger_status(&mut burger_progress, cur_pos_h);
+        } else {
+            *interact_h = Interact::In(interact_pos_h);
+        }
+    } else {
+        *interact_h = Interact::No;
+    }
+
+    // interaction - robot
+    if robot_move == NextMove::Interact {
+        let interact_pos_r = interacting_pos(cur_pos_r);
+        if valid_moves.len() == 1 {
+            *interact_r = Interact::Out(interact_pos_r);
+        } else {
+            *interact_r = Interact::In(interact_pos_r);
+        }
+    } else {
+        *interact_r = Interact::No;
     }
 
     // get next state from game
@@ -227,6 +252,21 @@ pub fn resolve_moves(
     // update grid positions for position interpolation
     *next_pos_r = next_pos_from_move(cur_pos_r, robot_move);
     *next_pos_h = next_pos_from_move(cur_pos_h, human_move);
+}
+
+fn interacting_pos(cur_pos: &Position) -> Position {
+    if cur_pos.x == DELIVERY_POS_H.0 && cur_pos.y == DELIVERY_POS_H.1 {
+        return Position {
+            x: cur_pos.x - 1,
+            y: cur_pos.y,
+        };
+    }
+
+    // TODO: actual position
+    return Position {
+        x: cur_pos.x,
+        y: cur_pos.y,
+    };
 }
 
 fn update_burger_status(burger_progress: &mut BurgerProgress, cur_pos: &Position) {
