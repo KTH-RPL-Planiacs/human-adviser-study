@@ -50,14 +50,35 @@ pub fn setup_burger_ui(
         });
 }
 
-pub fn setup_adviser_ui(mut commands: Commands, menu_sprites: Res<MenuAssets>) {
+pub fn setup_adviser_ui(
+    mut commands: Commands,
+    menu_sprites: Res<MenuAssets>,
+    fonts: Res<FontAssets>,
+) {
     commands
         .spawn_bundle(SpriteBundle {
             texture: menu_sprites.sidebar_bg.clone(),
             ..default()
         })
         .insert(Study)
-        .insert(AdviserUi);
+        .insert(AdviserUi)
+        .add_children(|parent| {
+            parent
+                .spawn_bundle(Text2dBundle {
+                    transform: Transform::from_xyz(0., 0., MENU_Z + 1.),
+                    text: Text::from_section(
+                        "TEST!",
+                        TextStyle {
+                            font: fonts.default_font.clone(),
+                            font_size: 100.0,
+                            color: Color::WHITE,
+                        },
+                    )
+                    .with_alignment(TextAlignment::CENTER),
+                    ..default()
+                })
+                .insert(TimerText);
+        });
 }
 
 pub fn update_burger_ui(
@@ -120,9 +141,9 @@ pub fn scale_burger_ui(
         transf.translation = Vec3::new(x_pos, 0., MENU_Z);
         sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
 
-        let fifth = window_size.height * 0.2;
-        let window_upper = window_size.height * 0.5;
-        let component_scale = SIDEBAR_WIDTH * 0.5;
+        let fifth = (window_size.height - SIDEBAR_PADDING) * 0.2;
+        let window_upper = (window_size.height - SIDEBAR_PADDING) * 0.5;
+        let component_scale = SIDEBAR_WIDTH * INGREDIENT_SCALE;
         for (mut bc_transf, mut bc_sprite, bc) in burger_components.iter_mut() {
             bc_sprite.custom_size = Some(Vec2::new(component_scale, component_scale));
             match *bc {
@@ -147,7 +168,8 @@ pub fn scale_burger_ui(
 }
 
 pub fn scale_adviser_ui(
-    mut adviser_ui: Query<(&mut Transform, &mut Sprite), With<AdviserUi>>,
+    mut adviser_ui: Query<(&mut Transform, &mut Sprite), (With<AdviserUi>, Without<TimerText>)>,
+    mut timer_text: Query<&mut Transform, (With<TimerText>, Without<AdviserUi>)>,
     window_size: Res<WindowSize>,
 ) {
     if window_size.is_changed() {
@@ -155,6 +177,8 @@ pub fn scale_adviser_ui(
         let x_pos = window_size.width * 0.5 - SIDEBAR_WIDTH * 0.5;
         transf.translation = Vec3::new(x_pos, 0., MENU_Z);
         sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
+        let text_pos = window_size.height * 0.5 - SIDEBAR_PADDING;
+        timer_text.single_mut().translation = Vec3::new(0., text_pos, MENU_Z + 1.);
     }
 }
 
@@ -166,11 +190,19 @@ pub fn window_resize_listener(
     let mut reader = resize_event.get_reader();
     for e in reader.iter(&resize_event) {
         let size_min = e.width.min(e.height);
-        let new_tile_size = (size_min - (PADDING * 2.0)) / NUM_TILES as f32;
+        let new_tile_size = (size_min - (TILE_PADDING * 2.0)) / NUM_TILES as f32;
         tile_size.0 = new_tile_size;
         window_size.width = e.width;
         window_size.height = e.height;
     }
+}
+
+pub fn update_timer_text(mut timer_text: Query<&mut Text, With<TimerText>>, timer: Res<GameTimer>) {
+    let mut text = timer_text.single_mut();
+    let remaining = GAME_DURATION.saturating_sub(timer.0.elapsed());
+    let minutes_left = remaining.as_secs() / 60;
+    let seconds_left = remaining.as_secs() % 60;
+    text.sections[0].value = format!("{}:{:02}", minutes_left, seconds_left);
 }
 
 pub fn resize_tiles(
@@ -178,12 +210,12 @@ pub fn resize_tiles(
     mut tiles: Query<(&mut Transform, &mut Sprite, &Tile), (Without<Player>, Without<Robot>)>,
 ) {
     if tile_size.is_changed() || tile_size.is_added() {
-        let area_size = tile_size.0 * NUM_TILES as f32 + 2.0 * PADDING;
+        let area_size = tile_size.0 * NUM_TILES as f32 + 2.0 * TILE_PADDING;
         for (mut t, mut sprite, tile) in tiles.iter_mut() {
             let pos_x: f32 =
-                PADDING + tile_size.0 * tile.x as f32 - area_size * 0.5 + tile_size.0 * 0.5;
+                TILE_PADDING + tile_size.0 * tile.x as f32 - area_size * 0.5 + tile_size.0 * 0.5;
             let pos_y: f32 =
-                PADDING + tile_size.0 * tile.y as f32 - area_size * 0.5 + tile_size.0 * 0.5;
+                TILE_PADDING + tile_size.0 * tile.y as f32 - area_size * 0.5 + tile_size.0 * 0.5;
             t.translation = Vec3::new(pos_x, pos_y, 0.);
             sprite.custom_size = Some(Vec2::new(tile_size.0, tile_size.0));
         }
@@ -204,30 +236,28 @@ pub fn resize_actors(
 
 pub fn draw_actor_to_pos(
     mut study_state: ResMut<StudyState>,
-    time: Res<Time>,
-    mut anim_timer: ResMut<AnimationTimer>,
+    anim_timer: Res<AnimationTimer>,
     mut players: Query<
         (&mut Transform, &mut Position, &NextPosition, &Interact),
         Or<(With<Robot>, With<Player>)>,
     >,
     tile_size: Res<TileSize>,
 ) {
-    anim_timer.0.tick(time.delta());
     let mut t = anim_timer.0.elapsed().as_millis() as f32 / ANIM_DURATION.as_millis() as f32;
     t = t.clamp(0., 1.);
     t = t * t * (3. - 2. * t);
 
-    let win_size = 2. * PADDING + NUM_TILES as f32 * tile_size.0;
+    let win_size = 2. * TILE_PADDING + NUM_TILES as f32 * tile_size.0;
     for (mut trans, mut pos, next_pos, interact) in players.iter_mut() {
         let mut cur_x: f32 =
-            PADDING + tile_size.0 * pos.x as f32 - win_size * 0.5 + tile_size.0 * 0.5;
+            TILE_PADDING + tile_size.0 * pos.x as f32 - win_size * 0.5 + tile_size.0 * 0.5;
         let mut cur_y: f32 =
-            PADDING + tile_size.0 * pos.y as f32 - win_size * 0.5 + tile_size.0 * 0.5;
+            TILE_PADDING + tile_size.0 * pos.y as f32 - win_size * 0.5 + tile_size.0 * 0.5;
 
         let mut next_x: f32 =
-            PADDING + tile_size.0 * next_pos.x as f32 - win_size * 0.5 + tile_size.0 * 0.5;
+            TILE_PADDING + tile_size.0 * next_pos.x as f32 - win_size * 0.5 + tile_size.0 * 0.5;
         let mut next_y: f32 =
-            PADDING + tile_size.0 * next_pos.y as f32 - win_size * 0.5 + tile_size.0 * 0.5;
+            TILE_PADDING + tile_size.0 * next_pos.y as f32 - win_size * 0.5 + tile_size.0 * 0.5;
 
         // interact animation offset
         match *interact {

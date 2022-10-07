@@ -102,6 +102,12 @@ pub struct WindowSize {
 #[derive(Default)]
 pub struct AnimationTimer(pub Timer);
 
+#[derive(Default)]
+pub struct GameTimer(pub Timer);
+
+#[derive(Component)]
+pub struct TimerText;
+
 #[derive(Default, Debug, Copy, Clone)]
 pub struct BurgerProgress {
     pub assembled: u32,

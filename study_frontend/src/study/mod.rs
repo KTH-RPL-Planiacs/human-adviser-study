@@ -4,13 +4,16 @@ pub mod components;
 pub mod logic_systems;
 pub mod ui_systems;
 
-pub const PADDING: f32 = 10.0;
+pub const TILE_PADDING: f32 = 10.0;
 pub const NUM_TILES: usize = 5;
 
 pub const MENU_Z: f32 = 10.0;
 pub const SIDEBAR_WIDTH: f32 = 300.0;
+pub const INGREDIENT_SCALE: f32 = 0.5;
+pub const SIDEBAR_PADDING: f32 = 50.0;
 
 pub const ANIM_DURATION: Duration = Duration::from_millis(400);
+pub const GAME_DURATION: Duration = Duration::from_secs(120);
 
 pub const DELIVERY_POS_H: (usize, usize) = (2, 4);
 pub const BUNS_POS_H: (usize, usize) = (1, 3);

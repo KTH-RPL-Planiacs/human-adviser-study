@@ -7,6 +7,7 @@ use crate::{
     },
     menu::start::ParticipantId,
     study::components::*,
+    AppState,
 };
 
 use super::*;
@@ -18,6 +19,7 @@ use super::*;
 pub fn setup_study(mut commands: Commands, windows: Res<Windows>) {
     commands.insert_resource(StudyState::Idle);
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
+    commands.insert_resource(GameTimer(Timer::new(GAME_DURATION, false)));
     commands.insert_resource(BurgerProgress::default());
 
     // 2d camera
@@ -30,7 +32,7 @@ pub fn setup_study(mut commands: Commands, windows: Res<Windows>) {
     let width = window.width();
     let height = window.height();
     let size_min = width.min(height);
-    let tile_size = (size_min - (PADDING * 2.0)) / NUM_TILES as f32;
+    let tile_size = (size_min - (TILE_PADDING * 2.0)) / NUM_TILES as f32;
     commands.insert_resource(WindowSize { width, height });
     commands.insert_resource(TileSize(tile_size));
 }
@@ -106,6 +108,21 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
 /*
 *   UPDATE
 */
+
+pub fn tick_timers(
+    mut anim: ResMut<AnimationTimer>,
+    mut game: ResMut<GameTimer>,
+    time: Res<Time>,
+    mut state: ResMut<State<AppState>>,
+) {
+    let delta = time.delta();
+    anim.0.tick(delta);
+    game.0.tick(delta);
+
+    if game.0.finished() {
+        state.set(AppState::End).expect("Could not change state.");
+    }
+}
 
 pub fn prepare_robot_move(
     mut commands: Commands,
