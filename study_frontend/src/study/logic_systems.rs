@@ -129,19 +129,27 @@ pub fn prepare_robot_move(
     mut synth_game_state: ResMut<SynthGameState>,
     strategy: Res<Strategy>,
     synth_game: Res<SynthGame>,
-    robot_move: Option<Res<RobotNextMove>>,
+    robot_next_move: Option<Res<RobotNextMove>>,
 ) {
-    if robot_move.is_none() {
-        let robot_move = if let Some(next_move) = strategy.next_move(&synth_game_state.0) {
+    if robot_next_move.is_none() {
+        let mut robot_move = if let Some(next_move) = strategy.next_move(&synth_game_state.0) {
             next_move
         } else {
             let valid_moves = synth_game.valid_moves(&synth_game_state.0);
             valid_moves[0]
         };
 
+        // if done with LTL task, go to delivery and interact, then reset
         if synth_game.is_accepting(&synth_game_state.0) {
-            // TODO: OVERRIDE WITH DELIVERY
-            info!("ACCEPT!");
+            let robot_state_str = synth_game_state.0 .0.as_str();
+            robot_move = delivery_move(robot_state_str);
+            if robot_state_str == "20i" {
+                // ugly hacky state grafting
+                let mut almost_init_state = synth_game.graph.init.clone();
+                almost_init_state.0 = "20i".to_string();
+                almost_init_state.1 = synth_game_state.0 .1.clone();
+                synth_game_state.0 = almost_init_state;
+            }
         }
 
         // get next state from game
@@ -150,6 +158,25 @@ pub fn prepare_robot_move(
         synth_game_state.0 = human_state;
 
         commands.insert_resource(RobotNextMove(robot_move))
+    }
+}
+
+fn delivery_move(state: &str) -> NextMove {
+    println!("STATE: {:?}", state);
+    match state {
+        "01" => NextMove::Right,
+        "11" => NextMove::Right,
+        "21" => NextMove::Down,
+        "31" => NextMove::Left,
+        "41" => NextMove::Left,
+        "01i" => NextMove::Interact,
+        "11i" => NextMove::Interact,
+        "21i" => NextMove::Interact,
+        "31i" => NextMove::Interact,
+        "41i" => NextMove::Interact,
+        "20" => NextMove::Interact,
+        "20i" => NextMove::Interact,
+        _ => panic!("delivery_move({:?}): No hardcoded move found!", state),
     }
 }
 

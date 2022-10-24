@@ -253,6 +253,7 @@ pub fn load_strat_data(
     }
 }
 
+#[derive(Debug)]
 pub struct SynthGameState(pub GraphState);
 
 pub fn load_game_data(
