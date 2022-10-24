@@ -144,7 +144,9 @@ pub fn prepare_robot_move(
             let robot_state_str = synth_game_state.0 .0.as_str();
             robot_move = delivery_move(robot_state_str);
             if robot_state_str == "20i" {
-                // ugly hacky state grafting
+                // ugly hacky state grafting - this resets the DFA to initial state, but puts human and robot at their actual states.
+                // this assumes that the robot and the human starting here rather than the initial state does not change
+                // the satisfaction status of the resulting trace.
                 let mut almost_init_state = synth_game.graph.init.clone();
                 almost_init_state.0 = "20i".to_string();
                 almost_init_state.1 = synth_game_state.0 .1.clone();
@@ -162,7 +164,6 @@ pub fn prepare_robot_move(
 }
 
 fn delivery_move(state: &str) -> NextMove {
-    println!("STATE: {:?}", state);
     match state {
         "01" => NextMove::Right,
         "11" => NextMove::Right,
@@ -177,6 +178,21 @@ fn delivery_move(state: &str) -> NextMove {
         "20" => NextMove::Interact,
         "20i" => NextMove::Interact,
         _ => panic!("delivery_move({:?}): No hardcoded move found!", state),
+    }
+}
+
+pub fn update_advisers(synth_game_state: Res<SynthGameState>, strategy: Res<Strategy>) {
+    for safe_adv in &strategy.safe_edges {
+        let state_from: &GraphState = &safe_adv.0;
+        if synth_game_state.0 == *state_from {
+            println!("SAFE ADV: {:?}", safe_adv);
+        }
+    }
+    for fair_adv in &strategy.fair_edges {
+        let state_from: &GraphState = &fair_adv.0;
+        if synth_game_state.0 == *state_from {
+            println!("FAIR ADV: {:?}", fair_adv);
+        }
     }
 }
 

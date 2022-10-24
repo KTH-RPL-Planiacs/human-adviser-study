@@ -88,7 +88,13 @@ fn main() {
                 .with_system(draw_actor_to_pos)
                 .with_system(prepare_human_move)
                 .with_system(prepare_robot_move)
-                .with_system(resolve_moves),
+                .with_system(update_advisers.after(prepare_robot_move))
+                .with_system(
+                    resolve_moves
+                        .after(prepare_human_move)
+                        .after(prepare_robot_move)
+                        .after(update_advisers),
+                ),
         )
         .add_system_set(SystemSet::on_exit(AppState::Study).with_system(cleanup_study))
         // end

@@ -83,8 +83,8 @@ pub struct TileData {
 #[uuid = "58aa3298-015d-421d-b7d6-fa62a441f7f5"]
 pub struct Strategy {
     pub strat: HashMap<String, String>,
-    pub safe_edges: Vec<String>,
-    pub fair_edges: Vec<String>,
+    pub safe_edges: Vec<(GraphState, GraphState)>,
+    pub fair_edges: Vec<(GraphState, GraphState)>,
 }
 
 impl Strategy {
