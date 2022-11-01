@@ -21,6 +21,7 @@ pub fn setup_study(mut commands: Commands, windows: Res<Windows>) {
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
     commands.insert_resource(GameTimer(Timer::new(GAME_DURATION, false)));
     commands.insert_resource(BurgerProgress::default());
+    commands.insert_resource(AdvisedMoves::default());
 
     // 2d camera
     commands
@@ -127,6 +128,7 @@ pub fn tick_timers(
 pub fn prepare_robot_move(
     mut commands: Commands,
     mut synth_game_state: ResMut<SynthGameState>,
+    mut advised_moves: ResMut<AdvisedMoves>,
     strategy: Res<Strategy>,
     synth_game: Res<SynthGame>,
     robot_next_move: Option<Res<RobotNextMove>>,
@@ -159,7 +161,22 @@ pub fn prepare_robot_move(
         let human_state: GraphState = synth_game.skip_prob_state(&prob_state);
         synth_game_state.0 = human_state;
 
-        commands.insert_resource(RobotNextMove(robot_move))
+        commands.insert_resource(RobotNextMove(robot_move));
+
+        // update avisers - TODO: insert moves
+        advised_moves.clear_all();
+        for safe_adv in &strategy.safe_edges {
+            let state_from: &GraphState = &safe_adv.0;
+            if synth_game_state.0 == *state_from {
+                println!("SAFE ADV: {:?}", safe_adv);
+            }
+        }
+        for fair_adv in &strategy.fair_edges {
+            let state_from: &GraphState = &fair_adv.0;
+            if synth_game_state.0 == *state_from {
+                println!("FAIR ADV: {:?}", fair_adv);
+            }
+        }
     }
 }
 
@@ -178,21 +195,6 @@ fn delivery_move(state: &str) -> NextMove {
         "20" => NextMove::Interact,
         "20i" => NextMove::Interact,
         _ => panic!("delivery_move({:?}): No hardcoded move found!", state),
-    }
-}
-
-pub fn update_advisers(synth_game_state: Res<SynthGameState>, strategy: Res<Strategy>) {
-    for safe_adv in &strategy.safe_edges {
-        let state_from: &GraphState = &safe_adv.0;
-        if synth_game_state.0 == *state_from {
-            println!("SAFE ADV: {:?}", safe_adv);
-        }
-    }
-    for fair_adv in &strategy.fair_edges {
-        let state_from: &GraphState = &fair_adv.0;
-        if synth_game_state.0 == *state_from {
-            println!("FAIR ADV: {:?}", fair_adv);
-        }
     }
 }
 

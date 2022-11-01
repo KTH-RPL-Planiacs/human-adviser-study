@@ -135,3 +135,16 @@ impl BurgerProgress {
         }
     }
 }
+
+#[derive(Default, Debug)]
+pub struct AdvisedMoves {
+    pub safety: Vec<NextMove>,
+    pub fairness: Vec<NextMove>,
+}
+
+impl AdvisedMoves {
+    pub fn clear_all(&mut self) {
+        self.safety.clear();
+        self.fairness.clear();
+    }
+}
