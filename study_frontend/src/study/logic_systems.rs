@@ -168,15 +168,20 @@ pub fn prepare_robot_move(
         for safe_adv in &strategy.safe_edges {
             let state_from: &GraphState = &safe_adv.0;
             if synth_game_state.0 == *state_from {
-                println!("SAFE ADV: {:?}", safe_adv);
+                advised_moves
+                    .safety
+                    .push(safe_adv.1.parse().expect("Error while parsing Move"))
             }
         }
         for fair_adv in &strategy.fair_edges {
             let state_from: &GraphState = &fair_adv.0;
             if synth_game_state.0 == *state_from {
-                println!("FAIR ADV: {:?}", fair_adv);
+                advised_moves
+                    .fairness
+                    .push(fair_adv.1.parse().expect("Error while parsing Move"))
             }
         }
+        println!("{:?}", advised_moves);
     }
 }
 

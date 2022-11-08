@@ -1,4 +1,4 @@
-use std::usize;
+use std::{error::Error, fmt::Display, str::FromStr, usize};
 
 use bevy::prelude::*;
 
@@ -48,6 +48,30 @@ pub enum NextMove {
     Right,
     Interact,
 }
+
+impl FromStr for NextMove {
+    type Err = ParseMoveError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "up" => Ok(NextMove::Up),
+            "down" => Ok(NextMove::Down),
+            "left" => Ok(NextMove::Left),
+            "right" => Ok(NextMove::Right),
+            "interact" => Ok(NextMove::Interact),
+            _ => Err(ParseMoveError),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct ParseMoveError;
+impl Display for ParseMoveError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Something went wrong parsing a Move!")
+    }
+}
+impl Error for ParseMoveError {}
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct HumanNextMove(pub NextMove);
