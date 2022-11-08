@@ -292,3 +292,24 @@ pub fn draw_actor_to_pos(
         *study_state = StudyState::Idle;
     }
 }
+
+pub fn fade_away_screen(
+    mut commands: Commands,
+    anim_timer: Res<AnimationTimer>,
+    is_violated: Option<Res<SafetyViolated>>,
+    mut sprite: Query<&mut Sprite, With<FadeAwayScreen>>,
+    window_size: ResMut<WindowSize>,
+) {
+    if let Some(_) = is_violated {
+        let a = anim_timer.0.elapsed().as_millis() as f32 / ANIM_DURATION.as_millis() as f32;
+        let mut sprite = sprite.single_mut();
+        sprite.custom_size = Some(Vec2::new(window_size.width, window_size.height));
+        sprite.color.set_a(a);
+        if anim_timer.0.finished() {
+            // TODO: reset
+            commands.remove_resource::<SafetyViolated>();
+        }
+    } else {
+        sprite.single_mut().color.set_a(0.0);
+    }
+}

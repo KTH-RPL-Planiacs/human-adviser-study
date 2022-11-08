@@ -104,6 +104,18 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
         .insert(Interact::No)
         .insert(Robot)
         .insert(Study);
+
+    commands
+        .spawn_bundle(SpriteBundle {
+            transform: Transform::from_xyz(0., 0., MENU_Z),
+            sprite: Sprite {
+                color: Color::BLACK,
+                ..default()
+            },
+            ..default()
+        })
+        .insert(FadeAwayScreen)
+        .insert(Study);
 }
 
 /*
@@ -163,7 +175,7 @@ pub fn prepare_robot_move(
 
         commands.insert_resource(RobotNextMove(robot_move));
 
-        // update avisers - TODO: insert moves
+        // update avisers
         advised_moves.clear_all();
         for safe_adv in &strategy.safe_edges {
             let state_from: &GraphState = &safe_adv.0;
@@ -242,6 +254,7 @@ pub fn resolve_moves(
     mut anim_timer: ResMut<AnimationTimer>,
     mut synth_game_state: ResMut<SynthGameState>,
     mut burger_progress: ResMut<BurgerProgress>,
+    advised_moves: Res<AdvisedMoves>,
     synth_game: Res<SynthGame>,
     next_move_r: Option<ResMut<RobotNextMove>>,
     next_move_h: Option<ResMut<HumanNextMove>>,
@@ -274,6 +287,11 @@ pub fn resolve_moves(
 
     commands.remove_resource::<HumanNextMove>();
     commands.remove_resource::<RobotNextMove>();
+
+    // check for safety assumption violation
+    if advised_moves.safety.contains(&human_move) {
+        commands.insert_resource(SafetyViolated)
+    }
 
     // reset animation timer
     *study_state = StudyState::Animation;

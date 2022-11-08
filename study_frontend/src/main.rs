@@ -78,6 +78,7 @@ fn main() {
         .add_system_set(
             SystemSet::on_update(AppState::Study)
                 .with_system(tick_timers)
+                .with_system(fade_away_screen)
                 .with_system(window_resize_listener)
                 .with_system(scale_burger_ui)
                 .with_system(update_burger_ui)

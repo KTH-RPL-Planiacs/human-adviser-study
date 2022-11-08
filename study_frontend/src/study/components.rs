@@ -172,3 +172,8 @@ impl AdvisedMoves {
         self.fairness.clear();
     }
 }
+
+pub struct SafetyViolated;
+
+#[derive(Component)]
+pub struct FadeAwayScreen;
