@@ -6,6 +6,7 @@ use bevy::prelude::*;
 pub enum StudyState {
     Idle,
     Animation,
+    FadeAway,
 }
 
 #[derive(Component)]
@@ -155,8 +156,15 @@ impl BurgerProgress {
             self.lettuce = false;
             self.tomato = false;
             self.sauce = false;
-            info!("MADE BURGER");
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.buns = false;
+        self.patty = false;
+        self.lettuce = false;
+        self.tomato = false;
+        self.sauce = false;
     }
 }
 

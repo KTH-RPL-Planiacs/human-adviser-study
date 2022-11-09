@@ -64,14 +64,11 @@ pub fn setup_tiles(mut commands: Commands, tile_data: Res<TileData>, tile_sprite
     }
 }
 
-const HUMAN_START: (usize, usize) = (2, 4);
-const ROBOT_START: (usize, usize) = (2, 0);
 pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>) {
     // player
     commands
         .spawn_bundle(SpriteBundle {
             texture: player_sprites.person.clone(),
-            transform: Transform::from_xyz(0., 0., 1.),
             ..default()
         })
         .insert(Position {
@@ -90,7 +87,6 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
     commands
         .spawn_bundle(SpriteBundle {
             texture: player_sprites.robot.clone(),
-            transform: Transform::from_xyz(0., 0., 1.),
             ..default()
         })
         .insert(Position {
@@ -105,9 +101,10 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
         .insert(Robot)
         .insert(Study);
 
+    // fade away screen sprite
     commands
         .spawn_bundle(SpriteBundle {
-            transform: Transform::from_xyz(0., 0., MENU_Z),
+            transform: Transform::from_xyz(0., 0., MENU_Z - 1.),
             sprite: Sprite {
                 color: Color::BLACK,
                 ..default()
@@ -116,6 +113,52 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
         })
         .insert(FadeAwayScreen)
         .insert(Study);
+}
+
+pub fn update_animation_state(
+    mut commands: Commands,
+    anim_timer: Res<AnimationTimer>,
+    mut study_state: ResMut<StudyState>,
+    is_violated: Option<Res<SafetyViolated>>,
+    mut player: Query<
+        (&mut Position, &mut Interact, &mut NextPosition),
+        (With<Player>, Without<Robot>),
+    >,
+    mut robot: Query<
+        (&mut Position, &mut Interact, &mut NextPosition),
+        (With<Robot>, Without<Player>),
+    >,
+    mut burger_progress: ResMut<BurgerProgress>,
+    mut synth_game_state: ResMut<SynthGameState>,
+    synth_game: Res<SynthGame>,
+) {
+    // if animation is over, we reset animation state
+    if anim_timer.0.finished() {
+        *study_state = StudyState::Idle;
+
+        // if we had a safety violation, reset simulation
+        if is_violated.is_some() {
+            if let Ok((mut pos, mut interact, mut next_pos)) = player.get_single_mut() {
+                pos.x = HUMAN_START.0;
+                pos.y = HUMAN_START.1;
+                next_pos.x = HUMAN_START.0;
+                next_pos.y = HUMAN_START.1;
+                *interact = Interact::No;
+            }
+            if let Ok((mut pos, mut interact, mut next_pos)) = robot.get_single_mut() {
+                pos.x = ROBOT_START.0;
+                pos.y = ROBOT_START.1;
+                next_pos.x = ROBOT_START.0;
+                next_pos.y = ROBOT_START.1;
+                *interact = Interact::No;
+            }
+            burger_progress.reset();
+            synth_game_state.0 = synth_game.graph.init.clone();
+            commands.remove_resource::<SafetyViolated>();
+            commands.remove_resource::<RobotNextMove>();
+            commands.remove_resource::<HumanNextMove>();
+        }
+    }
 }
 
 /*
@@ -287,15 +330,18 @@ pub fn resolve_moves(
 
     commands.remove_resource::<HumanNextMove>();
     commands.remove_resource::<RobotNextMove>();
+    anim_timer.0.reset();
 
     // check for safety assumption violation
+    // then update study state accordingly
     if advised_moves.safety.contains(&human_move) {
-        commands.insert_resource(SafetyViolated)
+        commands.insert_resource(SafetyViolated);
+        anim_timer.0.set_duration(FADE_DURATION);
+        *study_state = StudyState::FadeAway;
+    } else {
+        anim_timer.0.set_duration(ANIM_DURATION);
+        *study_state = StudyState::Animation;
     }
-
-    // reset animation timer
-    *study_state = StudyState::Animation;
-    anim_timer.0.reset();
 
     // fetch current and next positions
     let (cur_pos_r, mut interact_r, mut next_pos_r) = robot

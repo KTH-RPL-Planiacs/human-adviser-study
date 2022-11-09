@@ -78,7 +78,7 @@ fn main() {
         .add_system_set(
             SystemSet::on_update(AppState::Study)
                 .with_system(tick_timers)
-                .with_system(fade_away_screen)
+                .with_system(update_fade_away_sprite)
                 .with_system(window_resize_listener)
                 .with_system(scale_burger_ui)
                 .with_system(update_burger_ui)
@@ -93,7 +93,8 @@ fn main() {
                     resolve_moves
                         .after(prepare_human_move)
                         .after(prepare_robot_move),
-                ),
+                )
+                .with_system(update_animation_state.after(resolve_moves)),
         )
         .add_system_set(SystemSet::on_exit(AppState::Study).with_system(cleanup_study))
         // end

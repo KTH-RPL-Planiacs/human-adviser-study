@@ -235,7 +235,6 @@ pub fn resize_actors(
 }
 
 pub fn draw_actor_to_pos(
-    mut study_state: ResMut<StudyState>,
     anim_timer: Res<AnimationTimer>,
     mut players: Query<
         (&mut Transform, &mut Position, &NextPosition, &Interact),
@@ -286,30 +285,20 @@ pub fn draw_actor_to_pos(
             pos.y = next_pos.y;
         }
     }
-
-    // if animation is over, we reset animation state
-    if anim_timer.0.finished() {
-        *study_state = StudyState::Idle;
-    }
 }
 
-pub fn fade_away_screen(
-    mut commands: Commands,
+pub fn update_fade_away_sprite(
     anim_timer: Res<AnimationTimer>,
     is_violated: Option<Res<SafetyViolated>>,
     mut sprite: Query<&mut Sprite, With<FadeAwayScreen>>,
     window_size: ResMut<WindowSize>,
 ) {
+    let mut sprite = sprite.single_mut();
     if let Some(_) = is_violated {
         let a = anim_timer.0.elapsed().as_millis() as f32 / ANIM_DURATION.as_millis() as f32;
-        let mut sprite = sprite.single_mut();
         sprite.custom_size = Some(Vec2::new(window_size.width, window_size.height));
         sprite.color.set_a(a);
-        if anim_timer.0.finished() {
-            // TODO: reset
-            commands.remove_resource::<SafetyViolated>();
-        }
     } else {
-        sprite.single_mut().color.set_a(0.0);
+        sprite.color.set_a(0.0);
     }
 }
