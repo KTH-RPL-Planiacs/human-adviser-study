@@ -16,12 +16,20 @@ use super::*;
 *   SETUP
 */
 
-pub fn setup_study(mut commands: Commands, windows: Res<Windows>) {
+pub fn setup_study(mut commands: Commands, windows: Res<Windows>, part_id: Res<ParticipantId>) {
     commands.insert_resource(StudyState::Idle);
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
     commands.insert_resource(GameTimer(Timer::new(GAME_DURATION, false)));
     commands.insert_resource(BurgerProgress::default());
     commands.insert_resource(AdvisedMoves::default());
+    commands.insert_resource(GameResults {
+        participant_id: part_id
+            .0
+            .parse::<i32>()
+            .expect("The participant ID should be a number!"),
+        human_burgers: 0,
+        robot_burgers: 0,
+    });
 
     // 2d camera
     commands
@@ -187,6 +195,7 @@ pub fn prepare_robot_move(
     strategy: Res<Strategy>,
     synth_game: Res<SynthGame>,
     robot_next_move: Option<Res<RobotNextMove>>,
+    mut game_results: ResMut<GameResults>,
 ) {
     if robot_next_move.is_none() {
         let mut robot_move = if let Some(next_move) = strategy.next_move(&synth_game_state.0) {
@@ -208,6 +217,7 @@ pub fn prepare_robot_move(
                 almost_init_state.0 = "20i".to_string();
                 almost_init_state.1 = synth_game_state.0 .1.clone();
                 synth_game_state.0 = almost_init_state;
+                game_results.robot_burgers += 1;
             }
         }
 
@@ -297,6 +307,7 @@ pub fn resolve_moves(
     mut anim_timer: ResMut<AnimationTimer>,
     mut synth_game_state: ResMut<SynthGameState>,
     mut burger_progress: ResMut<BurgerProgress>,
+    mut game_results: ResMut<GameResults>,
     advised_moves: Res<AdvisedMoves>,
     synth_game: Res<SynthGame>,
     next_move_r: Option<ResMut<RobotNextMove>>,
@@ -356,7 +367,9 @@ pub fn resolve_moves(
         let interact_pos_h = interacting_pos(cur_pos_h);
         if valid_moves.len() == 1 {
             *interact_h = Interact::Out(interact_pos_h);
-            update_burger_status(&mut burger_progress, cur_pos_h);
+            if update_burger_status(&mut burger_progress, cur_pos_h) {
+                game_results.human_burgers += 1;
+            }
         } else {
             *interact_h = Interact::In(interact_pos_h);
         }
@@ -420,9 +433,11 @@ fn interacting_pos(cur_pos: &Position) -> Position {
     panic!("No interacting_pos found!");
 }
 
-fn update_burger_status(burger_progress: &mut BurgerProgress, cur_pos: &Position) {
+// returns true if a burger was made
+fn update_burger_status(burger_progress: &mut BurgerProgress, cur_pos: &Position) -> bool {
     if cur_pos.x == DELIVERY_POS_H.0 && cur_pos.y == DELIVERY_POS_H.1 {
         burger_progress.make_burger();
+        return true;
     }
 
     if cur_pos.x == PATTY_POS_H.0 && cur_pos.y == PATTY_POS_H.1 {
@@ -444,6 +459,7 @@ fn update_burger_status(burger_progress: &mut BurgerProgress, cur_pos: &Position
     if cur_pos.x == SAUCE_POS_H.0 && cur_pos.y == SAUCE_POS_H.1 {
         burger_progress.sauce = true;
     }
+    return false;
 }
 
 fn next_pos_from_move(cur_pos: &Position, next_move: NextMove) -> NextPosition {
@@ -491,18 +507,7 @@ fn next_pos_from_move(cur_pos: &Position, next_move: NextMove) -> NextPosition {
 *   CLEANUP
 */
 
-pub fn cleanup_study(
-    query: Query<Entity, With<Study>>,
-    mut commands: Commands,
-    part_id: Res<ParticipantId>,
-) {
-    commands.insert_resource(GameResults {
-        participant_id: part_id
-            .0
-            .parse::<i32>()
-            .expect("The participant ID should be a number!"),
-    });
-
+pub fn cleanup_study(query: Query<Entity, With<Study>>, mut commands: Commands) {
     for e in query.iter() {
         commands.entity(e).despawn_recursive();
     }
