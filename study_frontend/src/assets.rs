@@ -79,20 +79,21 @@ pub struct TileData {
     pub lettuce: Vec<[usize; 2]>,
 }
 
+pub type GraphState = (String, String, String);
+pub type Guards = Vec<String>;
+
 #[derive(Deserialize, TypeUuid, Debug)]
 #[uuid = "58aa3298-015d-421d-b7d6-fa62a441f7f5"]
 pub struct Strategy {
     pub strat: HashMap<String, String>,
-    pub safe_edges: Vec<(GraphState, String)>,
-    pub fair_edges: Vec<(GraphState, String)>,
+    pub safety_adv: Vec<(GraphState, Guards)>,
+    pub fairness_adv: Vec<(GraphState, Guards)>,
+    pub guard_ap: Vec<String>,
 }
 
 impl Strategy {
     pub fn next_move(&self, state: &GraphState) -> Option<NextMove> {
-        let state_string: String = format!(
-            "(\'{}\', \'{}\', \'{}\', {})",
-            state.0, state.1, state.2, state.3
-        );
+        let state_string: String = format!("(\'{}\', \'{}\')", state.0, state.1);
 
         if let Some(move_string) = self.strat.get(&state_string) {
             match move_string.as_str() {
@@ -109,8 +110,6 @@ impl Strategy {
         }
     }
 }
-
-pub type GraphState = (String, String, String, u8);
 
 #[derive(Deserialize, TypeUuid, Debug)]
 #[uuid = "16ec115f-0c6f-4513-a2b1-7b07fedb5314"]
@@ -137,7 +136,7 @@ impl SynthGame {
         panic!("No next state found!");
     }
 
-    // hacky hacky TODO: improve this into a method that probabilistically moves forward.
+    // hacky hacky TODO: 
     // For now this works since we assume only one outgoing edge (prob = 1.0).
     pub fn skip_prob_state(&self, prob_state: &GraphState) -> GraphState {
         for edge in &self.links {
@@ -166,8 +165,6 @@ impl SynthGame {
 pub struct Graph {
     pub acc: Vec<GraphState>,
     pub init: GraphState,
-    pub ap_r: Vec<String>,
-    pub ap_h: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -180,6 +177,7 @@ pub struct NodeData {
 #[derive(Deserialize, Debug)]
 pub struct LinkData {
     pub act: Option<String>,
+    pub guards: Option<Guards>,
     pub prob: Option<f32>,
     pub source: GraphState,
     pub target: GraphState,

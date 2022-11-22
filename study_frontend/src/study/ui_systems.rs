@@ -182,9 +182,9 @@ pub fn scale_adviser_ui(
     }
 }
 
-pub fn update_adviser_ui(advised_moves: Res<AdvisedMoves>) {
-    if advised_moves.is_changed() {
-        println!("{:?}", advised_moves);
+pub fn update_adviser_ui(active_advisers: Res<ActiveAdvisers>) {
+    if active_advisers.is_changed() {
+        println!("{:?}", active_advisers);
     }
 }
 

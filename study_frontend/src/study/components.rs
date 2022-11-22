@@ -2,6 +2,8 @@ use std::{error::Error, fmt::Display, str::FromStr, usize};
 
 use bevy::prelude::*;
 
+use crate::assets::Guards;
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum StudyState {
     Idle,
@@ -169,15 +171,19 @@ impl BurgerProgress {
 }
 
 #[derive(Default, Debug)]
-pub struct AdvisedMoves {
-    pub safety: Vec<NextMove>,
-    pub fairness: Vec<NextMove>,
+pub struct ActiveAdvisers {
+    pub safety: Vec<Guards>,
+    pub fairness: Vec<Guards>,
 }
 
-impl AdvisedMoves {
+impl ActiveAdvisers {
     pub fn clear_all(&mut self) {
         self.safety.clear();
         self.fairness.clear();
+    }
+
+    pub fn safety_violated(&self) -> bool {
+        false
     }
 }
 

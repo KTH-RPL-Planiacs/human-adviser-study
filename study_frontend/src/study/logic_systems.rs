@@ -21,7 +21,7 @@ pub fn setup_study(mut commands: Commands, windows: Res<Windows>, part_id: Res<P
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
     commands.insert_resource(GameTimer(Timer::new(GAME_DURATION, false)));
     commands.insert_resource(BurgerProgress::default());
-    commands.insert_resource(AdvisedMoves::default());
+    commands.insert_resource(ActiveAdvisers::default());
     commands.insert_resource(GameResults {
         participant_id: part_id
             .0
@@ -191,7 +191,7 @@ pub fn tick_timers(
 pub fn prepare_robot_move(
     mut commands: Commands,
     mut synth_game_state: ResMut<SynthGameState>,
-    mut advised_moves: ResMut<AdvisedMoves>,
+    mut active_advisers: ResMut<ActiveAdvisers>,
     strategy: Res<Strategy>,
     synth_game: Res<SynthGame>,
     robot_next_move: Option<Res<RobotNextMove>>,
@@ -229,21 +229,17 @@ pub fn prepare_robot_move(
         commands.insert_resource(RobotNextMove(robot_move));
 
         // update avisers
-        advised_moves.clear_all();
-        for safe_adv in &strategy.safe_edges {
+        active_advisers.clear_all();
+        for safe_adv in &strategy.safety_adv {
             let state_from: &GraphState = &safe_adv.0;
             if synth_game_state.0 == *state_from {
-                advised_moves
-                    .safety
-                    .push(safe_adv.1.parse().expect("Error while parsing Move"))
+                active_advisers.safety.push(safe_adv.1.clone())
             }
         }
-        for fair_adv in &strategy.fair_edges {
+        for fair_adv in &strategy.fairness_adv {
             let state_from: &GraphState = &fair_adv.0;
             if synth_game_state.0 == *state_from {
-                advised_moves
-                    .fairness
-                    .push(fair_adv.1.parse().expect("Error while parsing Move"))
+                active_advisers.fairness.push(fair_adv.1.clone())
             }
         }
     }
@@ -307,7 +303,7 @@ pub fn resolve_moves(
     mut synth_game_state: ResMut<SynthGameState>,
     mut burger_progress: ResMut<BurgerProgress>,
     mut game_results: ResMut<GameResults>,
-    advised_moves: Res<AdvisedMoves>,
+    active_advisers: Res<ActiveAdvisers>,
     synth_game: Res<SynthGame>,
     next_move_r: Option<ResMut<RobotNextMove>>,
     next_move_h: Option<ResMut<HumanNextMove>>,
@@ -344,7 +340,7 @@ pub fn resolve_moves(
 
     // check for safety assumption violation
     // then update study state accordingly
-    if advised_moves.safety.contains(&human_move) {
+    if active_advisers.safety_violated() {
         commands.insert_resource(SafetyViolated);
         anim_timer.0.set_duration(FADE_DURATION);
         *study_state = StudyState::FadeAway;
