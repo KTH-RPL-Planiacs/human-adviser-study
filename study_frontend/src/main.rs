@@ -84,6 +84,7 @@ fn main() {
                 .with_system(update_burger_ui)
                 .with_system(scale_adviser_ui)
                 .with_system(update_timer_text)
+                .with_system(update_adviser_ui)
                 .with_system(resize_tiles)
                 .with_system(resize_actors)
                 .with_system(draw_actor_to_pos)

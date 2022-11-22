@@ -236,7 +236,6 @@ pub fn prepare_robot_move(
                     .push(fair_adv.1.parse().expect("Error while parsing Move"))
             }
         }
-        println!("{:?}", advised_moves);
     }
 }
 

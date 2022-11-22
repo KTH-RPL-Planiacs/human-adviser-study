@@ -182,6 +182,12 @@ pub fn scale_adviser_ui(
     }
 }
 
+pub fn update_adviser_ui(advised_moves: Res<AdvisedMoves>) {
+    if advised_moves.is_changed() {
+        println!("{:?}", advised_moves);
+    }
+}
+
 pub fn window_resize_listener(
     resize_event: Res<Events<WindowResized>>,
     mut tile_size: ResMut<TileSize>,
