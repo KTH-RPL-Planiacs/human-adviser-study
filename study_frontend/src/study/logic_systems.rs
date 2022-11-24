@@ -123,6 +123,10 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
         .insert(Study);
 }
 
+/*
+*   UPDATE
+*/
+
 pub fn update_animation_state(
     mut commands: Commands,
     anim_timer: Res<AnimationTimer>,
@@ -169,10 +173,6 @@ pub fn update_animation_state(
     }
 }
 
-/*
-*   UPDATE
-*/
-
 pub fn tick_timers(
     mut anim: ResMut<AnimationTimer>,
     mut game: ResMut<GameTimer>,
@@ -201,7 +201,7 @@ pub fn prepare_robot_move(
         let mut robot_move = if let Some(next_move) = strategy.next_move(&synth_game_state.0) {
             next_move
         } else {
-            let valid_moves = synth_game.valid_moves(&synth_game_state.0);
+            let valid_moves = synth_game.valid_robot_moves(&synth_game_state.0);
             valid_moves[0]
         };
 
@@ -210,20 +210,15 @@ pub fn prepare_robot_move(
             let robot_state_str = synth_game_state.0 .0.as_str();
             robot_move = delivery_move(robot_state_str);
             if robot_state_str == "20i" {
-                // ugly hacky state grafting - this resets the DFA to initial state, but puts human and robot at their actual states.
-                // this assumes that the robot and the human starting here rather than the initial state does not change
-                // the satisfaction status of the resulting trace.
-                let mut almost_init_state = synth_game.graph.init.clone();
-                almost_init_state.0 = "20i".to_string();
-                almost_init_state.1 = synth_game_state.0 .1.clone();
-                synth_game_state.0 = almost_init_state;
+                // resets game to almost initial state
+                synth_game_state.0 = synth_game.graph.init.clone();
+                synth_game_state.0 .0 = "20i".to_string();
                 game_results.robot_burgers += 1;
             }
         }
 
         // get next state from game
-        let prob_state: GraphState = synth_game.next_state(&synth_game_state.0, robot_move);
-        let human_state: GraphState = synth_game.skip_prob_state(&prob_state);
+        let human_state: GraphState = synth_game.apply_robot_move(&synth_game_state.0, robot_move);
         synth_game_state.0 = human_state;
 
         commands.insert_resource(RobotNextMove(robot_move));
@@ -243,6 +238,55 @@ pub fn prepare_robot_move(
             }
         }
     }
+}
+
+fn valid_human_moves(cur_pos: &Position, interact: &Interact) -> Vec<NextMove> {
+    // if we just went into interaction, we can only finish it
+    if let Interact::In(_) = interact {
+        return vec![NextMove::Interact];
+    }
+
+    if cur_pos.is_equal(DELIVERY_POS_H) {
+        return vec![NextMove::Idle, NextMove::Interact, NextMove::Down];
+    }
+
+    if cur_pos.is_equal(PATTY_POS_H) {
+        return vec![NextMove::Idle, NextMove::Interact, NextMove::Right];
+    }
+
+    if cur_pos.is_equal(BUNS_POS_H) {
+        return vec![
+            NextMove::Idle,
+            NextMove::Interact,
+            NextMove::Left,
+            NextMove::Right,
+        ];
+    }
+
+    if cur_pos.is_equal(TOMATO_POS_H) {
+        return vec![
+            NextMove::Idle,
+            NextMove::Interact,
+            NextMove::Up,
+            NextMove::Left,
+            NextMove::Right,
+        ];
+    }
+
+    if cur_pos.is_equal(SAUCE_POS_H) {
+        return vec![
+            NextMove::Idle,
+            NextMove::Interact,
+            NextMove::Left,
+            NextMove::Right,
+        ];
+    }
+
+    if cur_pos.is_equal(LETTUCE_POS_H) {
+        return vec![NextMove::Idle, NextMove::Interact, NextMove::Left];
+    }
+
+    panic!("valid_human_moves(): Could not find valid moves!");
 }
 
 fn delivery_move(state: &str) -> NextMove {
@@ -319,7 +363,15 @@ pub fn resolve_moves(
         return;
     };
 
-    let valid_moves = synth_game.valid_moves(&synth_game_state.0);
+    // fetch current and next positions
+    let (cur_pos_r, mut interact_r, mut next_pos_r) = robot
+        .get_single_mut()
+        .expect("There should only be one robot.");
+    let (cur_pos_h, mut interact_h, mut next_pos_h) = player
+        .get_single_mut()
+        .expect("There should only be one human.");
+
+    let valid_moves = valid_human_moves(&cur_pos_h, interact_h.as_ref());
     let human_move = if let Some(m) = next_move_h {
         // make sure the human move is valid, if not, just pick the first valid one
         if valid_moves.contains(&m.0) {
@@ -337,25 +389,6 @@ pub fn resolve_moves(
     commands.remove_resource::<HumanNextMove>();
     commands.remove_resource::<RobotNextMove>();
     anim_timer.0.reset();
-
-    // check for safety assumption violation
-    // then update study state accordingly
-    if active_advisers.safety_violated() {
-        commands.insert_resource(SafetyViolated);
-        anim_timer.0.set_duration(FADE_DURATION);
-        *study_state = StudyState::FadeAway;
-    } else {
-        anim_timer.0.set_duration(ANIM_DURATION);
-        *study_state = StudyState::Animation;
-    }
-
-    // fetch current and next positions
-    let (cur_pos_r, mut interact_r, mut next_pos_r) = robot
-        .get_single_mut()
-        .expect("There should only be one robot.");
-    let (cur_pos_h, mut interact_h, mut next_pos_h) = player
-        .get_single_mut()
-        .expect("There should only be one human.");
 
     // interaction - human
     if human_move == NextMove::Interact {
@@ -384,13 +417,53 @@ pub fn resolve_moves(
         *interact_r = Interact::No;
     }
 
-    // get next state from game
-    let prob_state: GraphState = synth_game.next_state(&synth_game_state.0, human_move);
-    synth_game_state.0 = synth_game.skip_prob_state(&prob_state);
-
     // update grid positions for position interpolation
     *next_pos_r = next_pos_from_move(cur_pos_r, robot_move);
     *next_pos_h = next_pos_from_move(cur_pos_h, human_move);
+
+    // update synthesis game state
+    let obs = obs_from_pos(next_pos_h.as_pos(), &interact_h, &synth_game.graph.human_ap);
+    let prob_state: GraphState = synth_game.apply_human_obs(&synth_game_state.0, &obs);
+    synth_game_state.0 = synth_game.skip_prob_state(&prob_state);
+
+    // check for safety assumption violation
+    // then update study state accordingly
+    if active_advisers.safety_violated(&obs) {
+        commands.insert_resource(SafetyViolated);
+        anim_timer.0.set_duration(FADE_DURATION);
+        *study_state = StudyState::FadeAway;
+    } else {
+        anim_timer.0.set_duration(ANIM_DURATION);
+        *study_state = StudyState::Animation;
+    }
+}
+
+fn obs_from_pos(pos: Position, interact: &Interact, guard_ap: &[String]) -> String {
+    let mut obs = String::with_capacity(guard_ap.len());
+    for ap in guard_ap {
+        match ap.as_str() {
+            "patty_h" => obs.push(interact_char(pos, interact, PATTY_POS_H)),
+            "buns_h" => obs.push(interact_char(pos, interact, BUNS_POS_H)),
+            "lettuce_h" => obs.push(interact_char(pos, interact, LETTUCE_POS_H)),
+            "tomato_h" => obs.push(interact_char(pos, interact, TOMATO_POS_H)),
+            "ketchup_h" => obs.push(interact_char(pos, interact, SAUCE_POS_H)),
+            "delivery_h" => obs.push(interact_char(pos, interact, DELIVERY_POS_H)),
+            _ => obs.push('0'),
+        }
+    }
+    obs
+}
+
+fn interact_char(pos: Position, interact: &Interact, check: (usize, usize)) -> char {
+    if let Interact::In(_) = interact {
+        if pos.is_equal(check) {
+            '1'
+        } else {
+            '0'
+        }
+    } else {
+        '0'
+    }
 }
 
 fn interacting_pos(cur_pos: &Position) -> Position {

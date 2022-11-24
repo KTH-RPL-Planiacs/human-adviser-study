@@ -126,7 +126,7 @@ impl SynthGame {
         self.graph.acc.contains(state)
     }
 
-    pub fn next_state(&self, cur_state: &GraphState, next_move: NextMove) -> GraphState {
+    pub fn apply_robot_move(&self, cur_state: &GraphState, next_move: NextMove) -> GraphState {
         for edge in &self.links {
             if edge.source == *cur_state && edge.act() == next_move {
                 return edge.target.clone();
@@ -136,7 +136,23 @@ impl SynthGame {
         panic!("No next state found!");
     }
 
-    // hacky hacky TODO: 
+    pub fn apply_human_obs(&self, cur_state: &GraphState, obs: &String) -> GraphState {
+        for edge in &self.links {
+            if edge.source == *cur_state
+                && edge
+                    .guards
+                    .as_ref()
+                    .expect("Not a human state")
+                    .contains(obs)
+            {
+                return edge.target.clone();
+            }
+        }
+
+        panic!("No next state found!");
+    }
+
+    // hacky hacky TODO:
     // For now this works since we assume only one outgoing edge (prob = 1.0).
     pub fn skip_prob_state(&self, prob_state: &GraphState) -> GraphState {
         for edge in &self.links {
@@ -148,7 +164,7 @@ impl SynthGame {
         panic!("No next state found!");
     }
 
-    pub fn valid_moves(&self, cur_state: &GraphState) -> Vec<NextMove> {
+    pub fn valid_robot_moves(&self, cur_state: &GraphState) -> Vec<NextMove> {
         let mut valid_moves = Vec::new();
 
         for edge in &self.links {
@@ -165,6 +181,8 @@ impl SynthGame {
 pub struct Graph {
     pub acc: Vec<GraphState>,
     pub init: GraphState,
+    pub human_ap: Vec<String>,
+    pub mdp_ap: Vec<String>,
 }
 
 #[derive(Deserialize, Debug)]

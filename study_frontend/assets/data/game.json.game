@@ -78,10 +78,10 @@
             "delivery_r"
         ],
         "human_ap": [
-            "patty_h",
             "buns_h",
-            "lettuce_h",
+            "patty_h",
             "tomato_h",
+            "lettuce_h",
             "ketchup_h"
         ]
     },

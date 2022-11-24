@@ -106,6 +106,15 @@ pub struct NextPosition {
     pub y: usize,
 }
 
+impl NextPosition {
+    pub fn as_pos(&self) -> Position {
+        Position {
+            x: self.x,
+            y: self.y,
+        }
+    }
+}
+
 #[derive(Component, Debug, Copy, Clone)]
 pub enum TileType {
     Default,
@@ -182,9 +191,33 @@ impl ActiveAdvisers {
         self.fairness.clear();
     }
 
-    pub fn safety_violated(&self) -> bool {
+    pub fn safety_violated(&self, obs: &String) -> bool {
+        for guards in &self.safety {
+            for g in guards {
+                if obs_match_guard(obs, g) {
+                    return true;
+                }
+            }
+        }
         false
     }
+}
+
+fn obs_match_guard(obs: &String, guard: &String) -> bool {
+    assert_eq!(obs.len(), guard.len());
+    for (i, c) in guard.chars().enumerate() {
+        if c == 'X' {
+            continue;
+        }
+        if c != obs
+            .chars()
+            .nth(i)
+            .expect("obs_match_guard: obs and guard should be same length!")
+        {
+            return false;
+        }
+    }
+    true
 }
 
 pub struct SafetyViolated;
