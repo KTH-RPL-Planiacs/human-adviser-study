@@ -196,6 +196,7 @@ pub fn prepare_robot_move(
     synth_game: Res<SynthGame>,
     robot_next_move: Option<Res<RobotNextMove>>,
     mut game_results: ResMut<GameResults>,
+    adviser_icons: Query<Entity, With<AdviserIcon>>,
 ) {
     if robot_next_move.is_none() {
         let mut robot_move = if let Some(next_move) = strategy.next_move(&synth_game_state.0) {
@@ -225,16 +226,23 @@ pub fn prepare_robot_move(
 
         // update avisers
         active_advisers.clear_all();
+        for adv_icon in adviser_icons.iter() {
+            commands.entity(adv_icon).despawn_recursive();
+        }
         for safe_adv in &strategy.safety_adv {
             let state_from: &GraphState = &safe_adv.0;
             if synth_game_state.0 == *state_from {
-                active_advisers.safety.push(safe_adv.1.clone())
+                let guards = safe_adv.1.clone();
+                assert!(guards.len() == 1);
+                active_advisers.safety.extend(guards);
             }
         }
         for fair_adv in &strategy.fairness_adv {
             let state_from: &GraphState = &fair_adv.0;
             if synth_game_state.0 == *state_from {
-                active_advisers.fairness.push(fair_adv.1.clone())
+                let guards = fair_adv.1.clone();
+                assert!(guards.len() == 1);
+                active_advisers.fairness.extend(guards);
             }
         }
     }
@@ -504,8 +512,7 @@ fn interacting_pos(cur_pos: &Position) -> Position {
 // returns true if a burger was made
 fn update_burger_status(burger_progress: &mut BurgerProgress, cur_pos: &Position) -> bool {
     if cur_pos.x == DELIVERY_POS_H.0 && cur_pos.y == DELIVERY_POS_H.1 {
-        burger_progress.make_burger();
-        return true;
+        return burger_progress.make_burger();
     }
 
     if cur_pos.x == PATTY_POS_H.0 && cur_pos.y == PATTY_POS_H.1 {

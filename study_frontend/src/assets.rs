@@ -45,6 +45,28 @@ pub struct CharacterAssets {
 }
 
 #[derive(AssetCollection)]
+pub struct AdviserAssets {
+    #[asset(path = "sprites/person.png")]
+    pub person: Handle<Image>,
+    #[asset(path = "sprites/robot.png")]
+    pub robot: Handle<Image>,
+    #[asset(path = "sprites/arrowRight.png")]
+    pub arrow: Handle<Image>,
+    #[asset(path = "sprites/cross.png")]
+    pub cross: Handle<Image>,
+    #[asset(path = "sprites/burger_patty.png")]
+    pub patty: Handle<Image>,
+    #[asset(path = "sprites/burger_buns.png")]
+    pub buns: Handle<Image>,
+    #[asset(path = "sprites/burger_tomato.png")]
+    pub tomato: Handle<Image>,
+    #[asset(path = "sprites/burger_sauce.png")]
+    pub sauce: Handle<Image>,
+    #[asset(path = "sprites/burger_lettuce.png")]
+    pub lettuce: Handle<Image>,
+}
+
+#[derive(AssetCollection)]
 pub struct BurgerUiAssets {
     #[asset(path = "sprites/burger_patty_inactive.png")]
     pub patty_inactive: Handle<Image>,

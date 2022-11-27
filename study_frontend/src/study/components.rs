@@ -2,8 +2,6 @@ use std::{error::Error, fmt::Display, str::FromStr, usize};
 
 use bevy::prelude::*;
 
-use crate::assets::Guards;
-
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum StudyState {
     Idle,
@@ -41,6 +39,9 @@ pub enum Interact {
 
 #[derive(Component)]
 pub struct AdviserUi;
+
+#[derive(Component)]
+pub struct AdviserIcon;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum NextMove {
@@ -144,6 +145,9 @@ pub struct GameTimer(pub Timer);
 #[derive(Component)]
 pub struct TimerText;
 
+#[derive(Component)]
+pub struct BurgerText;
+
 #[derive(Default, Debug, Copy, Clone)]
 pub struct BurgerProgress {
     pub assembled: u32,
@@ -159,7 +163,7 @@ impl BurgerProgress {
         self.buns && self.patty && self.lettuce && self.tomato && self.sauce
     }
 
-    pub fn make_burger(&mut self) {
+    pub fn make_burger(&mut self) -> bool {
         if self.ready() {
             self.assembled += 1;
             self.buns = false;
@@ -167,7 +171,9 @@ impl BurgerProgress {
             self.lettuce = false;
             self.tomato = false;
             self.sauce = false;
+            return true;
         }
+        return false;
     }
 
     pub fn reset(&mut self) {
@@ -181,8 +187,8 @@ impl BurgerProgress {
 
 #[derive(Default, Debug)]
 pub struct ActiveAdvisers {
-    pub safety: Vec<Guards>,
-    pub fairness: Vec<Guards>,
+    pub safety: Vec<String>,
+    pub fairness: Vec<String>,
 }
 
 impl ActiveAdvisers {
@@ -192,11 +198,9 @@ impl ActiveAdvisers {
     }
 
     pub fn safety_violated(&self, obs: &String) -> bool {
-        for guards in &self.safety {
-            for g in guards {
-                if obs_match_guard(obs, g) {
-                    return true;
-                }
+        for guard in &self.safety {
+            if obs_match_guard(obs, guard) {
+                return true;
             }
         }
         false

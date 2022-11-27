@@ -1,4 +1,5 @@
 use bevy::{prelude::*, window::WindowResized};
+use study_shared_types::GameResults;
 
 use crate::{assets::*, study::components::*};
 
@@ -63,6 +64,7 @@ pub fn setup_adviser_ui(
         .insert(Study)
         .insert(AdviserUi)
         .add_children(|parent| {
+            // timer text
             parent
                 .spawn_bundle(Text2dBundle {
                     transform: Transform::from_xyz(0., 0., MENU_Z + 1.),
@@ -78,6 +80,22 @@ pub fn setup_adviser_ui(
                     ..default()
                 })
                 .insert(TimerText);
+            // burger score text
+            parent
+                .spawn_bundle(Text2dBundle {
+                    transform: Transform::from_xyz(0., 0., MENU_Z + 1.),
+                    text: Text::from_section(
+                        "TEST!",
+                        TextStyle {
+                            font: fonts.default_font.clone(),
+                            font_size: 45.0,
+                            color: Color::WHITE,
+                        },
+                    )
+                    .with_alignment(TextAlignment::CENTER),
+                    ..default()
+                })
+                .insert(BurgerText);
         });
 }
 
@@ -169,7 +187,14 @@ pub fn scale_burger_ui(
 
 pub fn scale_adviser_ui(
     mut adviser_ui: Query<(&mut Transform, &mut Sprite), (With<AdviserUi>, Without<TimerText>)>,
-    mut timer_text: Query<&mut Transform, (With<TimerText>, Without<AdviserUi>)>,
+    mut timer_text: Query<
+        &mut Transform,
+        (With<TimerText>, Without<AdviserUi>, Without<BurgerText>),
+    >,
+    mut burger_text: Query<
+        &mut Transform,
+        (With<BurgerText>, Without<AdviserUi>, Without<TimerText>),
+    >,
     window_size: Res<WindowSize>,
 ) {
     if window_size.is_changed() {
@@ -179,12 +204,141 @@ pub fn scale_adviser_ui(
         sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
         let text_pos = window_size.height * 0.5 - SIDEBAR_PADDING;
         timer_text.single_mut().translation = Vec3::new(0., text_pos, MENU_Z + 1.);
+        burger_text.single_mut().translation = Vec3::new(0., text_pos - 50., MENU_Z + 1.);
     }
 }
 
-pub fn update_adviser_ui(active_advisers: Res<ActiveAdvisers>) {
+const ADVISER_SIZE: f32 = 75.0;
+pub fn update_adviser_ui(
+    active_advisers: Res<ActiveAdvisers>,
+    synth_game: Res<SynthGame>,
+    mut commands: Commands,
+    window_size: Res<WindowSize>,
+    adviser_icons: Res<AdviserAssets>,
+) {
     if active_advisers.is_changed() {
-        println!("{:?}", active_advisers);
+        let mut adviser_pos_y = window_size.height * 0.5 - 200.;
+        // safety
+        for saf_adv in &active_advisers.safety {
+            let mut adviser_pos_x = window_size.width * 0.5 - SIDEBAR_WIDTH + SIDEBAR_PADDING;
+            commands
+                .spawn_bundle(SpriteBundle {
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                        ..default()
+                    },
+                    transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
+                    texture: adviser_icons.person.clone(),
+                    ..default()
+                })
+                .insert(Study)
+                .insert(AdviserIcon);
+            adviser_pos_x += ADVISER_SIZE;
+            commands
+                .spawn_bundle(SpriteBundle {
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                        ..default()
+                    },
+                    transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
+                    texture: adviser_icons.cross.clone(),
+                    ..default()
+                })
+                .insert(Study)
+                .insert(AdviserIcon);
+            adviser_pos_x += ADVISER_SIZE;
+            for (i, c) in saf_adv.chars().enumerate() {
+                if c == 'X' {
+                    continue;
+                }
+                if c == '0' {
+                    panic!("Safety adviser with negative proposition, not supported!")
+                }
+                let sprite_handle = match synth_game.graph.human_ap[i].as_str() {
+                    "buns_h" => adviser_icons.buns.clone(),
+                    "patty_h" => adviser_icons.patty.clone(),
+                    "tomato_h" => adviser_icons.tomato.clone(),
+                    "lettuce_h" => adviser_icons.lettuce.clone(),
+                    "ketchup_h" => adviser_icons.sauce.clone(),
+                    _ => panic!("Could not find sprite!"),
+                };
+                commands
+                    .spawn_bundle(SpriteBundle {
+                        sprite: Sprite {
+                            custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                            ..default()
+                        },
+                        transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
+                        texture: sprite_handle,
+                        ..default()
+                    })
+                    .insert(Study)
+                    .insert(AdviserIcon);
+                adviser_pos_x += ADVISER_SIZE;
+            }
+            adviser_pos_y -= ADVISER_SIZE;
+        }
+
+        // fairness
+        for fair_adv in &active_advisers.fairness {
+            let mut adviser_pos_x = window_size.width * 0.5 - SIDEBAR_WIDTH + SIDEBAR_PADDING;
+            commands
+                .spawn_bundle(SpriteBundle {
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                        ..default()
+                    },
+                    transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
+                    texture: adviser_icons.person.clone(),
+                    ..default()
+                })
+                .insert(Study)
+                .insert(AdviserIcon);
+            adviser_pos_x += ADVISER_SIZE;
+            commands
+                .spawn_bundle(SpriteBundle {
+                    sprite: Sprite {
+                        custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                        ..default()
+                    },
+                    transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
+                    texture: adviser_icons.arrow.clone(),
+                    ..default()
+                })
+                .insert(Study)
+                .insert(AdviserIcon);
+            adviser_pos_x += ADVISER_SIZE;
+            for (i, c) in fair_adv.chars().enumerate() {
+                if c == 'X' {
+                    continue;
+                }
+                if c == '0' {
+                    panic!("fairness adviser with negative proposition, not supported!")
+                }
+                let sprite_handle = match synth_game.graph.human_ap[i].as_str() {
+                    "buns_h" => adviser_icons.buns.clone(),
+                    "patty_h" => adviser_icons.patty.clone(),
+                    "tomato_h" => adviser_icons.tomato.clone(),
+                    "lettuce_h" => adviser_icons.lettuce.clone(),
+                    "ketchup_h" => adviser_icons.sauce.clone(),
+                    _ => panic!("Could not find sprite!"),
+                };
+                commands
+                    .spawn_bundle(SpriteBundle {
+                        sprite: Sprite {
+                            custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                            ..default()
+                        },
+                        transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
+                        texture: sprite_handle,
+                        ..default()
+                    })
+                    .insert(Study)
+                    .insert(AdviserIcon);
+                adviser_pos_x += ADVISER_SIZE;
+            }
+            adviser_pos_y -= ADVISER_SIZE;
+        }
     }
 }
 
@@ -209,6 +363,17 @@ pub fn update_timer_text(mut timer_text: Query<&mut Text, With<TimerText>>, time
     let minutes_left = remaining.as_secs() / 60;
     let seconds_left = remaining.as_secs() % 60;
     text.sections[0].value = format!("{}:{:02}", minutes_left, seconds_left);
+}
+
+pub fn update_burger_text(
+    mut burger_text: Query<&mut Text, With<BurgerText>>,
+    game_results: Res<GameResults>,
+) {
+    let mut text = burger_text.single_mut();
+    text.sections[0].value = format!(
+        "You: {}, Robot: {}",
+        game_results.human_burgers, game_results.robot_burgers
+    );
 }
 
 pub fn resize_tiles(
