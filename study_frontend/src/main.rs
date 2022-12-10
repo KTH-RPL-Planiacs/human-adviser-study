@@ -6,10 +6,6 @@ use assets::*;
 use bevy::{prelude::*, render::texture::ImageSettings};
 use bevy_asset_loader::prelude::*;
 use bevy_common_assets::json::JsonAssetPlugin;
-use menu::{
-    end::send_study_data,
-    start::{update_part_id, update_part_id_display, update_start_btn},
-};
 use study::{logic_systems::*, ui_systems::*};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -64,9 +60,6 @@ fn main() {
         .add_system_set(SystemSet::on_enter(AppState::MenuStart).with_system(menu::start::setup_ui))
         .add_system_set(
             SystemSet::on_update(AppState::MenuStart)
-                .with_system(update_part_id)
-                .with_system(update_part_id_display)
-                .with_system(update_start_btn)
                 .with_system(menu::start::btn_visuals)
                 .with_system(menu::start::btn_listeners),
         )
@@ -117,7 +110,7 @@ fn main() {
         .add_system_set(
             SystemSet::on_enter(AppState::End)
                 .with_system(menu::end::setup_ui)
-                .with_system(send_study_data),
+                .with_system(menu::end::send_study_data),
         )
         .run();
 }

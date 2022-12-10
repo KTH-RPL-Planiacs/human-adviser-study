@@ -5,7 +5,7 @@ use crate::FontAssets;
 
 use super::BUTTON_TEXT;
 
-pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
+pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, result: Res<GameResults>) {
     // ui camera
     commands.spawn_bundle(Camera2dBundle::default());
 
@@ -36,7 +36,7 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
                 text: Text {
                     sections: vec![
                         TextSection {
-                            value: "Thank you for participating!\n".to_owned(),
+                            value: "Thank you for participating!\n\n".to_owned(),
                             style: TextStyle {
                                 font: font_assets.default_font.clone(),
                                 font_size: 40.0,
@@ -44,7 +44,16 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
                             },
                         },
                         TextSection {
-                            value: "Please return to the questionnaire.".to_owned(),
+                            value: format!("Your ID is {}!\n\n", result.participant_id),
+                            style: TextStyle {
+                                font: font_assets.default_font.clone(),
+                                font_size: 40.0,
+                                color: BUTTON_TEXT,
+                            },
+                        },
+                        TextSection {
+                            value: "Please return to the questionnaire and enter your ID."
+                                .to_owned(),
                             style: TextStyle {
                                 font: font_assets.default_font.clone(),
                                 font_size: 40.0,

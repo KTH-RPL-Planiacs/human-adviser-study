@@ -5,7 +5,6 @@ use crate::{
     assets::{
         CharacterAssets, GraphState, MapAssets, Strategy, SynthGame, SynthGameState, TileData,
     },
-    menu::start::ParticipantId,
     study::components::*,
     AppState,
 };
@@ -16,17 +15,14 @@ use super::*;
 *   SETUP
 */
 
-pub fn setup_study(mut commands: Commands, windows: Res<Windows>, part_id: Res<ParticipantId>) {
+pub fn setup_study(mut commands: Commands, windows: Res<Windows>) {
     commands.insert_resource(StudyState::Idle);
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
     commands.insert_resource(GameTimer(Timer::new(GAME_DURATION, false)));
     commands.insert_resource(BurgerProgress::default());
     commands.insert_resource(ActiveAdvisers::default());
     commands.insert_resource(GameResults {
-        participant_id: part_id
-            .0
-            .parse::<i32>()
-            .expect("The participant ID should be a number!"),
+        participant_id: 0, // TODO: generate
         human_burgers: 0,
         robot_burgers: 0,
     });

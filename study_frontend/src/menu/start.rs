@@ -2,9 +2,7 @@ use bevy::prelude::*;
 
 use crate::{AppState, FontAssets};
 
-use super::{
-    BUTTON_TEXT, DISABLED_BUTTON, HOVERED_BUTTON, NORMAL_BUTTON, PART_ID_LEN, PRESSED_BUTTON,
-};
+use super::{BUTTON_TEXT, HOVERED_BUTTON, NORMAL_BUTTON, PRESSED_BUTTON};
 
 #[derive(Component)]
 pub struct MenuStartUI;
@@ -14,17 +12,10 @@ pub enum MenuStartBtn {
     Start,
 }
 
-pub struct ParticipantId(pub String);
-
-#[derive(Component)]
-pub struct ButtonEnabled(bool);
-
 #[derive(Component)]
 pub struct ParticipantIdText;
 
 pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
-    // participant id resource
-    commands.insert_resource(ParticipantId("".to_owned()));
     // ui camera
     commands
         .spawn_bundle(Camera2dBundle::default())
@@ -58,7 +49,7 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
                     text: Text {
                         sections: vec![
                             TextSection {
-                                value: format!("Please type your {}-digit ID!\n", PART_ID_LEN),
+                                value: format!("Press the START button to begin!\n"),
                                 style: TextStyle {
                                     font: font_assets.default_font.clone(),
                                     font_size: 40.0,
@@ -107,102 +98,32 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
                         ..Default::default()
                     });
                 })
-                .insert(MenuStartBtn::Start)
-                .insert(ButtonEnabled(false));
+                .insert(MenuStartBtn::Start);
         })
         .insert(MenuStartUI);
 }
 
-pub fn update_part_id(
-    mut char_evr: EventReader<ReceivedCharacter>,
-    keys: Res<Input<KeyCode>>,
-    mut lobby_id: ResMut<ParticipantId>,
-) {
-    let lid = &mut lobby_id.0;
-    for ev in char_evr.iter() {
-        if lid.len() < PART_ID_LEN && ev.char.is_ascii_digit() {
-            lid.push(ev.char);
-        }
-    }
-    if keys.just_pressed(KeyCode::Back) {
-        let mut chars = lid.chars();
-        chars.next_back();
-        *lid = chars.as_str().to_owned();
-    }
-}
-
-pub fn update_part_id_display(
-    mut query: Query<&mut Text, With<ParticipantIdText>>,
-    lobby_id: ResMut<ParticipantId>,
-) {
-    for mut text in query.iter_mut() {
-        text.sections[1].value = lobby_id.0.clone();
-    }
-}
-
-pub fn update_start_btn(
-    text_query: Query<&Text, With<ParticipantIdText>>,
-    mut btn_query: Query<&mut ButtonEnabled, With<MenuStartBtn>>,
-) {
-    let mut lobby_id_complete = false;
-    for text in text_query.iter() {
-        if text.sections[1].value.len() == PART_ID_LEN {
-            lobby_id_complete = true;
-            break;
-        }
-    }
-
-    for mut enabled in btn_query.iter_mut() {
-        enabled.0 = lobby_id_complete;
-    }
-}
-
-pub fn btn_visuals(
-    mut interaction_query: Query<
-        (&Interaction, &mut UiColor, Option<&ButtonEnabled>),
-        With<MenuStartBtn>,
-    >,
-) {
-    for (interaction, mut color, enabled) in interaction_query.iter_mut() {
-        let changeable = match enabled {
-            Some(e) => e.0,
-            None => true,
-        };
-        if changeable {
-            match *interaction {
-                Interaction::Clicked => {
-                    *color = PRESSED_BUTTON.into();
-                }
-                Interaction::Hovered => {
-                    *color = HOVERED_BUTTON.into();
-                }
-                Interaction::None => {
-                    *color = NORMAL_BUTTON.into();
-                }
+pub fn btn_visuals(mut interaction_query: Query<(&Interaction, &mut UiColor), With<MenuStartBtn>>) {
+    for (interaction, mut color) in interaction_query.iter_mut() {
+        match *interaction {
+            Interaction::Clicked => {
+                *color = PRESSED_BUTTON.into();
             }
-        } else {
-            *color = DISABLED_BUTTON.into();
+            Interaction::Hovered => {
+                *color = HOVERED_BUTTON.into();
+            }
+            Interaction::None => {
+                *color = NORMAL_BUTTON.into();
+            }
         }
     }
 }
 
 pub fn btn_listeners(
     mut state: ResMut<State<AppState>>,
-    mut interaction_query: Query<
-        (&Interaction, &MenuStartBtn, Option<&ButtonEnabled>),
-        Changed<Interaction>,
-    >,
+    mut interaction_query: Query<(&Interaction, &MenuStartBtn), Changed<Interaction>>,
 ) {
-    for (interaction, btn, enabled) in interaction_query.iter_mut() {
-        let clickable = match enabled {
-            Some(e) => e.0,
-            None => true,
-        };
-
-        if !clickable {
-            continue;
-        }
-
+    for (interaction, btn) in interaction_query.iter_mut() {
         if let Interaction::Clicked = *interaction {
             match btn {
                 MenuStartBtn::Start => {

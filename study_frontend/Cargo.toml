@@ -9,7 +9,7 @@ edition = "2021"
 study_shared_types = { path= "../study_shared_types" }
 js-sys = "0.3"
 wasm-bindgen-futures = "0.4"
-wasm-bindgen = "=0.2.82"
+wasm-bindgen = "=0.2.83"
 bevy = "0.8"
 bevy_common_assets = { version = "0.3", features = ["json"] }
 bevy_asset_loader = "0.12.1"
