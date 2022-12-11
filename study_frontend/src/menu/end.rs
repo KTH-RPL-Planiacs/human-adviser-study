@@ -80,6 +80,8 @@ pub fn send_study_data(result: Res<GameResults>) {
         use wasm_bindgen_futures::{spawn_local, JsFuture};
         use web_sys::{Headers, Request, RequestInit, RequestMode, Response};
 
+        const DATABASE_BACKEND_URL: &str = "http://127.0.0.1:3030/data";
+
         info!("Sending Study Results...");
 
         // create request - hacky json encoding
@@ -87,13 +89,12 @@ pub fn send_study_data(result: Res<GameResults>) {
         let body = JsValue::from_str(&result_json);
         let headers = Headers::new().unwrap();
         headers.set("content-type", "application/json").unwrap();
-        let url = format!("http://127.0.0.1:3030/data");
         let mut opts = RequestInit::new();
         opts.method("POST")
             .mode(RequestMode::Cors)
             .body(Some(&body))
             .headers(&headers);
-        let request = Request::new_with_str_and_init(&url, &opts).unwrap();
+        let request = Request::new_with_str_and_init(DATABASE_BACKEND_URL, &opts).unwrap();
 
         // send request
         let window = web_sys::window().unwrap();
