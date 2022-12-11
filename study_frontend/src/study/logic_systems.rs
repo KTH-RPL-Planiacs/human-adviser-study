@@ -1,5 +1,6 @@
 use bevy::prelude::*;
-use study_shared_types::GameResults;
+use rand::Rng;
+use study_shared_types::{AdviserMode, GameResults};
 
 use crate::{
     assets::{
@@ -15,14 +16,18 @@ use super::*;
 *   SETUP
 */
 
-pub fn setup_study(mut commands: Commands, windows: Res<Windows>) {
+pub fn setup_study(mut commands: Commands, windows: Res<Windows>, adviser_mode: Res<AdviserMode>) {
+    let mut rng = rand::thread_rng();
     commands.insert_resource(StudyState::Idle);
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
     commands.insert_resource(GameTimer(Timer::new(GAME_DURATION, false)));
     commands.insert_resource(BurgerProgress::default());
     commands.insert_resource(ActiveAdvisers::default());
     commands.insert_resource(GameResults {
-        participant_id: 0, // TODO: generate
+        participant_id: rng.gen_range(100000..999999),
+        adviser_mode: adviser_mode.to_num(),
+        steps_taken: 0,
+        safety_violated: 0,
         human_burgers: 0,
         robot_burgers: 0,
     });
@@ -393,6 +398,7 @@ pub fn resolve_moves(
     commands.remove_resource::<HumanNextMove>();
     commands.remove_resource::<RobotNextMove>();
     anim_timer.0.reset();
+    game_results.steps_taken += 1;
 
     // interaction - human
     if human_move == NextMove::Interact {
@@ -433,6 +439,7 @@ pub fn resolve_moves(
     // check for safety assumption violation
     // then update study state accordingly
     if active_advisers.safety_violated(&obs) {
+        game_results.safety_violated += 1;
         commands.insert_resource(SafetyViolated);
         anim_timer.0.set_duration(FADE_DURATION);
         *study_state = StudyState::FadeAway;

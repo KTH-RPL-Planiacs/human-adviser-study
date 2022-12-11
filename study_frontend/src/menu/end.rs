@@ -44,7 +44,7 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, result: Re
                             },
                         },
                         TextSection {
-                            value: format!("Your ID is {}!\n\n", result.participant_id),
+                            value: format!("Your ID is {}\n\n", result.participant_id),
                             style: TextStyle {
                                 font: font_assets.default_font.clone(),
                                 font_size: 40.0,
@@ -83,7 +83,7 @@ pub fn send_study_data(result: Res<GameResults>) {
         info!("Sending Study Results...");
 
         // create request - hacky json encoding
-        let result_json = format!("{{\"participant_id\": {}}}", result.participant_id);
+        let result_json = result.to_json();
         let body = JsValue::from_str(&result_json);
         let headers = Headers::new().unwrap();
         headers.set("content-type", "application/json").unwrap();

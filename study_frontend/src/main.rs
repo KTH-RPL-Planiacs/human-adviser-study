@@ -7,6 +7,7 @@ use bevy::{prelude::*, render::texture::ImageSettings};
 use bevy_asset_loader::prelude::*;
 use bevy_common_assets::json::JsonAssetPlugin;
 use study::{logic_systems::*, ui_systems::*};
+use study_shared_types::AdviserMode;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub enum AppState {
@@ -24,6 +25,19 @@ enum SystemSetLabels {
 }
 
 fn main() {
+    /*
+    // choose adviser mode at random
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    let adviser_mode = match rng.gen_range(0..=2) {
+        0 => AdviserMode::LeastLimiting,
+        1 => AdviserMode::NextMove,
+        _ => AdviserMode::None,
+    };
+    */
+
+    let adviser_mode = AdviserMode::LeastLimiting;
+
     App::new()
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(Color::BLACK))
@@ -32,6 +46,7 @@ fn main() {
             width: 1366.0,
             ..default()
         })
+        .insert_resource(adviser_mode)
         .add_plugins(DefaultPlugins)
         .add_plugin(JsonAssetPlugin::<TileData>::new(&["json.tiles"]))
         .add_plugin(JsonAssetPlugin::<Strategy>::new(&["json.strat"]))

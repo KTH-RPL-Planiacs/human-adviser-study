@@ -1,7 +1,7 @@
 use dotenv::dotenv;
 use log::{error, info};
 use mysql_async::{prelude::*, OptsBuilder};
-use study_shared_types::GameResults;
+use study_shared_types::{AdviserMode, GameResults};
 use warp::{
     http::{self},
     Filter,
@@ -37,10 +37,15 @@ async fn insert_user_data(game_result: GameResults) -> Result<impl warp::Reply, 
         }
     };
 
-    let query = r"INSERT INTO study_data (participant_id)
-      VALUES (:participant_id)"
+    let query = r"INSERT INTO study_data (participant_id, adviser_mode, steps_taken, safety_violated, human_burgers, robot_burgers)
+      VALUES (:participant_id, :adviser_mode, :steps_taken, :safety_violated, :human_burgers, :robot_burgers)"
         .with(params! {
-            "participant_id" => game_result.participant_id
+            "participant_id" => game_result.participant_id,
+            "adviser_mode" => AdviserMode::from_num(game_result.adviser_mode).to_string(),
+            "steps_taken" => game_result.steps_taken,
+            "safety_violated" => game_result.safety_violated,
+            "human_burgers" => game_result.human_burgers,
+            "robot_burgers" => game_result.robot_burgers,
         });
 
     // insert game result data
@@ -72,7 +77,12 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // make sure the table exists
     r"CREATE TABLE if not exists study_data (
-        participant_id int not null
+        participant_id int primary key,
+        adviser_mode ENUM('LeastLimiting', 'NextMove', 'None'),
+        steps_taken int not null,
+        safety_violated int not null,
+        human_burgers int not null,
+        robot_burgers int not null        
     )"
     .ignore(&mut conn)
     .await?;
