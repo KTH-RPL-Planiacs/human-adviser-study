@@ -316,27 +316,47 @@ fn delivery_move(state: &str) -> NextMove {
     }
 }
 
-pub fn prepare_human_move(mut commands: Commands, keyboard_input: Res<Input<KeyCode>>) {
+pub fn prepare_human_move(
+    mut commands: Commands,
+    player: Query<&Position, (With<Player>, Without<Robot>)>,
+    keyboard_input: Res<Input<KeyCode>>,
+) {
     let mut next_move: Option<NextMove> = None;
+    let cur_pos = player
+        .get_single()
+        .expect("There should only be one human.");
 
     if keyboard_input.just_pressed(KeyCode::Left) {
-        next_move = Some(NextMove::Left);
+        if cur_pos.is_equal(DELIVERY_POS_H) {
+            next_move = Some(NextMove::Interact);
+        } else {
+            next_move = Some(NextMove::Left);
+        }
     }
 
     if keyboard_input.just_pressed(KeyCode::Right) {
-        next_move = Some(NextMove::Right)
+        next_move = Some(NextMove::Right);
     }
 
     if keyboard_input.just_pressed(KeyCode::Up) {
-        next_move = Some(NextMove::Up)
+        next_move = Some(NextMove::Up);
     }
 
     if keyboard_input.just_pressed(KeyCode::Down) {
-        next_move = Some(NextMove::Down)
+        if cur_pos.is_equal(PATTY_POS_H)
+            || cur_pos.is_equal(BUNS_POS_H)
+            || cur_pos.is_equal(LETTUCE_POS_H)
+            || cur_pos.is_equal(SAUCE_POS_H)
+            || cur_pos.is_equal(TOMATO_POS_H)
+        {
+            next_move = Some(NextMove::Interact);
+        } else {
+            next_move = Some(NextMove::Down);
+        }
     }
 
     if keyboard_input.just_pressed(KeyCode::Space) {
-        next_move = Some(NextMove::Interact)
+        next_move = Some(NextMove::Idle);
     }
 
     if let Some(m) = next_move {
