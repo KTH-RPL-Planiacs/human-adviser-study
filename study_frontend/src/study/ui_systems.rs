@@ -371,8 +371,8 @@ pub fn update_burger_text(
 ) {
     let mut text = burger_text.single_mut();
     text.sections[0].value = format!(
-        "You: {}, Robot: {}",
-        game_results.human_burgers, game_results.robot_burgers
+        "Burgers Made: {}",
+        game_results.human_burgers + game_results.robot_burgers
     );
 }
 
