@@ -425,7 +425,10 @@ pub fn resolve_moves(
         let interact_pos_h = interacting_pos(cur_pos_h);
         if valid_moves.len() == 1 {
             *interact_h = Interact::Out(interact_pos_h);
-            if update_burger_status(&mut burger_progress, cur_pos_h) {
+            // robot is asking for help with sauce
+            let robot_sauce_interact =
+                cur_pos_r.is_equal(SAUCE_POS_R) && matches!(*interact_r, Interact::In(_));
+            if update_burger_status(&mut burger_progress, cur_pos_h, robot_sauce_interact) {
                 game_results.human_burgers += 1;
             }
         } else {
@@ -533,28 +536,32 @@ fn interacting_pos(cur_pos: &Position) -> Position {
 }
 
 // returns true if a burger was made
-fn update_burger_status(burger_progress: &mut BurgerProgress, cur_pos: &Position) -> bool {
-    if cur_pos.x == DELIVERY_POS_H.0 && cur_pos.y == DELIVERY_POS_H.1 {
+fn update_burger_status(
+    burger_progress: &mut BurgerProgress,
+    cur_pos: &Position,
+    robot_sauce_interact: bool,
+) -> bool {
+    if cur_pos.is_equal(DELIVERY_POS_H) {
         return burger_progress.make_burger();
     }
 
-    if cur_pos.x == PATTY_POS_H.0 && cur_pos.y == PATTY_POS_H.1 {
+    if cur_pos.is_equal(PATTY_POS_H) {
         burger_progress.patty = true;
     }
 
-    if cur_pos.x == BUNS_POS_H.0 && cur_pos.y == BUNS_POS_H.1 {
+    if cur_pos.is_equal(BUNS_POS_H) {
         burger_progress.buns = true;
     }
 
-    if cur_pos.x == LETTUCE_POS_H.0 && cur_pos.y == LETTUCE_POS_H.1 {
+    if cur_pos.is_equal(LETTUCE_POS_H) {
         burger_progress.lettuce = true;
     }
 
-    if cur_pos.x == TOMATO_POS_H.0 && cur_pos.y == TOMATO_POS_H.1 {
+    if cur_pos.is_equal(TOMATO_POS_H) {
         burger_progress.tomato = true;
     }
 
-    if cur_pos.x == SAUCE_POS_H.0 && cur_pos.y == SAUCE_POS_H.1 {
+    if cur_pos.is_equal(SAUCE_POS_H) && !robot_sauce_interact {
         burger_progress.sauce = true;
     }
     return false;
