@@ -148,7 +148,7 @@ pub struct TimerText;
 #[derive(Component)]
 pub struct BurgerText;
 
-#[derive(Default, Debug, Copy, Clone)]
+#[derive(Default, Debug, Copy, Clone, Component)]
 pub struct BurgerProgress {
     pub assembled: u32,
     pub buns: bool,

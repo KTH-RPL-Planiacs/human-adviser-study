@@ -101,9 +101,13 @@ pub fn setup_adviser_ui(
 
 pub fn update_burger_ui(
     mut burger_components: Query<(&mut Handle<Image>, &BurgerComponent)>,
-    progress: Res<BurgerProgress>,
+    progress_query: Query<&BurgerProgress, (With<Player>, Without<Robot>)>,
     assets: Res<BurgerUiAssets>,
 ) {
+    let progress = progress_query
+        .get_single()
+        .expect("There should only be one human.");
+
     for (mut tex, bc) in burger_components.iter_mut() {
         match *bc {
             BurgerComponent::Buns => {

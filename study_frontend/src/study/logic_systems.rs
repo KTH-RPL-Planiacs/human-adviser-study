@@ -21,7 +21,6 @@ pub fn setup_study(mut commands: Commands, windows: Res<Windows>, adviser_mode: 
     commands.insert_resource(StudyState::Idle);
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
     commands.insert_resource(GameTimer(Timer::new(GAME_DURATION, false)));
-    commands.insert_resource(BurgerProgress::default());
     commands.insert_resource(ActiveAdvisers::default());
     commands.insert_resource(GameResults {
         participant_id: rng.gen_range(100000..999999),
@@ -89,6 +88,7 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
             y: HUMAN_START.1,
         })
         .insert(Interact::No)
+        .insert(BurgerProgress::default())
         .insert(Player)
         .insert(Study);
 
@@ -107,6 +107,7 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
             y: ROBOT_START.1,
         })
         .insert(Interact::No)
+        .insert(BurgerProgress::default())
         .insert(Robot)
         .insert(Study);
 
@@ -134,14 +135,23 @@ pub fn update_animation_state(
     mut study_state: ResMut<StudyState>,
     is_violated: Option<Res<SafetyViolated>>,
     mut player: Query<
-        (&mut Position, &mut Interact, &mut NextPosition),
+        (
+            &mut Position,
+            &mut Interact,
+            &mut NextPosition,
+            &mut BurgerProgress,
+        ),
         (With<Player>, Without<Robot>),
     >,
     mut robot: Query<
-        (&mut Position, &mut Interact, &mut NextPosition),
+        (
+            &mut Position,
+            &mut Interact,
+            &mut NextPosition,
+            &mut BurgerProgress,
+        ),
         (With<Robot>, Without<Player>),
     >,
-    mut burger_progress: ResMut<BurgerProgress>,
     mut synth_game_state: ResMut<SynthGameState>,
     synth_game: Res<SynthGame>,
 ) {
@@ -151,21 +161,24 @@ pub fn update_animation_state(
 
         // if we had a safety violation, reset simulation
         if is_violated.is_some() {
-            if let Ok((mut pos, mut interact, mut next_pos)) = player.get_single_mut() {
+            if let Ok((mut pos, mut interact, mut next_pos, mut progress)) = player.get_single_mut()
+            {
                 pos.x = HUMAN_START.0;
                 pos.y = HUMAN_START.1;
                 next_pos.x = HUMAN_START.0;
                 next_pos.y = HUMAN_START.1;
                 *interact = Interact::No;
+                progress.reset();
             }
-            if let Ok((mut pos, mut interact, mut next_pos)) = robot.get_single_mut() {
+            if let Ok((mut pos, mut interact, mut next_pos, mut progress)) = robot.get_single_mut()
+            {
                 pos.x = ROBOT_START.0;
                 pos.y = ROBOT_START.1;
                 next_pos.x = ROBOT_START.0;
                 next_pos.y = ROBOT_START.1;
                 *interact = Interact::No;
+                progress.reset();
             }
-            burger_progress.reset();
             synth_game_state.0 = synth_game.graph.init.clone();
             commands.remove_resource::<SafetyViolated>();
             commands.remove_resource::<RobotNextMove>();
@@ -367,14 +380,26 @@ pub fn prepare_human_move(
 pub fn resolve_moves(
     mut commands: Commands,
     mut player: Query<
-        (&Position, &mut Interact, &mut NextPosition),
+        (
+            &Position,
+            &mut Interact,
+            &mut NextPosition,
+            &mut BurgerProgress,
+        ),
         (With<Player>, Without<Robot>),
     >,
-    mut robot: Query<(&Position, &mut Interact, &mut NextPosition), (With<Robot>, Without<Player>)>,
+    mut robot: Query<
+        (
+            &Position,
+            &mut Interact,
+            &mut NextPosition,
+            &mut BurgerProgress,
+        ),
+        (With<Robot>, Without<Player>),
+    >,
     mut study_state: ResMut<StudyState>,
     mut anim_timer: ResMut<AnimationTimer>,
     mut synth_game_state: ResMut<SynthGameState>,
-    mut burger_progress: ResMut<BurgerProgress>,
     mut game_results: ResMut<GameResults>,
     active_advisers: Res<ActiveAdvisers>,
     synth_game: Res<SynthGame>,
@@ -393,10 +418,10 @@ pub fn resolve_moves(
     };
 
     // fetch current and next positions
-    let (cur_pos_r, mut interact_r, mut next_pos_r) = robot
+    let (cur_pos_r, mut interact_r, mut next_pos_r, mut progress_r) = robot
         .get_single_mut()
         .expect("There should only be one robot.");
-    let (cur_pos_h, mut interact_h, mut next_pos_h) = player
+    let (cur_pos_h, mut interact_h, mut next_pos_h, mut progress_h) = player
         .get_single_mut()
         .expect("There should only be one human.");
 
@@ -428,7 +453,7 @@ pub fn resolve_moves(
             // robot is asking for help with sauce
             let robot_sauce_interact =
                 cur_pos_r.is_equal(SAUCE_POS_R) && matches!(*interact_r, Interact::In(_));
-            if update_burger_status(&mut burger_progress, cur_pos_h, robot_sauce_interact) {
+            if update_burger_status_h(&mut progress_h, cur_pos_h, robot_sauce_interact) {
                 game_results.human_burgers += 1;
             }
         } else {
@@ -443,6 +468,11 @@ pub fn resolve_moves(
         let interact_pos_r = interacting_pos(cur_pos_r);
         if matches!(*interact_r, Interact::In(_)) {
             *interact_r = Interact::Out(interact_pos_r);
+            let sauce_help =
+                cur_pos_h.is_equal(SAUCE_POS_H) && matches!(*interact_h, Interact::In(_));
+            if update_burger_status_r(&mut progress_r, cur_pos_r, sauce_help) {
+                game_results.human_burgers += 1;
+            }
         } else {
             *interact_r = Interact::In(interact_pos_r);
         }
@@ -535,11 +565,10 @@ fn interacting_pos(cur_pos: &Position) -> Position {
     panic!("No interacting_pos found!");
 }
 
-// returns true if a burger was made
-fn update_burger_status(
+fn update_burger_status_h(
     burger_progress: &mut BurgerProgress,
     cur_pos: &Position,
-    robot_sauce_interact: bool,
+    sauce_help: bool,
 ) -> bool {
     if cur_pos.is_equal(DELIVERY_POS_H) {
         return burger_progress.make_burger();
@@ -561,7 +590,40 @@ fn update_burger_status(
         burger_progress.tomato = true;
     }
 
-    if cur_pos.is_equal(SAUCE_POS_H) && !robot_sauce_interact {
+    // if human helps, they don't grab sauce
+    if cur_pos.is_equal(SAUCE_POS_H) && !sauce_help {
+        burger_progress.sauce = true;
+    }
+    return false;
+}
+
+fn update_burger_status_r(
+    burger_progress: &mut BurgerProgress,
+    cur_pos: &Position,
+    sauce_help: bool,
+) -> bool {
+    if cur_pos.is_equal(DELIVERY_POS_R) {
+        return burger_progress.make_burger();
+    }
+
+    if cur_pos.is_equal(PATTY_POS_R) {
+        burger_progress.patty = true;
+    }
+
+    if cur_pos.is_equal(BUNS_POS_R) {
+        burger_progress.buns = true;
+    }
+
+    if cur_pos.is_equal(LETTUCE_POS_R) {
+        burger_progress.lettuce = true;
+    }
+
+    if cur_pos.is_equal(TOMATO_POS_R) {
+        burger_progress.tomato = true;
+    }
+
+    // without human help, no sauce
+    if cur_pos.is_equal(SAUCE_POS_R) && sauce_help {
         burger_progress.sauce = true;
     }
     return false;
