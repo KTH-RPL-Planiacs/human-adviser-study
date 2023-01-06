@@ -22,6 +22,12 @@ pub struct Robot;
 pub struct BurgerUi;
 
 #[derive(Component)]
+pub struct HumanBurgerUi;
+
+#[derive(Component)]
+pub struct RobotBurgerUi;
+
+#[derive(Component)]
 pub enum BurgerComponent {
     Buns,
     Patty,

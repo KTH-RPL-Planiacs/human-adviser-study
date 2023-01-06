@@ -9,7 +9,7 @@ pub const NUM_TILES: usize = 5;
 
 pub const MENU_Z: f32 = 10.0;
 pub const SIDEBAR_WIDTH: f32 = 300.0;
-pub const INGREDIENT_SCALE: f32 = 0.5;
+pub const INGREDIENT_SCALE: f32 = 0.3;
 pub const SIDEBAR_PADDING: f32 = 50.0;
 
 pub const ANIM_DURATION: Duration = Duration::from_millis(400);

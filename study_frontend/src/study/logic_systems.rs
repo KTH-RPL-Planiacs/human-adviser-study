@@ -469,7 +469,7 @@ pub fn resolve_moves(
         if matches!(*interact_r, Interact::In(_)) {
             *interact_r = Interact::Out(interact_pos_r);
             let sauce_help =
-                cur_pos_h.is_equal(SAUCE_POS_H) && matches!(*interact_h, Interact::In(_));
+                cur_pos_h.is_equal(SAUCE_POS_H) && matches!(*interact_h, Interact::Out(_));
             if update_burger_status_r(&mut progress_r, cur_pos_r, sauce_help) {
                 game_results.human_burgers += 1;
             }

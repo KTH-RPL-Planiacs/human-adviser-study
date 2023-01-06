@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use bevy::{prelude::*, window::WindowResized};
 use study_shared_types::GameResults;
 
@@ -18,36 +20,79 @@ pub fn setup_burger_ui(
         .insert(Study)
         .insert(BurgerUi)
         .add_children(|parent| {
+            // human components
             parent
                 .spawn_bundle(SpriteBundle {
                     texture: burger_components.buns_inactive.clone(),
                     ..default()
                 })
-                .insert(BurgerComponent::Buns);
+                .insert(BurgerComponent::Buns)
+                .insert(HumanBurgerUi);
             parent
                 .spawn_bundle(SpriteBundle {
                     texture: burger_components.patty_inactive.clone(),
                     ..default()
                 })
-                .insert(BurgerComponent::Patty);
+                .insert(BurgerComponent::Patty)
+                .insert(HumanBurgerUi);
             parent
                 .spawn_bundle(SpriteBundle {
                     texture: burger_components.lettuce_inactive.clone(),
                     ..default()
                 })
-                .insert(BurgerComponent::Lettuce);
+                .insert(BurgerComponent::Lettuce)
+                .insert(HumanBurgerUi);
             parent
                 .spawn_bundle(SpriteBundle {
                     texture: burger_components.tomato_inactive.clone(),
                     ..default()
                 })
-                .insert(BurgerComponent::Tomato);
+                .insert(BurgerComponent::Tomato)
+                .insert(HumanBurgerUi);
             parent
                 .spawn_bundle(SpriteBundle {
                     texture: burger_components.sauce_inactive.clone(),
                     ..default()
                 })
-                .insert(BurgerComponent::Sauce);
+                .insert(BurgerComponent::Sauce)
+                .insert(HumanBurgerUi);
+
+            // robot components
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.buns_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Buns)
+                .insert(RobotBurgerUi);
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.patty_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Patty)
+                .insert(RobotBurgerUi);
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.lettuce_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Lettuce)
+                .insert(RobotBurgerUi);
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.tomato_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Tomato)
+                .insert(RobotBurgerUi);
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: burger_components.sauce_inactive.clone(),
+                    ..default()
+                })
+                .insert(BurgerComponent::Sauce)
+                .insert(RobotBurgerUi);
         });
 }
 
@@ -99,8 +144,11 @@ pub fn setup_adviser_ui(
         });
 }
 
-pub fn update_burger_ui(
-    mut burger_components: Query<(&mut Handle<Image>, &BurgerComponent)>,
+pub fn update_human_burger_ui(
+    mut components_h: Query<
+        (&mut Handle<Image>, &BurgerComponent),
+        (With<HumanBurgerUi>, Without<RobotBurgerUi>),
+    >,
     progress_query: Query<&BurgerProgress, (With<Player>, Without<Robot>)>,
     assets: Res<BurgerUiAssets>,
 ) {
@@ -108,7 +156,60 @@ pub fn update_burger_ui(
         .get_single()
         .expect("There should only be one human.");
 
-    for (mut tex, bc) in burger_components.iter_mut() {
+    for (mut tex, bc) in components_h.iter_mut() {
+        match *bc {
+            BurgerComponent::Buns => {
+                *tex = if progress.buns {
+                    assets.buns.clone()
+                } else {
+                    assets.buns_inactive.clone()
+                };
+            }
+            BurgerComponent::Patty => {
+                *tex = if progress.patty {
+                    assets.patty.clone()
+                } else {
+                    assets.patty_inactive.clone()
+                };
+            }
+            BurgerComponent::Lettuce => {
+                *tex = if progress.lettuce {
+                    assets.lettuce.clone()
+                } else {
+                    assets.lettuce_inactive.clone()
+                };
+            }
+            BurgerComponent::Tomato => {
+                *tex = if progress.tomato {
+                    assets.tomato.clone()
+                } else {
+                    assets.tomato_inactive.clone()
+                };
+            }
+            BurgerComponent::Sauce => {
+                *tex = if progress.sauce {
+                    assets.sauce.clone()
+                } else {
+                    assets.sauce_inactive.clone()
+                };
+            }
+        }
+    }
+}
+
+pub fn update_robot_burger_ui(
+    mut components_r: Query<
+        (&mut Handle<Image>, &BurgerComponent),
+        (With<RobotBurgerUi>, Without<HumanBurgerUi>),
+    >,
+    progress_query: Query<&BurgerProgress, (With<Robot>, Without<Player>)>,
+    assets: Res<BurgerUiAssets>,
+) {
+    let progress = progress_query
+        .get_single()
+        .expect("There should only be one human.");
+
+    for (mut tex, bc) in components_r.iter_mut() {
         match *bc {
             BurgerComponent::Buns => {
                 *tex = if progress.buns {
@@ -151,9 +252,23 @@ pub fn update_burger_ui(
 
 pub fn scale_burger_ui(
     mut burger_ui: Query<(&mut Transform, &mut Sprite), (With<BurgerUi>, Without<BurgerComponent>)>,
-    mut burger_components: Query<
+    mut human_components: Query<
         (&mut Transform, &mut Sprite, &BurgerComponent),
-        (With<BurgerComponent>, Without<BurgerUi>),
+        (
+            With<BurgerComponent>,
+            With<HumanBurgerUi>,
+            Without<BurgerUi>,
+            Without<RobotBurgerUi>,
+        ),
+    >,
+    mut robot_components: Query<
+        (&mut Transform, &mut Sprite, &BurgerComponent),
+        (
+            With<BurgerComponent>,
+            With<RobotBurgerUi>,
+            Without<BurgerUi>,
+            Without<HumanBurgerUi>,
+        ),
     >,
     window_size: Res<WindowSize>,
 ) {
@@ -163,28 +278,44 @@ pub fn scale_burger_ui(
         transf.translation = Vec3::new(x_pos, 0., MENU_Z);
         sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
 
-        let fifth = (window_size.height - SIDEBAR_PADDING) * 0.2;
         let window_upper = (window_size.height - SIDEBAR_PADDING) * 0.5;
         let component_scale = SIDEBAR_WIDTH * INGREDIENT_SCALE;
-        for (mut bc_transf, mut bc_sprite, bc) in burger_components.iter_mut() {
+        let cx_h = 0.;
+        let cy_h = window_upper * 0.5;
+        let radius = SIDEBAR_WIDTH * 0.5 - component_scale * 0.5 - 10.;
+        let theta = (2. * PI) / 5.;
+        for (mut bc_transf, mut bc_sprite, bc) in human_components.iter_mut() {
             bc_sprite.custom_size = Some(Vec2::new(component_scale, component_scale));
-            match *bc {
-                BurgerComponent::Buns => {
-                    bc_transf.translation = Vec3::new(0., window_upper - 0.5 * fifth, MENU_Z + 1.0)
-                }
-                BurgerComponent::Patty => {
-                    bc_transf.translation = Vec3::new(0., window_upper - 1.5 * fifth, MENU_Z + 1.0)
-                }
-                BurgerComponent::Lettuce => {
-                    bc_transf.translation = Vec3::new(0., window_upper - 2.5 * fifth, MENU_Z + 1.0)
-                }
-                BurgerComponent::Tomato => {
-                    bc_transf.translation = Vec3::new(0., window_upper - 3.5 * fifth, MENU_Z + 1.0)
-                }
-                BurgerComponent::Sauce => {
-                    bc_transf.translation = Vec3::new(0., window_upper - 4.5 * fifth, MENU_Z + 1.0)
-                }
-            }
+            let count = match *bc {
+                BurgerComponent::Buns => 0.,
+                BurgerComponent::Patty => 1.,
+                BurgerComponent::Lettuce => 2.,
+                BurgerComponent::Tomato => 3.,
+                BurgerComponent::Sauce => 4.,
+            };
+            let angle = count * theta;
+            bc_transf.translation = Vec3::new(
+                cx_h + radius * angle.cos() - 10.,
+                cy_h + radius * angle.sin(),
+                MENU_Z + 1.0,
+            )
+        }
+
+        for (mut bc_transf, mut bc_sprite, bc) in robot_components.iter_mut() {
+            bc_sprite.custom_size = Some(Vec2::new(component_scale, component_scale));
+            let count = match *bc {
+                BurgerComponent::Buns => 0.,
+                BurgerComponent::Patty => 1.,
+                BurgerComponent::Lettuce => 2.,
+                BurgerComponent::Tomato => 3.,
+                BurgerComponent::Sauce => 4.,
+            };
+            let angle = count * theta;
+            bc_transf.translation = Vec3::new(
+                cx_h + radius * angle.cos() - 10.,
+                cy_h + radius * angle.sin() - window_upper,
+                MENU_Z + 1.0,
+            )
         }
     }
 }
