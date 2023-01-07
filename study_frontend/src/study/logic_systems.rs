@@ -20,6 +20,7 @@ use super::*;
 pub fn setup_study(mut commands: Commands, windows: Res<Windows>, adviser_mode: Res<AdviserMode>) {
     let mut rng = rand::thread_rng();
     commands.insert_resource(StudyState::Idle);
+    commands.insert_resource(StepCounter(0));
     commands.insert_resource(AnimationTimer(Timer::new(ANIM_DURATION, false)));
     commands.insert_resource(GameTimer(Timer::new(GAME_DURATION, false)));
     commands.insert_resource(ActiveAdvisers::default());
@@ -226,6 +227,7 @@ pub fn prepare_robot_move(
     synth_game: Res<SynthGame>,
     robot_next_move: Option<Res<RobotNextMove>>,
     mut game_results: ResMut<GameResults>,
+    step_counter: Res<StepCounter>,
     adviser_icons: Query<Entity, With<AdviserIcon>>,
 ) {
     if robot_next_move.is_none() {
@@ -279,7 +281,7 @@ pub fn prepare_robot_move(
 
         // if we are in strict adviser condition, compute the next move to be shown
         if matches!(*adviser_mode, AdviserMode::NextMove) {
-            active_advisers.next_move = hardcoded_next_move(game_results.steps_taken);
+            active_advisers.next_move = hardcoded_next_move(step_counter.0);
         }
     }
 }
@@ -454,7 +456,9 @@ pub fn resolve_moves(
     mut anim_timer: ResMut<AnimationTimer>,
     mut synth_game_state: ResMut<SynthGameState>,
     mut game_results: ResMut<GameResults>,
+    mut step_counter: ResMut<StepCounter>,
     active_advisers: Res<ActiveAdvisers>,
+    adviser_mode: Res<AdviserMode>,
     synth_game: Res<SynthGame>,
     next_move_r: Option<ResMut<RobotNextMove>>,
     next_move_h: Option<ResMut<HumanNextMove>>,
@@ -497,6 +501,7 @@ pub fn resolve_moves(
     commands.remove_resource::<RobotNextMove>();
     anim_timer.0.reset();
     game_results.steps_taken += 1;
+    step_counter.0 += 1;
 
     // interaction - human
     if human_move == NextMove::Interact {
@@ -542,13 +547,26 @@ pub fn resolve_moves(
     let prob_state: GraphState = synth_game.apply_human_obs(&synth_game_state.0, &obs);
     synth_game_state.0 = synth_game.skip_prob_state(&prob_state);
 
-    // check for safety assumption violation
+    // check for adviser violation
+    let reset_necessary = match *adviser_mode {
+        AdviserMode::LeastLimiting => active_advisers.safety_violated(&obs),
+        AdviserMode::None => active_advisers.safety_violated(&obs),
+        AdviserMode::NextMove => {
+            if valid_moves.contains(&active_advisers.next_move) {
+                human_move != active_advisers.next_move
+            } else {
+                human_move != NextMove::Interact
+            }
+        }
+    };
+
     // then update study state accordingly
-    if active_advisers.safety_violated(&obs) {
+    if reset_necessary {
         game_results.safety_violated += 1;
         commands.insert_resource(SafetyViolated);
         anim_timer.0.set_duration(FADE_DURATION);
         *study_state = StudyState::FadeAway;
+        step_counter.0 = 0;
     } else {
         anim_timer.0.set_duration(ANIM_DURATION);
         *study_state = StudyState::Animation;

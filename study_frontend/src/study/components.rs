@@ -69,7 +69,9 @@ pub enum NextMove {
 }
 
 impl Default for NextMove {
-    fn default() -> Self { NextMove::Idle }
+    fn default() -> Self {
+        NextMove::Idle
+    }
 }
 
 impl FromStr for NextMove {
@@ -98,6 +100,9 @@ impl Error for ParseMoveError {}
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct HumanNextMove(pub NextMove);
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct StepCounter(pub u32);
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct RobotNextMove(pub NextMove);
