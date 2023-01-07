@@ -68,6 +68,16 @@ pub struct AdviserAssets {
     pub sauce: Handle<Image>,
     #[asset(path = "sprites/burger_lettuce.png")]
     pub lettuce: Handle<Image>,
+    #[asset(path = "sprites/move_idle.png")]
+    pub move_idle: Handle<Image>,
+    #[asset(path = "sprites/move_up.png")]
+    pub move_up: Handle<Image>,
+    #[asset(path = "sprites/move_down.png")]
+    pub move_down: Handle<Image>,
+    #[asset(path = "sprites/move_left.png")]
+    pub move_left: Handle<Image>,
+    #[asset(path = "sprites/move_right.png")]
+    pub move_right: Handle<Image>,
 }
 
 #[derive(AssetCollection)]

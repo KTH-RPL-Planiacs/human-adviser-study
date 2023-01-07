@@ -4,7 +4,7 @@ pub mod components;
 pub mod logic_systems;
 pub mod ui_systems;
 
-pub const TILE_PADDING: f32 = 10.0;
+pub const TILE_PADDING: f32 = 60.0;
 pub const NUM_TILES: usize = 5;
 
 pub const MENU_Z: f32 = 10.0;

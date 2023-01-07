@@ -1,7 +1,7 @@
 use std::f32::consts::PI;
 
 use bevy::{prelude::*, window::WindowResized};
-use study_shared_types::GameResults;
+use study_shared_types::{AdviserMode, GameResults};
 
 use crate::{assets::*, study::components::*};
 
@@ -465,67 +465,59 @@ pub fn resize_speech_bubble(
 pub fn toggle_speech_bubble(
     mut bubble: Query<&mut Visibility, With<SpeechBubble>>,
     active_advisers: Res<ActiveAdvisers>,
+    adviser_mode: Res<AdviserMode>,
 ) {
-    if active_advisers.is_changed() {
-        bubble.single_mut().is_visible = !active_advisers.is_empty();
+    match *adviser_mode {
+        AdviserMode::None => return, // robot stays silent
+        AdviserMode::NextMove => {
+            bubble.single_mut().is_visible = true;
+        }
+        AdviserMode::LeastLimiting => {
+            if active_advisers.is_changed() {
+                bubble.single_mut().is_visible = !active_advisers.is_empty();
+            }
+        }
     }
 }
 
 pub fn update_adviser_ui(
     bubble: Query<Entity, With<SpeechBubble>>,
     active_advisers: Res<ActiveAdvisers>,
+    adviser_mode: Res<AdviserMode>,
     mut commands: Commands,
     adviser_icons: Res<AdviserAssets>,
     tile_size: Res<TileSize>,
     synth_game: Res<SynthGame>,
 ) {
-    if active_advisers.is_changed() {
-        let bubble_id = bubble.single();
-        commands.entity(bubble_id).add_children(|parent| {
-            let mut adviser_pos_y = 0.;
-            // safety
-            for saf_adv in &active_advisers.safety {
-                let mut adviser_pos_x = -0.5 * tile_size.0;
-                parent
-                    .spawn_bundle(SpriteBundle {
-                        sprite: Sprite {
-                            custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+    match *adviser_mode {
+        AdviserMode::None => (), // robot stays silent
+        AdviserMode::NextMove => {
+            if active_advisers.is_changed() {
+                let bubble_id = bubble.single();
+                commands.entity(bubble_id).add_children(|parent| {
+                    parent
+                        .spawn_bundle(SpriteBundle {
+                            sprite: Sprite {
+                                custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                                ..default()
+                            },
+                            transform: Transform::from_xyz(
+                                -0.33 * tile_size.0,
+                                0.,
+                                SPEECH_BUBBLE_Z + 1.,
+                            ),
+                            texture: adviser_icons.person.clone(),
                             ..default()
-                        },
-                        transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
-                        texture: adviser_icons.person.clone(),
-                        ..default()
-                    })
-                    .insert(Study)
-                    .insert(AdviserIcon);
-                adviser_pos_x += ADVISER_SIZE;
-                parent
-                    .spawn_bundle(SpriteBundle {
-                        sprite: Sprite {
-                            custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
-                            ..default()
-                        },
-                        transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
-                        texture: adviser_icons.cross.clone(),
-                        ..default()
-                    })
-                    .insert(Study)
-                    .insert(AdviserIcon);
-                adviser_pos_x += ADVISER_SIZE;
-                for (i, c) in saf_adv.chars().enumerate() {
-                    if c == 'X' {
-                        continue;
-                    }
-                    if c == '0' {
-                        panic!("Safety adviser with negative proposition, not supported!")
-                    }
-                    let sprite_handle = match synth_game.graph.human_ap[i].as_str() {
-                        "buns_h" => adviser_icons.buns.clone(),
-                        "patty_h" => adviser_icons.patty.clone(),
-                        "tomato_h" => adviser_icons.tomato.clone(),
-                        "lettuce_h" => adviser_icons.lettuce.clone(),
-                        "ketchup_h" => adviser_icons.sauce.clone(),
-                        _ => panic!("Could not find sprite!"),
+                        })
+                        .insert(Study)
+                        .insert(AdviserIcon);
+                    let sprite_handle = match active_advisers.next_move {
+                        NextMove::Idle => adviser_icons.move_idle.clone(),
+                        NextMove::Up => adviser_icons.move_up.clone(),
+                        NextMove::Down => adviser_icons.move_down.clone(),
+                        NextMove::Left => adviser_icons.move_left.clone(),
+                        NextMove::Right => adviser_icons.move_right.clone(),
+                        NextMove::Interact => adviser_icons.move_down.clone(),
                     };
                     parent
                         .spawn_bundle(SpriteBundle {
@@ -534,85 +526,171 @@ pub fn update_adviser_ui(
                                 ..default()
                             },
                             transform: Transform::from_xyz(
-                                adviser_pos_x,
-                                adviser_pos_y,
-                                MENU_Z + 1.,
+                                -0.33 * tile_size.0 + ADVISER_SIZE,
+                                0.,
+                                SPEECH_BUBBLE_Z + 1.,
                             ),
                             texture: sprite_handle,
                             ..default()
                         })
                         .insert(Study)
                         .insert(AdviserIcon);
-                    adviser_pos_x += ADVISER_SIZE;
-                }
-                adviser_pos_y -= ADVISER_SIZE;
+                });
             }
+        }
+        AdviserMode::LeastLimiting => {
+            if active_advisers.is_changed() {
+                let bubble_id = bubble.single();
+                commands.entity(bubble_id).add_children(|parent| {
+                    let mut adviser_pos_y = 0.;
+                    // safety
+                    for saf_adv in &active_advisers.safety {
+                        let mut adviser_pos_x = -0.5 * tile_size.0;
+                        parent
+                            .spawn_bundle(SpriteBundle {
+                                sprite: Sprite {
+                                    custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                                    ..default()
+                                },
+                                transform: Transform::from_xyz(
+                                    adviser_pos_x,
+                                    adviser_pos_y,
+                                    MENU_Z + 1.,
+                                ),
+                                texture: adviser_icons.person.clone(),
+                                ..default()
+                            })
+                            .insert(Study)
+                            .insert(AdviserIcon);
+                        adviser_pos_x += ADVISER_SIZE;
+                        parent
+                            .spawn_bundle(SpriteBundle {
+                                sprite: Sprite {
+                                    custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                                    ..default()
+                                },
+                                transform: Transform::from_xyz(
+                                    adviser_pos_x,
+                                    adviser_pos_y,
+                                    MENU_Z + 1.,
+                                ),
+                                texture: adviser_icons.cross.clone(),
+                                ..default()
+                            })
+                            .insert(Study)
+                            .insert(AdviserIcon);
+                        adviser_pos_x += ADVISER_SIZE;
+                        for (i, c) in saf_adv.chars().enumerate() {
+                            if c == 'X' {
+                                continue;
+                            }
+                            if c == '0' {
+                                panic!("Safety adviser with negative proposition, not supported!")
+                            }
+                            let sprite_handle = match synth_game.graph.human_ap[i].as_str() {
+                                "buns_h" => adviser_icons.buns.clone(),
+                                "patty_h" => adviser_icons.patty.clone(),
+                                "tomato_h" => adviser_icons.tomato.clone(),
+                                "lettuce_h" => adviser_icons.lettuce.clone(),
+                                "ketchup_h" => adviser_icons.sauce.clone(),
+                                _ => panic!("Could not find sprite!"),
+                            };
+                            parent
+                                .spawn_bundle(SpriteBundle {
+                                    sprite: Sprite {
+                                        custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                                        ..default()
+                                    },
+                                    transform: Transform::from_xyz(
+                                        adviser_pos_x,
+                                        adviser_pos_y,
+                                        SPEECH_BUBBLE_Z + 1.,
+                                    ),
+                                    texture: sprite_handle,
+                                    ..default()
+                                })
+                                .insert(Study)
+                                .insert(AdviserIcon);
+                            adviser_pos_x += ADVISER_SIZE;
+                        }
+                        adviser_pos_y -= ADVISER_SIZE;
+                    }
 
-            // fairness
-            for fair_adv in &active_advisers.fairness {
-                let mut adviser_pos_x = -0.5 * tile_size.0;
-                parent
-                    .spawn_bundle(SpriteBundle {
-                        sprite: Sprite {
-                            custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
-                            ..default()
-                        },
-                        transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
-                        texture: adviser_icons.person.clone(),
-                        ..default()
-                    })
-                    .insert(Study)
-                    .insert(AdviserIcon);
-                adviser_pos_x += ADVISER_SIZE;
-                parent
-                    .spawn_bundle(SpriteBundle {
-                        sprite: Sprite {
-                            custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
-                            ..default()
-                        },
-                        transform: Transform::from_xyz(adviser_pos_x, adviser_pos_y, MENU_Z + 1.),
-                        texture: adviser_icons.arrow.clone(),
-                        ..default()
-                    })
-                    .insert(Study)
-                    .insert(AdviserIcon);
-                adviser_pos_x += ADVISER_SIZE;
-                for (i, c) in fair_adv.chars().enumerate() {
-                    if c == 'X' {
-                        continue;
-                    }
-                    if c == '0' {
-                        panic!("fairness adviser with negative proposition, not supported!")
-                    }
-                    let sprite_handle = match synth_game.graph.human_ap[i].as_str() {
-                        "buns_h" => adviser_icons.buns.clone(),
-                        "patty_h" => adviser_icons.patty.clone(),
-                        "tomato_h" => adviser_icons.tomato.clone(),
-                        "lettuce_h" => adviser_icons.lettuce.clone(),
-                        "ketchup_h" => adviser_icons.sauce.clone(),
-                        _ => panic!("Could not find sprite!"),
-                    };
-                    parent
-                        .spawn_bundle(SpriteBundle {
-                            sprite: Sprite {
-                                custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                    // fairness
+                    for fair_adv in &active_advisers.fairness {
+                        let mut adviser_pos_x = -0.5 * tile_size.0;
+                        parent
+                            .spawn_bundle(SpriteBundle {
+                                sprite: Sprite {
+                                    custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                                    ..default()
+                                },
+                                transform: Transform::from_xyz(
+                                    adviser_pos_x,
+                                    adviser_pos_y,
+                                    SPEECH_BUBBLE_Z + 1.,
+                                ),
+                                texture: adviser_icons.person.clone(),
                                 ..default()
-                            },
-                            transform: Transform::from_xyz(
-                                adviser_pos_x,
-                                adviser_pos_y,
-                                MENU_Z + 1.,
-                            ),
-                            texture: sprite_handle,
-                            ..default()
-                        })
-                        .insert(Study)
-                        .insert(AdviserIcon);
-                    adviser_pos_x += ADVISER_SIZE;
-                }
-                adviser_pos_y -= ADVISER_SIZE;
+                            })
+                            .insert(Study)
+                            .insert(AdviserIcon);
+                        adviser_pos_x += ADVISER_SIZE;
+                        parent
+                            .spawn_bundle(SpriteBundle {
+                                sprite: Sprite {
+                                    custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                                    ..default()
+                                },
+                                transform: Transform::from_xyz(
+                                    adviser_pos_x,
+                                    adviser_pos_y,
+                                    SPEECH_BUBBLE_Z + 1.,
+                                ),
+                                texture: adviser_icons.arrow.clone(),
+                                ..default()
+                            })
+                            .insert(Study)
+                            .insert(AdviserIcon);
+                        adviser_pos_x += ADVISER_SIZE;
+                        for (i, c) in fair_adv.chars().enumerate() {
+                            if c == 'X' {
+                                continue;
+                            }
+                            if c == '0' {
+                                panic!("fairness adviser with negative proposition, not supported!")
+                            }
+                            let sprite_handle = match synth_game.graph.human_ap[i].as_str() {
+                                "buns_h" => adviser_icons.buns.clone(),
+                                "patty_h" => adviser_icons.patty.clone(),
+                                "tomato_h" => adviser_icons.tomato.clone(),
+                                "lettuce_h" => adviser_icons.lettuce.clone(),
+                                "ketchup_h" => adviser_icons.sauce.clone(),
+                                _ => panic!("Could not find sprite!"),
+                            };
+                            parent
+                                .spawn_bundle(SpriteBundle {
+                                    sprite: Sprite {
+                                        custom_size: Some(Vec2::new(ADVISER_SIZE, ADVISER_SIZE)),
+                                        ..default()
+                                    },
+                                    transform: Transform::from_xyz(
+                                        adviser_pos_x,
+                                        adviser_pos_y,
+                                        SPEECH_BUBBLE_Z + 1.,
+                                    ),
+                                    texture: sprite_handle,
+                                    ..default()
+                                })
+                                .insert(Study)
+                                .insert(AdviserIcon);
+                            adviser_pos_x += ADVISER_SIZE;
+                        }
+                        adviser_pos_y -= ADVISER_SIZE;
+                    }
+                });
             }
-        });
+        }
     }
 }
 

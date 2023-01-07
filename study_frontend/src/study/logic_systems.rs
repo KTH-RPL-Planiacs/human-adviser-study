@@ -120,6 +120,7 @@ pub fn setup_actors(
             parent
                 .spawn_bundle(SpriteBundle {
                     texture: adviser_sprites.speech_bubble.clone(),
+                    visibility: Visibility { is_visible: false },
                     ..default()
                 })
                 .insert(SpeechBubble);
@@ -220,6 +221,7 @@ pub fn prepare_robot_move(
     mut commands: Commands,
     mut synth_game_state: ResMut<SynthGameState>,
     mut active_advisers: ResMut<ActiveAdvisers>,
+    adviser_mode: Res<AdviserMode>,
     strategy: Res<Strategy>,
     synth_game: Res<SynthGame>,
     robot_next_move: Option<Res<RobotNextMove>>,
@@ -257,6 +259,7 @@ pub fn prepare_robot_move(
         for adv_icon in adviser_icons.iter() {
             commands.entity(adv_icon).despawn_recursive();
         }
+
         for safe_adv in &strategy.safety_adv {
             let state_from: &GraphState = &safe_adv.0;
             if synth_game_state.0 == *state_from {
@@ -273,6 +276,42 @@ pub fn prepare_robot_move(
                 active_advisers.fairness.extend(guards);
             }
         }
+
+        // if we are in strict adviser condition, compute the next move to be shown
+        if matches!(*adviser_mode, AdviserMode::NextMove) {
+            active_advisers.next_move = hardcoded_next_move(game_results.steps_taken);
+        }
+    }
+}
+
+fn hardcoded_next_move(steps_taken: u32) -> NextMove {
+    let move_cycle = 24;
+    match steps_taken % move_cycle {
+        0 => NextMove::Down,
+        1 => NextMove::Left,
+        2 => NextMove::Down, // grab bun
+        3 => NextMove::Left,
+        4 => NextMove::Left,
+        5 => NextMove::Down, // grab patty
+        6 => NextMove::Right,
+        7 => NextMove::Right,
+        8 => NextMove::Right,
+        9 => NextMove::Right,
+        10 => NextMove::Down, // assist with sauce
+        11 => NextMove::Down,
+        12 => NextMove::Down, // grab sauce
+        13 => NextMove::Right,
+        14 => NextMove::Right,
+        15 => NextMove::Down, // grab lettuce
+        16 => NextMove::Left,
+        17 => NextMove::Left,
+        18 => NextMove::Left,
+        19 => NextMove::Down, // grab tomato
+        20 => NextMove::Up,
+        21 => NextMove::Up,
+        22 => NextMove::Left, // deliver
+        23 => NextMove::Down,
+        _ => panic!("impossible modulo value"),
     }
 }
 

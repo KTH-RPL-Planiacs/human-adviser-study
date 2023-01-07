@@ -25,7 +25,6 @@ enum SystemSetLabels {
 }
 
 fn main() {
-    /*
     // choose adviser mode at random
     use rand::Rng;
     let mut rng = rand::thread_rng();
@@ -34,9 +33,8 @@ fn main() {
         1 => AdviserMode::NextMove,
         _ => AdviserMode::None,
     };
-    */
 
-    let adviser_mode = AdviserMode::LeastLimiting;
+    let adviser_mode = AdviserMode::NextMove;
 
     App::new()
         .insert_resource(ImageSettings::default_nearest())

@@ -68,6 +68,10 @@ pub enum NextMove {
     Interact,
 }
 
+impl Default for NextMove {
+    fn default() -> Self { NextMove::Idle }
+}
+
 impl FromStr for NextMove {
     type Err = ParseMoveError;
 
@@ -205,6 +209,7 @@ impl BurgerProgress {
 pub struct ActiveAdvisers {
     pub safety: Vec<String>,
     pub fairness: Vec<String>,
+    pub next_move: NextMove,
 }
 
 impl ActiveAdvisers {
