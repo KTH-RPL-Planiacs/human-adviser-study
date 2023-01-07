@@ -50,6 +50,7 @@ pub enum Interact {
     No,
     In(Position),
     Out(Position),
+    Stay(Position),
 }
 
 #[derive(Component)]

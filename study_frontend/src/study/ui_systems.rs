@@ -721,6 +721,14 @@ pub fn draw_actor_to_pos(
         // interact animation offset
         match *interact {
             Interact::No => (),
+            Interact::Stay(interact_pos) => {
+                let dx = interact_pos.x as i32 - pos.x as i32;
+                let dy = interact_pos.y as i32 - pos.y as i32;
+                cur_x += tile_size.0 * 0.5 * dx as f32;
+                cur_y += tile_size.0 * 0.5 * dy as f32;
+                next_x += tile_size.0 * 0.5 * dx as f32;
+                next_y += tile_size.0 * 0.5 * dy as f32;
+            }
             Interact::In(interact_pos) => {
                 let dx = interact_pos.x as i32 - pos.x as i32;
                 let dy = interact_pos.y as i32 - pos.y as i32;

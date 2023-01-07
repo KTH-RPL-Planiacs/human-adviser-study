@@ -319,7 +319,7 @@ fn hardcoded_next_move(steps_taken: u32) -> NextMove {
 
 fn valid_human_moves(cur_pos: &Position, interact: &Interact) -> Vec<NextMove> {
     // if we just went into interaction, we can only finish it
-    if let Interact::In(_) = interact {
+    if let Interact::In(_) | Interact::Stay(_) = interact {
         return vec![NextMove::Interact];
     }
 
@@ -504,38 +504,68 @@ pub fn resolve_moves(
     step_counter.0 += 1;
 
     // interaction - human
-    if human_move == NextMove::Interact {
-        let interact_pos_h = interacting_pos(cur_pos_h);
-        if valid_moves.len() == 1 {
-            *interact_h = Interact::Out(interact_pos_h);
-            // robot is asking for help with sauce
-            let robot_sauce_interact =
-                cur_pos_r.is_equal(SAUCE_POS_R) && matches!(*interact_r, Interact::In(_));
-            if update_burger_status_h(&mut progress_h, cur_pos_h, robot_sauce_interact) {
-                game_results.human_burgers += 1;
+    match *interact_h {
+        // starting interaction mode
+        Interact::No | Interact::Out(_) => {
+            if human_move == NextMove::Interact {
+                let interact_pos_h = interacting_pos(cur_pos_h);
+                *interact_h = Interact::In(interact_pos_h);
+            } else {
+                *interact_h = Interact::No;
             }
-        } else {
-            *interact_h = Interact::In(interact_pos_h);
         }
-    } else {
-        *interact_h = Interact::No;
+        // ending or staying in interaction mode
+        Interact::In(ip) | Interact::Stay(ip) => {
+            if human_move == NextMove::Interact {
+                *interact_h = Interact::Out(ip);
+            } else {
+                *interact_h = Interact::Stay(ip);
+            }
+        }
+    }
+
+    // update burger status - human
+    if let Interact::In(_) | Interact::Stay(_) = *interact_h {
+        // is robot waiting for help with sauce?
+        let robot_sauce_interact = match *interact_r {
+            Interact::No | Interact::Out(_) => false,
+            Interact::In(_) | Interact::Stay(_) => cur_pos_r.is_equal(SAUCE_POS_R),
+        };
+        if update_burger_status_h(&mut progress_h, cur_pos_h, robot_sauce_interact) {
+            game_results.human_burgers += 1;
+        }
     }
 
     // interaction - robot
-    if robot_move == NextMove::Interact {
-        let interact_pos_r = interacting_pos(cur_pos_r);
-        if matches!(*interact_r, Interact::In(_)) {
-            *interact_r = Interact::Out(interact_pos_r);
-            let sauce_help =
-                cur_pos_h.is_equal(SAUCE_POS_H) && matches!(*interact_h, Interact::Out(_));
-            if update_burger_status_r(&mut progress_r, cur_pos_r, sauce_help) {
-                game_results.human_burgers += 1;
+    match *interact_r {
+        // starting interaction mode
+        Interact::No | Interact::Out(_) => {
+            if robot_move == NextMove::Interact {
+                let interact_pos_r = interacting_pos(cur_pos_r);
+                *interact_r = Interact::In(interact_pos_r);
+            } else {
+                *interact_r = Interact::No;
             }
-        } else {
-            *interact_r = Interact::In(interact_pos_r);
         }
-    } else {
-        *interact_r = Interact::No;
+        // ending or staying in interaction mode
+        Interact::In(ip) | Interact::Stay(ip) => {
+            if robot_move == NextMove::Interact {
+                *interact_r = Interact::Out(ip);
+            } else {
+                *interact_r = Interact::Stay(ip);
+            }
+        }
+    }
+
+    // update burger status - robot
+    if let Interact::In(_) | Interact::Stay(_) = *interact_r {
+        let human_sauce_help = match *interact_h {
+            Interact::No | Interact::Out(_) => false,
+            Interact::In(_) | Interact::Stay(_) => cur_pos_h.is_equal(SAUCE_POS_H),
+        };
+        if update_burger_status_r(&mut progress_r, cur_pos_r, human_sauce_help) {
+            game_results.human_burgers += 1;
+        }
     }
 
     // update grid positions for position interpolation
@@ -590,7 +620,7 @@ fn obs_from_pos(pos: Position, interact: &Interact, guard_ap: &[String]) -> Stri
 }
 
 fn interact_char(pos: Position, interact: &Interact, check: (usize, usize)) -> char {
-    if let Interact::In(_) = interact {
+    if let Interact::In(_) | Interact::Stay(_) = interact {
         if pos.is_equal(check) {
             '1'
         } else {
