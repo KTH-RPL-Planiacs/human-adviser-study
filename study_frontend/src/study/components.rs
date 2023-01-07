@@ -19,6 +19,9 @@ pub struct Player;
 pub struct Robot;
 
 #[derive(Component)]
+pub struct SpeechBubble;
+
+#[derive(Component)]
 pub struct BurgerUi;
 
 #[derive(Component)]
@@ -217,6 +220,10 @@ impl ActiveAdvisers {
             }
         }
         false
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.safety.is_empty() && self.fairness.is_empty()
     }
 }
 

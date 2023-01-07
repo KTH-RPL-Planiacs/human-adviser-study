@@ -48,6 +48,8 @@ pub struct CharacterAssets {
 
 #[derive(AssetCollection)]
 pub struct AdviserAssets {
+    #[asset(path = "sprites/speech_bubble.png")]
+    pub speech_bubble: Handle<Image>,
     #[asset(path = "sprites/person.png")]
     pub person: Handle<Image>,
     #[asset(path = "sprites/robot.png")]

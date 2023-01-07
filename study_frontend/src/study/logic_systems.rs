@@ -4,7 +4,8 @@ use study_shared_types::{AdviserMode, GameResults};
 
 use crate::{
     assets::{
-        CharacterAssets, GraphState, MapAssets, Strategy, SynthGame, SynthGameState, TileData,
+        AdviserAssets, CharacterAssets, GraphState, MapAssets, Strategy, SynthGame, SynthGameState,
+        TileData,
     },
     study::components::*,
     AppState,
@@ -73,7 +74,11 @@ pub fn setup_tiles(mut commands: Commands, tile_data: Res<TileData>, tile_sprite
     }
 }
 
-pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>) {
+pub fn setup_actors(
+    mut commands: Commands,
+    player_sprites: Res<CharacterAssets>,
+    adviser_sprites: Res<AdviserAssets>,
+) {
     // player
     commands
         .spawn_bundle(SpriteBundle {
@@ -110,7 +115,15 @@ pub fn setup_actors(mut commands: Commands, player_sprites: Res<CharacterAssets>
         .insert(Interact::No)
         .insert(BurgerProgress::default())
         .insert(Robot)
-        .insert(Study);
+        .insert(Study)
+        .add_children(|parent| {
+            parent
+                .spawn_bundle(SpriteBundle {
+                    texture: adviser_sprites.speech_bubble.clone(),
+                    ..default()
+                })
+                .insert(SpeechBubble);
+        });
 
     // fade away screen sprite
     commands

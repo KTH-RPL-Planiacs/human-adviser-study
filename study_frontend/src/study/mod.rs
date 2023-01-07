@@ -11,6 +11,8 @@ pub const MENU_Z: f32 = 10.0;
 pub const SIDEBAR_WIDTH: f32 = 300.0;
 pub const INGREDIENT_SCALE: f32 = 0.3;
 pub const SIDEBAR_PADDING: f32 = 50.0;
+pub const SPEECH_BUBBLE_Z: f32 = MENU_Z + 10.;
+pub const ADVISER_SIZE: f32 = 75.0;
 
 pub const ANIM_DURATION: Duration = Duration::from_millis(400);
 pub const FADE_DURATION: Duration = Duration::from_millis(1000);
