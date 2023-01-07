@@ -28,6 +28,12 @@ pub struct HumanBurgerUi;
 pub struct RobotBurgerUi;
 
 #[derive(Component)]
+pub struct HumanBurgerText;
+
+#[derive(Component)]
+pub struct RobotBurgerText;
+
+#[derive(Component)]
 pub enum BurgerComponent {
     Buns,
     Patty,
@@ -131,6 +137,7 @@ pub enum TileType {
     Lettuce,
     Tomato,
     Sauce,
+    Delivery,
 }
 
 #[derive(Debug, Copy, Clone)]

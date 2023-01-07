@@ -11,6 +11,7 @@ pub fn setup_burger_ui(
     mut commands: Commands,
     menu_sprites: Res<MenuAssets>,
     burger_components: Res<BurgerUiAssets>,
+    fonts: Res<FontAssets>,
 ) {
     commands
         .spawn_bundle(SpriteBundle {
@@ -20,6 +21,38 @@ pub fn setup_burger_ui(
         .insert(Study)
         .insert(BurgerUi)
         .add_children(|parent| {
+            // Human components text
+            parent
+                .spawn_bundle(Text2dBundle {
+                    transform: Transform::from_xyz(0., 0., MENU_Z + 1.),
+                    text: Text::from_section(
+                        "You",
+                        TextStyle {
+                            font: fonts.default_font.clone(),
+                            font_size: 90.0,
+                            color: Color::BLACK,
+                        },
+                    )
+                    .with_alignment(TextAlignment::CENTER),
+                    ..default()
+                })
+                .insert(HumanBurgerText);
+            // robot components text
+            parent
+                .spawn_bundle(Text2dBundle {
+                    transform: Transform::from_xyz(0., 0., MENU_Z + 1.),
+                    text: Text::from_section(
+                        "Robot",
+                        TextStyle {
+                            font: fonts.default_font.clone(),
+                            font_size: 90.0,
+                            color: Color::BLACK,
+                        },
+                    )
+                    .with_alignment(TextAlignment::CENTER),
+                    ..default()
+                })
+                .insert(RobotBurgerText);
             // human components
             parent
                 .spawn_bundle(SpriteBundle {
@@ -118,7 +151,7 @@ pub fn setup_adviser_ui(
                         TextStyle {
                             font: fonts.default_font.clone(),
                             font_size: 100.0,
-                            color: Color::WHITE,
+                            color: Color::BLACK,
                         },
                     )
                     .with_alignment(TextAlignment::CENTER),
@@ -134,7 +167,7 @@ pub fn setup_adviser_ui(
                         TextStyle {
                             font: fonts.default_font.clone(),
                             font_size: 45.0,
-                            color: Color::WHITE,
+                            color: Color::BLACK,
                         },
                     )
                     .with_alignment(TextAlignment::CENTER),
@@ -250,40 +283,25 @@ pub fn update_robot_burger_ui(
     }
 }
 
-pub fn scale_burger_ui(
-    mut burger_ui: Query<(&mut Transform, &mut Sprite), (With<BurgerUi>, Without<BurgerComponent>)>,
+pub fn scale_burger_ingredients_ui(
     mut human_components: Query<
         (&mut Transform, &mut Sprite, &BurgerComponent),
-        (
-            With<BurgerComponent>,
-            With<HumanBurgerUi>,
-            Without<BurgerUi>,
-            Without<RobotBurgerUi>,
-        ),
+        (With<HumanBurgerUi>, Without<RobotBurgerUi>),
     >,
     mut robot_components: Query<
         (&mut Transform, &mut Sprite, &BurgerComponent),
-        (
-            With<BurgerComponent>,
-            With<RobotBurgerUi>,
-            Without<BurgerUi>,
-            Without<HumanBurgerUi>,
-        ),
+        (With<RobotBurgerUi>, Without<HumanBurgerUi>),
     >,
     window_size: Res<WindowSize>,
 ) {
     if window_size.is_changed() {
-        let (mut transf, mut sprite) = burger_ui.single_mut();
-        let x_pos = window_size.width * -0.5 + SIDEBAR_WIDTH * 0.5;
-        transf.translation = Vec3::new(x_pos, 0., MENU_Z);
-        sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
-
         let window_upper = (window_size.height - SIDEBAR_PADDING) * 0.5;
         let component_scale = SIDEBAR_WIDTH * INGREDIENT_SCALE;
         let cx_h = 0.;
         let cy_h = window_upper * 0.5;
         let radius = SIDEBAR_WIDTH * 0.5 - component_scale * 0.5 - 10.;
         let theta = (2. * PI) / 5.;
+
         for (mut bc_transf, mut bc_sprite, bc) in human_components.iter_mut() {
             bc_sprite.custom_size = Some(Vec2::new(component_scale, component_scale));
             let count = match *bc {
@@ -296,7 +314,7 @@ pub fn scale_burger_ui(
             let angle = count * theta;
             bc_transf.translation = Vec3::new(
                 cx_h + radius * angle.cos() - 10.,
-                cy_h + radius * angle.sin(),
+                cy_h + radius * angle.sin() - 15.,
                 MENU_Z + 1.0,
             )
         }
@@ -313,23 +331,40 @@ pub fn scale_burger_ui(
             let angle = count * theta;
             bc_transf.translation = Vec3::new(
                 cx_h + radius * angle.cos() - 10.,
-                cy_h + radius * angle.sin() - window_upper,
+                cy_h + radius * angle.sin() - window_upper - 40.,
                 MENU_Z + 1.0,
             )
         }
     }
 }
 
+pub fn scale_burger_ui(
+    mut burger_ui: Query<(&mut Transform, &mut Sprite), With<BurgerUi>>,
+    window_size: Res<WindowSize>,
+) {
+    if window_size.is_changed() {
+        let (mut transf, mut sprite) = burger_ui.single_mut();
+        let x_pos = window_size.width * -0.5 + SIDEBAR_WIDTH * 0.5;
+        transf.translation = Vec3::new(x_pos, 0., MENU_Z);
+        sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
+    }
+}
+
+pub fn scale_burger_text_ui(
+    mut human_text: Query<&mut Transform, (With<HumanBurgerText>, Without<RobotBurgerText>)>,
+    mut robot_text: Query<&mut Transform, (With<RobotBurgerText>, Without<HumanBurgerText>)>,
+    window_size: Res<WindowSize>,
+) {
+    if window_size.is_changed() {
+        let human_text_pos = window_size.height * 0.5 - SIDEBAR_PADDING;
+        let robot_text_pos = -SIDEBAR_PADDING;
+        human_text.single_mut().translation = Vec3::new(0., human_text_pos, MENU_Z + 1.);
+        robot_text.single_mut().translation = Vec3::new(0., robot_text_pos, MENU_Z + 1.);
+    }
+}
+
 pub fn scale_adviser_ui(
     mut adviser_ui: Query<(&mut Transform, &mut Sprite), (With<AdviserUi>, Without<TimerText>)>,
-    mut timer_text: Query<
-        &mut Transform,
-        (With<TimerText>, Without<AdviserUi>, Without<BurgerText>),
-    >,
-    mut burger_text: Query<
-        &mut Transform,
-        (With<BurgerText>, Without<AdviserUi>, Without<TimerText>),
-    >,
     window_size: Res<WindowSize>,
 ) {
     if window_size.is_changed() {
@@ -337,9 +372,18 @@ pub fn scale_adviser_ui(
         let x_pos = window_size.width * 0.5 - SIDEBAR_WIDTH * 0.5;
         transf.translation = Vec3::new(x_pos, 0., MENU_Z);
         sprite.custom_size = Some(Vec2::new(SIDEBAR_WIDTH, window_size.height));
+    }
+}
+
+pub fn scale_adviser_text_ui(
+    mut timer_text: Query<&mut Transform, (With<TimerText>, Without<BurgerText>)>,
+    mut burger_text: Query<&mut Transform, (With<BurgerText>, Without<TimerText>)>,
+    window_size: Res<WindowSize>,
+) {
+    if window_size.is_changed() {
         let text_pos = window_size.height * 0.5 - SIDEBAR_PADDING;
         timer_text.single_mut().translation = Vec3::new(0., text_pos, MENU_Z + 1.);
-        burger_text.single_mut().translation = Vec3::new(0., text_pos - 50., MENU_Z + 1.);
+        burger_text.single_mut().translation = Vec3::new(0., text_pos - 100., MENU_Z + 1.);
     }
 }
 
@@ -506,7 +550,7 @@ pub fn update_burger_text(
 ) {
     let mut text = burger_text.single_mut();
     text.sections[0].value = format!(
-        "Burgers Made: {}",
+        "Burgers Made:\n{}",
         game_results.human_burgers + game_results.robot_burgers
     );
 }

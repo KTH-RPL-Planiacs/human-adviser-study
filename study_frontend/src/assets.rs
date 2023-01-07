@@ -34,6 +34,8 @@ pub struct MapAssets {
     pub sauce: Handle<Image>,
     #[asset(path = "sprites/tile_tomato.png")]
     pub tomato: Handle<Image>,
+    #[asset(path = "sprites/tile_delivery.png")]
+    pub delivery: Handle<Image>,
 }
 
 #[derive(AssetCollection)]
@@ -99,6 +101,35 @@ pub struct TileData {
     pub tomato: Vec<[usize; 2]>,
     pub sauce: Vec<[usize; 2]>,
     pub lettuce: Vec<[usize; 2]>,
+    pub delivery: Vec<[usize; 2]>,
+}
+
+impl TileData {
+    pub fn tile_by_coord(&self, x: usize, y: usize) -> TileType {
+        if self.floor.contains(&[x, y]) {
+            return TileType::Floor;
+        }
+        if self.patty.contains(&[x, y]) {
+            return TileType::Patty;
+        }
+        if self.buns.contains(&[x, y]) {
+            return TileType::Buns;
+        }
+        if self.tomato.contains(&[x, y]) {
+            return TileType::Tomato;
+        }
+        if self.sauce.contains(&[x, y]) {
+            return TileType::Sauce;
+        }
+        if self.lettuce.contains(&[x, y]) {
+            return TileType::Lettuce;
+        }
+        if self.delivery.contains(&[x, y]) {
+            return TileType::Delivery;
+        }
+
+        TileType::Default
+    }
 }
 
 pub type GraphState = (String, String, String);
@@ -234,31 +265,6 @@ impl LinkData {
             "interact" => NextMove::Interact,
             _ => panic!("Edge with invalid act label!"),
         }
-    }
-}
-
-impl TileData {
-    pub fn tile_by_coord(&self, x: usize, y: usize) -> TileType {
-        if self.floor.contains(&[x, y]) {
-            return TileType::Floor;
-        }
-        if self.patty.contains(&[x, y]) {
-            return TileType::Patty;
-        }
-        if self.buns.contains(&[x, y]) {
-            return TileType::Buns;
-        }
-        if self.tomato.contains(&[x, y]) {
-            return TileType::Tomato;
-        }
-        if self.sauce.contains(&[x, y]) {
-            return TileType::Sauce;
-        }
-        if self.lettuce.contains(&[x, y]) {
-            return TileType::Lettuce;
-        }
-
-        TileType::Default
     }
 }
 

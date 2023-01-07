@@ -58,6 +58,7 @@ pub fn setup_tiles(mut commands: Commands, tile_data: Res<TileData>, tile_sprite
                 TileType::Lettuce => tile_sprites.lettuce.clone(),
                 TileType::Tomato => tile_sprites.tomato.clone(),
                 TileType::Sauce => tile_sprites.sauce.clone(),
+                TileType::Delivery => tile_sprites.delivery.clone(),
             };
 
             commands
