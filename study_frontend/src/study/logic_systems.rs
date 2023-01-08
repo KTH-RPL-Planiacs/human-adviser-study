@@ -524,18 +524,6 @@ pub fn resolve_moves(
         }
     }
 
-    // update burger status - human
-    if let Interact::In(_) | Interact::Stay(_) = *interact_h {
-        // is robot waiting for help with sauce?
-        let robot_sauce_interact = match *interact_r {
-            Interact::No | Interact::Out(_) => false,
-            Interact::In(_) | Interact::Stay(_) => cur_pos_r.is_equal(SAUCE_POS_R),
-        };
-        if update_burger_status_h(&mut progress_h, cur_pos_h, robot_sauce_interact) {
-            game_results.human_burgers += 1;
-        }
-    }
-
     // interaction - robot
     match *interact_r {
         // starting interaction mode
@@ -554,6 +542,18 @@ pub fn resolve_moves(
             } else {
                 *interact_r = Interact::Stay(ip);
             }
+        }
+    }
+
+    // update burger status - human
+    if let Interact::In(_) | Interact::Stay(_) = *interact_h {
+        // is robot waiting for help with sauce?
+        let robot_sauce_interact = match *interact_r {
+            Interact::No | Interact::Out(_) => false,
+            Interact::In(_) | Interact::Stay(_) => cur_pos_r.is_equal(SAUCE_POS_R),
+        };
+        if update_burger_status_h(&mut progress_h, cur_pos_h, robot_sauce_interact) {
+            game_results.human_burgers += 1;
         }
     }
 

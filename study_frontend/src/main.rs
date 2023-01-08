@@ -34,6 +34,8 @@ fn main() {
         _ => AdviserMode::None,
     };
 
+    let adviser_mode = AdviserMode::NextMove;
+
     App::new()
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(Color::BLACK))
