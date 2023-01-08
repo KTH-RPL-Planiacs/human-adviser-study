@@ -92,7 +92,6 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // POST DATABASE ENTRY
     let post_user_data = warp::post()
-        .and(warp::path("data"))
         .and(warp::body::content_length_limit(1024 * 16))
         .and(warp::body::json())
         .and_then(insert_user_data);
