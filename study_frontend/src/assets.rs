@@ -36,6 +36,8 @@ pub struct MapAssets {
     pub tomato: Handle<Image>,
     #[asset(path = "sprites/tile_delivery.png")]
     pub delivery: Handle<Image>,
+    #[asset(path = "sprites/delivery_indicator.png")]
+    pub delivery_indicator: Handle<Image>,
 }
 
 #[derive(AssetCollection)]

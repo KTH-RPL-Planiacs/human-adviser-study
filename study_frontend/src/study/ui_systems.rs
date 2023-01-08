@@ -425,7 +425,7 @@ pub fn resize_tiles(
     tile_size: Res<TileSize>,
     mut tiles: Query<(&mut Transform, &mut Sprite, &Tile), (Without<Player>, Without<Robot>)>,
 ) {
-    if tile_size.is_changed() || tile_size.is_added() {
+    if tile_size.is_changed() {
         let area_size = tile_size.0 * NUM_TILES as f32 + 2.0 * TILE_PADDING;
         for (mut t, mut sprite, tile) in tiles.iter_mut() {
             let pos_x: f32 =
@@ -436,6 +436,25 @@ pub fn resize_tiles(
             sprite.custom_size = Some(Vec2::new(tile_size.0, tile_size.0));
         }
     }
+}
+
+pub fn resize_delivery_indicator(
+    tile_size: Res<TileSize>,
+    mut arrow_query: Query<(&mut Transform, &mut Sprite), With<DeliveryIndicator>>,
+) {
+    if tile_size.is_changed() {
+        let (mut transf, mut sprite) = arrow_query.single_mut();
+        transf.translation = Vec3::new(0., tile_size.0 * 0.6, 1.);
+        sprite.custom_size = Some(Vec2::new(tile_size.0, tile_size.0));
+    }
+}
+
+pub fn toggle_delivery_indicator(
+    mut arrow_vis: Query<&mut Visibility, With<DeliveryIndicator>>,
+    burger_progress: Query<&BurgerProgress, With<Player>>,
+) {
+    let progress = burger_progress.single();
+    arrow_vis.single_mut().is_visible = progress.ready();
 }
 
 pub fn resize_actors(

@@ -63,14 +63,28 @@ pub fn setup_tiles(mut commands: Commands, tile_data: Res<TileData>, tile_sprite
                 TileType::Delivery => tile_sprites.delivery.clone(),
             };
 
-            commands
+            let tile_entity = commands
                 .spawn_bundle(SpriteBundle {
                     texture: tile_texture,
                     ..default()
                 })
                 .insert(tile_type)
                 .insert(Tile { x, y })
-                .insert(Study);
+                .insert(Study)
+                .id();
+
+            // human delivery indicator
+            if x == 1 && y == 4 {
+                commands.entity(tile_entity).add_children(|parent| {
+                    parent
+                        .spawn_bundle(SpriteBundle {
+                            texture: tile_sprites.delivery_indicator.clone(),
+                            visibility: Visibility { is_visible: true },
+                            ..default()
+                        })
+                        .insert(DeliveryIndicator);
+                });
+            }
         }
     }
 }

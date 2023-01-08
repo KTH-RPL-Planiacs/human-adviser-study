@@ -141,7 +141,7 @@ impl NextPosition {
     }
 }
 
-#[derive(Component, Debug, Copy, Clone)]
+#[derive(Component, Debug, Copy, Clone, PartialEq, Eq)]
 pub enum TileType {
     Default,
     Floor,
@@ -152,6 +152,9 @@ pub enum TileType {
     Sauce,
     Delivery,
 }
+
+#[derive(Component)]
+pub struct DeliveryIndicator;
 
 #[derive(Debug, Copy, Clone)]
 pub struct TileSize(pub f32);
@@ -185,7 +188,7 @@ pub struct BurgerProgress {
 }
 
 impl BurgerProgress {
-    fn ready(&self) -> bool {
+    pub fn ready(&self) -> bool {
         self.buns && self.patty && self.lettuce && self.tomato && self.sauce
     }
 

@@ -34,8 +34,6 @@ fn main() {
         _ => AdviserMode::None,
     };
 
-    let adviser_mode = AdviserMode::NextMove;
-
     App::new()
         .insert_resource(ImageSettings::default_nearest())
         .insert_resource(ClearColor(Color::BLACK))
@@ -117,6 +115,8 @@ fn main() {
                 .with_system(update_timer_text)
                 .with_system(update_burger_text)
                 .with_system(resize_tiles)
+                .with_system(resize_delivery_indicator)
+                .with_system(toggle_delivery_indicator)
                 .with_system(resize_actors)
                 .with_system(resize_speech_bubble)
                 .with_system(toggle_speech_bubble)
