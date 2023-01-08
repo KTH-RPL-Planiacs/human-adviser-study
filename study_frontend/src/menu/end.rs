@@ -44,11 +44,19 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>, result: Re
                             },
                         },
                         TextSection {
-                            value: format!("Your ID is {}\n\n", result.participant_id),
+                            value: format!("Your ID is:\n"),
                             style: TextStyle {
                                 font: font_assets.default_font.clone(),
                                 font_size: 40.0,
                                 color: BUTTON_TEXT,
+                            },
+                        },
+                        TextSection {
+                            value: format!("{}\n\n", result.participant_id),
+                            style: TextStyle {
+                                font: font_assets.default_font.clone(),
+                                font_size: 50.0,
+                                color: Color::RED,
                             },
                         },
                         TextSection {
@@ -80,7 +88,8 @@ pub fn send_study_data(result: Res<GameResults>) {
         use wasm_bindgen_futures::{spawn_local, JsFuture};
         use web_sys::{Headers, Request, RequestInit, RequestMode, Response};
 
-        const DATABASE_BACKEND_URL: &str = "http://127.0.0.1:3030/data";
+        //const DATABASE_BACKEND_URL: &str = "http://127.0.0.1:3030/";
+        const DATABASE_BACKEND_URL: &str = "https://study.gschup.dev/";
 
         info!("Sending Study Results...");
 
