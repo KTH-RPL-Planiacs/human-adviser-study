@@ -1,4 +1,4 @@
-use dotenv::dotenv;
+//use dotenv::dotenv;
 use log::{error, info};
 use mysql_async::{prelude::*, OptsBuilder};
 use study_shared_types::{AdviserMode, GameResults};
@@ -69,7 +69,7 @@ async fn insert_user_data(game_result: GameResults) -> Result<impl warp::Reply, 
 
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    dotenv().expect("Could not find .env file!");
+    //dotenv().expect("Could not find .env file!");
     pretty_env_logger::init();
 
     let pool = mysql_async::Pool::new(db_url());
