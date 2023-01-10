@@ -90,21 +90,27 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     conn.disconnect().await?;
     pool.disconnect().await?;
 
-    // POST DATABASE ENTRY
+    // CORS settings
+    let cors = warp::cors()
+        .allow_headers(vec!["content-type"])
+        .allow_methods(vec!["POST", "GET"])
+        .allow_any_origin();
+
+    // POST database insert
     let post_user_data = warp::post()
+        .and(warp::path("data"))
         .and(warp::body::content_length_limit(1024 * 16))
         .and(warp::body::json())
         .and_then(insert_user_data);
 
-    // CORS settings
-    let cors = warp::cors()
-        .allow_headers(vec!["content-type"])
-        .allow_methods(vec!["POST"])
-        .allow_any_origin();
+    // GET stupid health check
+    let health = warp::get()
+        .and(warp::path("health"))
+        .map(|| "study backend is online!");
 
-    warp::serve(post_user_data.with(cors))
-        .run(([127, 0, 0, 1], 3030))
-        .await;
+    let routes = post_user_data.or(health).with(cors);
+
+    warp::serve(routes).run(([127, 0, 0, 1], 3030)).await;
 
     Ok(())
 }
