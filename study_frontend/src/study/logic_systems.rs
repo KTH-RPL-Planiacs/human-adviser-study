@@ -240,7 +240,6 @@ pub fn prepare_robot_move(
     strategy: Res<Strategy>,
     synth_game: Res<SynthGame>,
     robot_next_move: Option<Res<RobotNextMove>>,
-    mut game_results: ResMut<GameResults>,
     step_counter: Res<StepCounter>,
     adviser_icons: Query<Entity, With<AdviserIcon>>,
 ) {
@@ -260,7 +259,6 @@ pub fn prepare_robot_move(
                 // resets game to almost initial state
                 synth_game_state.0 = synth_game.graph.init.clone();
                 synth_game_state.0 .0 = "20i".to_string();
-                game_results.robot_burgers += 1;
             }
         }
 
@@ -578,7 +576,7 @@ pub fn resolve_moves(
             Interact::In(_) | Interact::Stay(_) => cur_pos_h.is_equal(SAUCE_POS_H),
         };
         if update_burger_status_r(&mut progress_r, cur_pos_r, human_sauce_help) {
-            game_results.human_burgers += 1;
+            game_results.robot_burgers += 1;
         }
     }
 
