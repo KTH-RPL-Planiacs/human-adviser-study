@@ -26,6 +26,7 @@ enum SystemSetLabels {
 
 fn main() {
     // choose adviser mode at random
+    /*
     use rand::Rng;
     let mut rng = rand::thread_rng();
     let adviser_mode = match rng.gen_range(0..=2) {
@@ -33,6 +34,7 @@ fn main() {
         1 => AdviserMode::NextMove,
         _ => AdviserMode::None,
     };
+    */
 
     App::new()
         .insert_resource(ImageSettings::default_nearest())
@@ -42,7 +44,7 @@ fn main() {
             width: 1366.0,
             ..default()
         })
-        .insert_resource(adviser_mode)
+        .insert_resource(AdviserMode::NextMove)
         .add_plugins(DefaultPlugins)
         .add_plugin(JsonAssetPlugin::<TileData>::new(&["json.tiles"]))
         .add_plugin(JsonAssetPlugin::<Strategy>::new(&["json.strat"]))

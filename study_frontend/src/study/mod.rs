@@ -16,7 +16,7 @@ pub const ADVISER_SIZE: f32 = 75.0;
 
 pub const ANIM_DURATION: Duration = Duration::from_millis(400);
 pub const FADE_DURATION: Duration = Duration::from_millis(1000);
-pub const GAME_DURATION: Duration = Duration::from_secs(90);
+pub const GAME_DURATION: Duration = Duration::from_secs(120);
 
 pub const DELIVERY_POS_H: (usize, usize) = (2, 4);
 pub const BUNS_POS_H: (usize, usize) = (1, 3);
