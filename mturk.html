@@ -6,89 +6,79 @@
 
 <!-- You must include crowd-form so that your task submits answers to MTurk -->
 <crowd-form answer-format="flatten-objects">
+    <h1>Instructions</h1>
     <p style="border-width:3px; border-style:solid; border-color:#FF0000; padding: 1em;"><strong>Please make sure to
             read the instructions before starting the study and answering the questions.
             <br> Note down the participant ID given to you after finishing the external study.</strong></p>
 
-    <!--<img src="https://drive.google.com/uc?id=1_N5AppQwz2EuwRfGCTATp-ZfaN9Pc19J" alt="duck GIF" width="50%">-->
-    <crowd-instructions link-text="View instructions" link-type="button">
-        <short-summary>
-            <h3>Overview</h3>
-            <p>In this study, you are tasked to play a small game in which you assemble hamburgers together with your
-                robotic co-worker. In order to do that, both you and the robot individually collect ingredients. Once
-                you have collected all ingredients, you have to deliver the burger. This process is repeated to produce
-                as many burgers as possible until the time runs out.</p>
-            <p>For safety reasons, you and the robot should not reach into the same ingredient tray at the same time.
-                Sometimes, the robot might need help with picking up ingredients. The robot will coordinate with you by
-                giving clues.</p>
-            <p> In the detailed instructions, all parts of the game will be explained.</p>
-            <img src="https://drive.google.com/uc?id=1FhqEOKZsjiYEraFSLR02cbQzyVGm1cg5" alt="full study screen"
-                width="100%">
-        </short-summary>
+    <h3>Overview</h3>
+    <p>In this study, you are tasked to play a small game in which you assemble hamburgers together with your
+        robotic co-worker. In order to do that, both you and the robot individually collect ingredients. Once
+        you have collected all ingredients, you have to deliver the burger. This process is repeated to produce
+        as many burgers as possible until the time runs out.</p>
+    <p>For safety reasons, you and the robot should not reach into the same ingredient tray at the same time.
+        Sometimes, the robot might need help with picking up ingredients. The robot will coordinate with you by
+        giving clues.</p>
+    <img src="https://drive.google.com/uc?id=1FhqEOKZsjiYEraFSLR02cbQzyVGm1cg5" alt="full study screen" width="75%">
 
-        <detailed-instructions>
-            <h3>Play Area</h3>
-            <p>You are represented by the human face on the top, the robot is represented by the robotic face. The play
-                area is divided into squares and you can move between them. In the middle row, five ingredient trays
-                are placed, from which you can pick up the necessary ingredients to assemble a burger.</p>
-            <img src="https://drive.google.com/uc?id=1L6dM8Ic5WFwqKLxgjSTptP6PD-70B59-" alt="main game area"
-                width="50%">
+    <h3>Play Area</h3>
+    <p>You are represented by the human face on the top, the robot is represented by the robotic face. The play
+        area is divided into squares and you can move between them. In the middle row, five ingredient trays
+        are placed, from which you can pick up the necessary ingredients to assemble a burger.</p>
+    <img src="https://drive.google.com/uc?id=1L6dM8Ic5WFwqKLxgjSTptP6PD-70B59-" alt="main game area" width="33%">
 
-            <h3>Timer and Burger Count</h3>
-            <p>On the right of the screen is the timer and the assembled burger counter. Once the timer reaches zero,
-                the time is up and the game is finished. The assembled burger counter keeps track on how many burgers
-                you and the robot assembled.</p>
-            <img src="https://drive.google.com/uc?id=16kMAx9LHqw226hjoV-gAv8JUpamICsx3" alt="timer and burger count"
-                width="25%">
+    <h3>Timer and Burger Count</h3>
+    <p>On the right of the screen is the timer and the assembled burger counter. Once the timer reaches zero,
+        the time is up and the game is finished. The assembled burger counter keeps track on how many burgers
+        you and the robot assembled. The game lasts a total of three minutes.</p>
+    <img src="https://drive.google.com/uc?id=16kMAx9LHqw226hjoV-gAv8JUpamICsx3" alt="timer and burger count"
+        width="25%">
 
-            <h3>Inventory</h3>
-            <p>Both you and the robot gather ingredients. The inventory on the left of the screen shows which
-                ingredients you have already collected. Collected ingredients are coloured, ingredients that have to
-                still be picked up are greyed out. The robot has a seperate inventory, as it assembles burgers
-                independently.</p>
-            <img src="https://drive.google.com/uc?id=1o_fKyGVMTp6CMCswRHg12EpJF5vof8PR" alt="player inventory"
-                width="25%">
+    <h3>Inventory</h3>
+    <p>Both you and the robot gather ingredients. The inventory on the left of the screen shows which
+        ingredients you have already collected. Collected ingredients are coloured, ingredients that have to
+        still be picked up are greyed out. The robot has a seperate inventory, as it assembles burgers
+        independently.</p>
+    <img src="https://drive.google.com/uc?id=1o_fKyGVMTp6CMCswRHg12EpJF5vof8PR" alt="player inventory" width="25%">
 
-            <h3>Movement</h3>
-            <p>You move your character up, down, left and right with the arrow keys on your keyboard. Every time you
-                move, the robot also moves. You can also press the space bar to wait a turn and let the robot move.</p>
+    <h3>Movement</h3>
+    <p>You move your character up, down, left and right with the arrow keys on your keyboard. Every time you
+        move, the robot also moves. You can also press the space bar to wait a turn and let the robot move.</p>
 
-            <h3>Fetching Ingredients</h3>
-            <p>If you move down into an ingredient tray, you interact with the tray and collect the ingredient.</p>
-            <img src="https://drive.google.com/uc?id=1WAlYa3dTGkkNfWq6JMQu2yP5z3e1YSap" alt="interaction example"
-                width="25%">
+    <h3>Fetching Ingredients</h3>
+    <p>If you move down into an ingredient tray, you interact with the tray and collect the ingredient.</p>
+    <img src="https://drive.google.com/uc?id=1WAlYa3dTGkkNfWq6JMQu2yP5z3e1YSap" alt="interaction example" width="25%">
 
-            <h3>Delivery</h3>
-            <p>If you move left into the square with the plate, you attempt to deliver the burger. If you collected all
-                ingredients, the burger count increases by one and your inventory is emptied. A red arrow appears on top
-                of the plate if you are ready to deliver a burger.</p>
-            <img src="https://drive.google.com/uc?id=1gmsx2WfWezoOtxq5B-4VqU0_n1iV6tsC" alt="delivery example"
-                width="25%">
+    <h3>Delivery</h3>
+    <p>If you move left into the square with the plate, you attempt to deliver the burger. If you collected all
+        ingredients, the burger count increases by one and your inventory is emptied. A red arrow appears on top
+        of the plate if you are ready to deliver a burger.</p>
+    <img src="https://drive.google.com/uc?id=1gmsx2WfWezoOtxq5B-4VqU0_n1iV6tsC" alt="delivery example" width="25%">
 
-            <h3>Advice from the Robot</h3>
-            <p>During the game, the robot can utter advice to help coordinate your actions. If you violate safety rules, the game will reset. This does not reset your burger count.</p>
-            <img src="https://drive.google.com/uc?id=1iGoVuchbxTsdag-9ylli9vSi-_1okV0e" alt="move advice" width="30%">
-            <p>When a black arrow is shown, the robot wants you to move  or interact in that direction.</p>
-            <img src="https://drive.google.com/uc?id=1obRuN54BViAfWsU_e93zUE6M03IXh6yc" alt="safety advice" width="30%">
-            <p>When a red cross is shown, the robot wants you to <strong>not</strong> interact with the shown ingredient.</p>
-            <img src="https://drive.google.com/uc?id=1iHZeg902lxxA-OZoLBHoPVHer7pGpTyp" alt="help advice" width="30%">
-            <p>When a green arrow is shown, the robot needs help and wants you to come to the shown ingredient tray.</p>
+    <h3>Advice from the Robot</h3>
+    <p>During the game, the robot can utter advice to help coordinate your actions. If you violate safety rules, the
+        game will reset. This does not reset your burger count. When a black arrow is shown, the robot wants you to move
+        or interact in that direction.</p>
+    <img src="https://drive.google.com/uc?id=1iGoVuchbxTsdag-9ylli9vSi-_1okV0e" alt="move advice" width="30%">
 
-        </detailed-instructions>
+    <!--
+    <img src="https://drive.google.com/uc?id=1obRuN54BViAfWsU_e93zUE6M03IXh6yc" alt="safety advice" width="30%">
+    <p>When a red cross is shown, the robot wants you to <strong>not</strong> interact with the shown ingredient.</p>
+    <img src="https://drive.google.com/uc?id=1iHZeg902lxxA-OZoLBHoPVHer7pGpTyp" alt="help advice" width="30%">
+    <p>When a green arrow is shown, the robot needs help and wants you to come to the shown ingredient tray.</p>
+    -->
 
-        <positive-example>
-            <p>Provide an example of a good answer here</p>
-            <p>Explain why it's a good answer</p>
-        </positive-example>
+    <p>How long does the game last?</p>
+    <crowd-radio-group>
+        <crowd-radio-button name="attnCheck1" value="1 Minute">1 Minute</crowd-radio-button>
+        <crowd-radio-button name="attnCheck2" value="2 Minutes">2 Minutes</crowd-radio-button>
+        <crowd-radio-button name="attnCheck3" value="3 Minutes">3 Minutes</crowd-radio-button>
+    </crowd-radio-group>
 
-        <negative-example>
-            <p>Provide an example of a bad answer here</p>
-            <p>Explain why it's a bad answer</p>
-        </negative-example>
-    </crowd-instructions>
+    <h1>Game</h1>
 
-    <h2><a href="https://kth-rpl-planiacs.github.io/human-adviser-study/">Start the study here! (Opens in new
-            window)</a></h2>
+    <h3><a href="https://kth-rpl-planiacs.github.io/human-adviser-study/">Start the study here! (Opens in new
+            window)</a></h3>
 
     <div>
         <p>Please fill in the participant ID provided to you <strong>at the end of the external study</strong>.</p>
@@ -103,7 +93,11 @@
     </div>
 
     <div>
+        <p>Did you encounter any technical issues?</p>
+        <crowd-text-area name="techicalIssues" rows="4" placeholder="..."></crowd-text-area>
+    </div>
+    <div>
         <p>Do you have any additional comments?</p>
-        <crowd-text-area name="additionalComments" rows="4" placeholder="additional comments..."></crowd-text-area>
+        <crowd-text-area name="additionalComments" rows="4" placeholder="..."></crowd-text-area>
     </div>
 </crowd-form>
