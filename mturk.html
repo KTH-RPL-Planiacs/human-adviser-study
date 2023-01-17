@@ -9,7 +9,8 @@
     <h1>Instructions</h1>
     <p style="border-width:3px; border-style:solid; border-color:#FF0000; padding: 1em;"><strong>Please make sure to
             read the instructions before starting the study and answering the questions.
-            <br> Note down the participant ID given to you after finishing the external study.</strong></p>
+            <br> Note down the participant ID given to you after finishing the external study.
+            <br> Make sure to answer all questions in the questionnaire before submitting.</strong></p>
 
     <h3>Overview</h3>
     <p>In this study, you are tasked to play a small game in which you assemble hamburgers together with your
@@ -87,17 +88,152 @@
 
     <h1>Questionnaire</h1>
 
+    <!-- PERCEIVED INTELLIGENCE -->
     <div>
-        <p>How should we do a likert scale?</p>
-        <crowd-slider name="likert" min="1" max="10" step="1" pin="true" required></crowd-slider>
+        <p><strong>Please rate your impression of the robot on these scales:</strong> </p>
+        <crowd-radio-group>
+            Incompetent
+            <crowd-radio-button name="incompetent1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="incompetent2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="incompetent3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="incompetent4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="incompetent5" value="5">5</crowd-radio-button>
+            Competent
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Ignorant
+            <crowd-radio-button name="ignorant1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="ignorant2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="ignorant3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="ignorant4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="ignorant5" value="5">5</crowd-radio-button>
+            Knowledgeable
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Irresponsible
+            <crowd-radio-button name="irresponsible1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="irresponsible2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="irresponsible3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="irresponsible4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="irresponsible5" value="5">5</crowd-radio-button>
+            Responsible
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Unintelligent
+            <crowd-radio-button name="unintelligent1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="unintelligent2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="unintelligent3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="unintelligent4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="unintelligent5" value="5">5</crowd-radio-button>
+            Intelligent
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Foolish
+            <crowd-radio-button name="foolish1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="foolish2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="foolish3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="foolish4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="foolish5" value="5">5</crowd-radio-button>
+            Sensible
+        </crowd-radio-group>
     </div>
+
+    <!-- PERCEIVED SAFETY -->
+    <div>
+        <p><strong>Please rate your emotional state on these scales:</strong></p>
+        <crowd-radio-group>
+            Anxious
+            <crowd-radio-button name="anxious1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="anxious2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="anxious3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="anxious4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="anxious5" value="5">5</crowd-radio-button>
+            Relaxed
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Agitated
+            <crowd-radio-button name="agitated1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="agitated2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="agitated3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="agitated4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="agitated5" value="5">5</crowd-radio-button>
+            Calm
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Quiescent
+            <crowd-radio-button name="quiescent1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="quiescent2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="quiescent3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="quiescent4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="quiescent5" value="5">5</crowd-radio-button>
+            Surprised
+        </crowd-radio-group>
+    </div>
+
+    <!-- PERCEIVED LIMITATION -->
+    <div>
+        <p><strong>Please rate your impression of the robot on these scales:</strong></p>
+        <crowd-radio-group>
+            Unpredictable
+            <crowd-radio-button name="predict1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="predict2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="predict3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="predict4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="predict5" value="5">5</crowd-radio-button>
+            Predictable
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Incompliant
+            <crowd-radio-button name="incompliant1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="incompliant2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="incompliant3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="incompliant4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="incompliant5" value="5">5</crowd-radio-button>
+            Compliant
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Unrestrictive
+            <crowd-radio-button name="restrictive1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="restrictive2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="restrictive3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="restrictive4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="restrictive5" value="5">5</crowd-radio-button>
+            Restrictive
+        </crowd-radio-group>
+        <br>
+    </div>
+
+    <hr style="height:3px;border-width:0;color:gray;background-color:gray">
+    
+    <!-- DEMOGRAPHICS -->
+    <div>
+        <p><strong>Please tell us about yourself:</strong></p>
+        <crowd-input name="age" label="Age" type="number" required></crowd-input>
+        <crowd-radio-group>
+            Gender
+            <crowd-radio-button name="genderm" value="m">Male</crowd-radio-button>
+            <crowd-radio-button name="genderf" value="f">Female</crowd-radio-button>
+            <crowd-radio-button name="gendernb" value="nb">Non-Binary</crowd-radio-button>
+            <crowd-radio-button name="genderu" value="u">Prefer not to say</crowd-radio-button>
+        </crowd-radio-group>
+        <br>
+    </div>
+
+
+    <hr style="height:3px;border-width:0;color:gray;background-color:gray">
 
     <div>
         <p>Did you encounter any technical issues?</p>
-        <crowd-text-area name="techicalIssues" rows="4" placeholder="..."></crowd-text-area>
-    </div>
-    <div>
+        <crowd-text-area name="techicalIssues" rows="4" placeholder="type here..."></crowd-text-area>
         <p>Do you have any additional comments?</p>
-        <crowd-text-area name="additionalComments" rows="4" placeholder="..."></crowd-text-area>
+        <crowd-text-area name="additionalComments" rows="4" placeholder="type here..."></crowd-text-area>
     </div>
 </crowd-form>
