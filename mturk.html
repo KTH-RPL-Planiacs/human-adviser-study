@@ -10,7 +10,9 @@
     <p style="border-width:3px; border-style:solid; border-color:#FF0000; padding: 1em;"><strong>Please make sure to
             read the instructions before starting the study and answering the questions.
             <br> Note down the participant ID given to you after finishing the external study.
-            <br> Make sure to answer all questions in the questionnaire before submitting.</strong></p>
+            <br> Make sure to answer all questions in the questionnaire before submitting.</strong>
+            <!--<br> There is a bonus payment dependant on your performance in the game.-->
+        </p>
 
     <h3>Overview</h3>
     <p>In this study, you are tasked to play a small game in which you assemble hamburgers together with your
@@ -67,6 +69,11 @@
     <p>When a red cross is shown, the robot wants you to <strong>not</strong> interact with the shown ingredient.</p>
     <img src="https://drive.google.com/uc?id=1iHZeg902lxxA-OZoLBHoPVHer7pGpTyp" alt="help advice" width="30%">
     <p>When a green arrow is shown, the robot needs help and wants you to come to the shown ingredient tray.</p>
+    -->
+
+    <!--
+    <h3>Bonus Payment</h3>
+    <p>In addition to the base reward of this task, you will receive a bonus payment dending on the score at the end of the game.</p>
     -->
 
     <p>How long does the game last?</p>
@@ -225,6 +232,21 @@
             <crowd-radio-button name="genderu" value="u">Prefer not to say</crowd-radio-button>
         </crowd-radio-group>
         <br>
+        <crowd-radio-group>
+            English language fluency
+            <crowd-radio-button name="langb" value="b">Basic</crowd-radio-button>
+            <crowd-radio-button name="langf" value="f">Fluent</crowd-radio-button>
+            <crowd-radio-button name="langnl" value="nl">Native-Like</crowd-radio-button>
+            <crowd-radio-button name="langn" value="n">Native</crowd-radio-button>
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            How often do you play video games?
+            <crowd-radio-button name="videom" value="m">Once a month or less</crowd-radio-button>
+            <crowd-radio-button name="videow" value="w">At least once a week</crowd-radio-button>
+            <crowd-radio-button name="videod" value="d">At least once a day</crowd-radio-button>
+        </crowd-radio-group>
+        <br>
     </div>
 
 
@@ -232,8 +254,8 @@
 
     <div>
         <p>Did you encounter any technical issues?</p>
-        <crowd-text-area name="techicalIssues" rows="4" placeholder="type here..."></crowd-text-area>
+        <crowd-text-area name="techicalIssues" rows="3" placeholder="type here..."></crowd-text-area>
         <p>Do you have any additional comments?</p>
-        <crowd-text-area name="additionalComments" rows="4" placeholder="type here..."></crowd-text-area>
+        <crowd-text-area name="additionalComments" rows="3" placeholder="type here..."></crowd-text-area>
     </div>
 </crowd-form>
