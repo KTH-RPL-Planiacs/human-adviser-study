@@ -1,0 +1,264 @@
+<!-- You must include this JavaScript file -->
+<script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+
+<!-- For the full list of available Crowd HTML Elements and their input/output documentation,
+      please refer to https://docs.aws.amazon.com/sagemaker/latest/dg/sms-ui-template-reference.html -->
+
+<!-- You must include crowd-form so that your task submits answers to MTurk -->
+<crowd-form answer-format="flatten-objects">
+    <h1>Instructions</h1>
+    <p style="border-width:3px; border-style:solid; border-color:#FF0000; padding: 1em;"><strong>Please make sure to
+            read the instructions before starting the game and answering the questions.
+            <br> Note down the participant ID given to you after finishing the game.
+            <br> Make sure to answer all questions in the questionnaire before submitting.
+            <br> There is a bonus payment dependant on your performance in the game.</strong>
+    </p>
+
+    <h3>Overview</h3>
+    <p>You are tasked to play a small game in which you assemble hamburgers together with your
+        robotic co-worker. In order to do that, both you and the robot individually collect ingredients. Once
+        you have collected all ingredients, you have to deliver the burger. This process is repeated to produce
+        as many burgers as possible until the time runs out.</p>
+    <p>For safety reasons, you and the robot should not reach into the same ingredient tray at the same time.
+        Sometimes, the robot might need help with picking up ingredients.</p>
+    <img src="https://drive.google.com/uc?id=1FhqEOKZsjiYEraFSLR02cbQzyVGm1cg5" alt="full study screen" width="75%">
+
+    <h3>Play Area</h3>
+    <p>You are represented by the human face on the top, the robot is represented by the robotic face. The play
+        area is divided into squares and you can move between them. In the middle row, five ingredient trays
+        are placed, from which you can pick up the necessary ingredients to assemble a burger.</p>
+    <img src="https://drive.google.com/uc?id=1L6dM8Ic5WFwqKLxgjSTptP6PD-70B59-" alt="main game area" width="33%">
+
+    <h3>Timer and Burger Count</h3>
+    <p>On the right of the screen is the timer and the assembled burger counter. Once the timer reaches zero,
+        the time is up and the game is finished. The assembled burger counter keeps track on how many burgers
+        you and the robot assembled. The game lasts a total of two minutes.</p>
+    <img src="https://drive.google.com/uc?id=16kMAx9LHqw226hjoV-gAv8JUpamICsx3" alt="timer and burger count"
+        width="25%">
+
+    <h3>Inventory</h3>
+    <p>Both you and the robot gather ingredients. The inventory on the left of the screen shows which
+        ingredients you have already collected. Collected ingredients are coloured, ingredients that have to
+        still be picked up are greyed out. The robot has a seperate inventory, as it assembles burgers
+        independently.</p>
+    <img src="https://drive.google.com/uc?id=1o_fKyGVMTp6CMCswRHg12EpJF5vof8PR" alt="player inventory" width="25%">
+
+    <h3>Movement</h3>
+    <p>You move your character up, down, left and right with the arrow keys on your keyboard. Every time you
+        move, the robot also moves. You can also press the space bar to wait a turn and let the robot move.</p>
+
+    <h3>Fetching Ingredients</h3>
+    <p>If you move down into an ingredient tray, you interact with the tray and collect the ingredient.</p>
+    <img src="https://drive.google.com/uc?id=1WAlYa3dTGkkNfWq6JMQu2yP5z3e1YSap" alt="interaction example" width="25%">
+
+    <h3>Delivery</h3>
+    <p>If you move left into the square with the plate, you attempt to deliver the burger. If you collected all
+        ingredients, the burger count increases by one and your inventory is emptied. A red arrow appears on top
+        of the plate if you are ready to deliver a burger.</p>
+    <img src="https://drive.google.com/uc?id=1gmsx2WfWezoOtxq5B-4VqU0_n1iV6tsC" alt="delivery example" width="25%">
+
+    <h3>Safety Violations</h3>
+    <p>For safety reasons, you and the robot should not reach into the same ingredient tray at the same time. If you do,
+        the game will fade to black and reset. This will not reset your burger count. The only exception is when the
+        robot needs help with picking up ingredients. In that case, it will stay immobile at one of the ingredient
+        trays. Simply interact with the ingredient tray where to robot is stuck to help it out. When helping out, you
+        will not pick up the ingredient for yourself.</p>
+
+    <!--
+    <img src="https://drive.google.com/uc?id=1obRuN54BViAfWsU_e93zUE6M03IXh6yc" alt="safety advice" width="30%">
+    <p>When a red cross is shown, the robot wants you to <strong>not</strong> interact with the shown ingredient.</p>
+    <img src="https://drive.google.com/uc?id=1iHZeg902lxxA-OZoLBHoPVHer7pGpTyp" alt="help advice" width="30%">
+    <p>When a green arrow is shown, the robot needs help and wants you to come to the shown ingredient tray.</p>
+    -->
+
+    <h3>Bonus Payment</h3>
+    <p>In addition to the base reward of this task, you will receive a bonus payment dending on the score at the end of
+        the game. You will receive a bonus of 0.10$ per assembled burger in the game. Please do not attempt to restart
+        the game, as this will invalidate your task.</p>
+
+    <p>How long does the game last?</p>
+    <crowd-radio-group>
+        <crowd-radio-button name="attnCheck1" value="1 Minute">1 Minute</crowd-radio-button>
+        <crowd-radio-button name="attnCheck2" value="2 Minutes">2 Minutes</crowd-radio-button>
+        <crowd-radio-button name="attnCheck3" value="3 Minutes">3 Minutes</crowd-radio-button>
+    </crowd-radio-group>
+
+    <h1>Game</h1>
+
+    <h3><a href="https://kth-rpl-planiacs.github.io/human-adviser-study/" target="_blank">Start the game here! (Opens
+            in new window)</a></h3>
+
+    <div>
+        <p>Please fill in the participant ID provided to you <strong>at the end of the game</strong>.</p>
+        <crowd-input name="participantId" placeholder="example: 123456" required></crowd-input>
+    </div>
+
+    <h1>Questionnaire</h1>
+    <p>Please rate your experience with the game. In all questions, 3 indicates a neutral impression. Make sure to
+        answer all questions before submitting!</p>
+    <!-- PERCEIVED INTELLIGENCE -->
+    <div>
+        <p><strong>Please rate your impression of the robot on these scales:</strong> </p>
+        <crowd-radio-group>
+            Incompetent
+            <crowd-radio-button name="incompetent1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="incompetent2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="incompetent3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="incompetent4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="incompetent5" value="5">5</crowd-radio-button>
+            Competent
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Ignorant
+            <crowd-radio-button name="ignorant1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="ignorant2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="ignorant3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="ignorant4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="ignorant5" value="5">5</crowd-radio-button>
+            Knowledgeable
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Irresponsible
+            <crowd-radio-button name="irresponsible1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="irresponsible2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="irresponsible3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="irresponsible4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="irresponsible5" value="5">5</crowd-radio-button>
+            Responsible
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Unintelligent
+            <crowd-radio-button name="unintelligent1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="unintelligent2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="unintelligent3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="unintelligent4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="unintelligent5" value="5">5</crowd-radio-button>
+            Intelligent
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Foolish
+            <crowd-radio-button name="foolish1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="foolish2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="foolish3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="foolish4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="foolish5" value="5">5</crowd-radio-button>
+            Sensible
+        </crowd-radio-group>
+    </div>
+
+    <!-- PERCEIVED SAFETY -->
+    <div>
+        <p><strong>Please rate your emotional state on these scales:</strong></p>
+        <crowd-radio-group>
+            Anxious
+            <crowd-radio-button name="anxious1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="anxious2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="anxious3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="anxious4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="anxious5" value="5">5</crowd-radio-button>
+            Relaxed
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Agitated
+            <crowd-radio-button name="agitated1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="agitated2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="agitated3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="agitated4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="agitated5" value="5">5</crowd-radio-button>
+            Calm
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Quiescent
+            <crowd-radio-button name="quiescent1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="quiescent2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="quiescent3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="quiescent4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="quiescent5" value="5">5</crowd-radio-button>
+            Surprised
+        </crowd-radio-group>
+    </div>
+
+    <!-- PERCEIVED LIMITATION -->
+    <div>
+        <p><strong>Please rate your impression of the robot on these scales:</strong></p>
+        <crowd-radio-group>
+            Unpredictable
+            <crowd-radio-button name="predict1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="predict2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="predict3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="predict4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="predict5" value="5">5</crowd-radio-button>
+            Predictable
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Incompliant
+            <crowd-radio-button name="incompliant1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="incompliant2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="incompliant3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="incompliant4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="incompliant5" value="5">5</crowd-radio-button>
+            Compliant
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            Unrestrictive
+            <crowd-radio-button name="restrictive1" value="1">1</crowd-radio-button>
+            <crowd-radio-button name="restrictive2" value="2">2</crowd-radio-button>
+            <crowd-radio-button name="restrictive3" value="3">3</crowd-radio-button>
+            <crowd-radio-button name="restrictive4" value="4">4</crowd-radio-button>
+            <crowd-radio-button name="restrictive5" value="5">5</crowd-radio-button>
+            Restrictive
+        </crowd-radio-group>
+        <br>
+    </div>
+
+    <hr style="height:3px;border-width:0;color:gray;background-color:gray">
+
+    <!-- DEMOGRAPHICS -->
+    <div>
+        <p><strong>Please tell us about yourself:</strong></p>
+        <p>How old are you?</p>
+        <crowd-input name="age" label="Age" type="number" required></crowd-input>
+        <crowd-radio-group>
+            Gender:
+            <crowd-radio-button name="genderm" value="m">Male</crowd-radio-button>
+            <crowd-radio-button name="genderf" value="f">Female</crowd-radio-button>
+            <crowd-radio-button name="gendernb" value="nb">Non-Binary</crowd-radio-button>
+            <crowd-radio-button name="genderu" value="u">Prefer not to say</crowd-radio-button>
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            English language fluency:
+            <crowd-radio-button name="langb" value="b">Basic</crowd-radio-button>
+            <crowd-radio-button name="langf" value="f">Fluent</crowd-radio-button>
+            <crowd-radio-button name="langnl" value="nl">Native-Like</crowd-radio-button>
+            <crowd-radio-button name="langn" value="n">Native</crowd-radio-button>
+        </crowd-radio-group>
+        <br>
+        <crowd-radio-group>
+            How often do you play video games:
+            <crowd-radio-button name="videom" value="m">Once a month or less</crowd-radio-button>
+            <crowd-radio-button name="videow" value="w">At least once a week</crowd-radio-button>
+            <crowd-radio-button name="videod" value="d">At least once a day</crowd-radio-button>
+        </crowd-radio-group>
+        <br>
+    </div>
+
+
+    <hr style="height:3px;border-width:0;color:gray;background-color:gray">
+
+
+    <p>Did you encounter any technical issues?</p>
+    <crowd-text-area name="techicalIssues" rows="3" placeholder="type here..."></crowd-text-area>
+
+    <p>Do you have any additional comments?</p>
+    <crowd-text-area name="additionalComments" rows="3" placeholder="type here..."></crowd-text-area>
+
+</crowd-form>
