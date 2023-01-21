@@ -44,7 +44,7 @@ fn main() {
             width: 1366.0,
             ..default()
         })
-        .insert_resource(AdviserMode::None)
+        .insert_resource(AdviserMode::LeastLimiting)
         .add_plugins(DefaultPlugins)
         .add_plugin(JsonAssetPlugin::<TileData>::new(&["json.tiles"]))
         .add_plugin(JsonAssetPlugin::<Strategy>::new(&["json.strat"]))
