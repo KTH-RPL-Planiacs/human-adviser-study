@@ -12,3 +12,8 @@ Cargo.lock
 
 # dont want to spill my secrets
 .env
+
+# python result scripts 
+study_results/venv/*
+study_results/.idea/*
+study_results/data/*
