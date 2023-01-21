@@ -1,5 +1,23 @@
 import pandas as pd
 
+unneeded = ['AcceptTime', 'ApprovalTime', 'Approve', 'AssignmentDurationInSeconds', 'AssignmentStatus', 'AutoApprovalDelayInSeconds',
+            'AutoApprovalTime', 'CreationTime', 'Description', 'Expiration', 'HITId', 'HITTypeId', 'Keywords', 'Last30DaysApprovalRate',
+            'Last7DaysApprovalRate', 'LifetimeApprovalRate', 'LifetimeInSeconds', 'MaxAssignments', 'NumberOfSimilarHITs', 'Reject', 'RejectionTime',
+            'RequesterAnnotation', 'RequesterFeedback', 'Reward', 'SubmitTime', 'Title']
+
+likert_scales = [('agitated', 'AgitatedCalm'),
+                 ('anxious', 'AnxiousRelaxed'),
+                 ('foolish', 'FoolishSensible'),
+                 ('ignorant', 'IgnorantKnowledgeable'),
+                 ('incompetent', 'IncompetentCompetent'),
+                 ('incompliant', 'IncompliantCompliant'),
+                 ('irresponsible', 'IrresponsibleResponsible'),
+                 ('predict', 'UnpredictablePredictable'),
+                 ('quiescent', 'QuiescentSurprised'),
+                 ('restrictive', 'UnrestrictiveRestrictive'),
+                 ('unintelligent', 'UnintelligentIntelligent'),
+                 ]
+
 
 def apply_attention_check(data, should_filter):
     data['attention_check'] = data.apply(
@@ -7,7 +25,8 @@ def apply_attention_check(data, should_filter):
     data.drop(columns=['Answer.attnCheck2.2 Minutes', 'Answer.attnCheck1.1 Minute', 'Answer.attnCheck3.3 Minutes'], inplace=True)
 
     if should_filter:
-        data = data[(data["steps_taken"] > 10) | (data["attention_check"] is True)]
+        min_steps = 5
+        data = data[(data["steps_taken"] > min_steps)]
     return data
 
 
@@ -44,6 +63,74 @@ def apply_all_scales(data, scales):
     return data
 
 
+def bool_to_gender(bool1, bool2, bool3, bool4):
+    if bool1:
+        return 'Male'
+    elif bool2:
+        return 'Female'
+    elif bool3:
+        return 'NonBinary'
+    elif bool4:
+        return 'ChooseNotToSay'
+    else:
+        return None
+
+
+def bool_to_fluency(bool1, bool2, bool3, bool4):
+    if bool1:
+        return 'Basic'
+    elif bool2:
+        return 'Fluent'
+    elif bool3:
+        return 'Native-Like'
+    elif bool4:
+        return 'Native'
+    else:
+        return None
+
+
+def bool_to_videogame(bool1, bool2, bool3):
+    if bool1:
+        return 'Monthly'
+    elif bool2:
+        return 'Weekly'
+    elif bool3:
+        return 'Daily'
+    else:
+        return None
+
+
+def apply_demographics(data):
+    # age
+    data.rename(columns={'Answer.age': 'Age'}, inplace=True)
+    # gender
+    data['Gender'] = data.apply(
+        lambda x: bool_to_gender(x['Answer.genderm.m'],
+                                 x['Answer.genderf.f'],
+                                 x['Answer.gendernb.nb'],
+                                 x['Answer.genderu.u']), axis=1)
+    data.drop(columns=['Answer.genderm.m', 'Answer.genderf.f', 'Answer.gendernb.nb', 'Answer.genderu.u'],
+              inplace=True)
+    # language
+    data['Fluency'] = data.apply(
+        lambda x: bool_to_fluency(x['Answer.langb.b'],
+                                  x['Answer.langf.f'],
+                                  x['Answer.langnl.nl'],
+                                  x['Answer.langn.n']), axis=1)
+    data.drop(columns=['Answer.langb.b', 'Answer.langf.f', 'Answer.langnl.nl', 'Answer.langn.n'],
+              inplace=True)
+    # language
+    data['VideoGameHabit'] = data.apply(
+        lambda x: bool_to_videogame(x['Answer.videom.m'],
+                                    x['Answer.videow.w'],
+                                    x['Answer.videod.d']), axis=1)
+    data.drop(columns=['Answer.videom.m', 'Answer.videow.w', 'Answer.videod.d'],
+              inplace=True)
+    # video game
+
+    return data
+
+
 def debug_info(data, name):
     num_rows = data.shape[0]
     print('###', name, '###')
@@ -62,49 +149,41 @@ def write_bonus_file(data, name):
     bonus_data.to_csv('data/%s_bonus.csv' % name)
 
 
-db_results = pd.read_csv('data/db_game_results.csv')
+if __name__ == '__main__':
+    db_results = pd.read_csv('data/db_game_results.csv')
 
-nextmove_results = pd.read_csv('data/results_nextmove.csv')
-nextmove_results.rename(columns=lambda c: 'participant_id' if c == 'Answer.participantId' else c, inplace=True)
-nextmove_results = nextmove_results.join(db_results.set_index('participant_id'), on='participant_id')
+    nextmove_results = pd.read_csv('data/results_nextmove.csv')
+    nextmove_results.rename(columns=lambda c: 'participant_id' if c == 'Answer.participantId' else c, inplace=True)
+    nextmove_results = nextmove_results.join(db_results.set_index('participant_id'), on='participant_id')
 
-noadvice_results = pd.read_csv('data/results_noadvice.csv')
-noadvice_results.rename(columns=lambda c: 'participant_id' if c == 'Answer.participantId' else c, inplace=True)
-noadvice_results = noadvice_results.join(db_results.set_index('participant_id'), on='participant_id')
+    noadvice_results = pd.read_csv('data/results_noadvice.csv')
+    noadvice_results.rename(columns=lambda c: 'participant_id' if c == 'Answer.participantId' else c, inplace=True)
+    noadvice_results = noadvice_results.join(db_results.set_index('participant_id'), on='participant_id')
 
-# filter results with failed attention check and less than 10 moves in the game
-nextmove_results = apply_attention_check(nextmove_results, should_filter=True)
-noadvice_results = apply_attention_check(noadvice_results, should_filter=True)
+    # filter results with failed attention check and less than 10 moves in the game
+    nextmove_results = apply_attention_check(nextmove_results, should_filter=False)
+    noadvice_results = apply_attention_check(noadvice_results, should_filter=False)
 
-# remove unneeded columns
-unneeded = ['AcceptTime', 'ApprovalTime', 'Approve', 'AssignmentDurationInSeconds', 'AssignmentStatus', 'AutoApprovalDelayInSeconds',
-            'AutoApprovalTime', 'CreationTime', 'Description', 'Expiration', 'HITId', 'HITTypeId', 'Keywords', 'Last30DaysApprovalRate',
-            'Last7DaysApprovalRate', 'LifetimeApprovalRate', 'LifetimeInSeconds', 'MaxAssignments', 'NumberOfSimilarHITs', 'Reject', 'RejectionTime',
-            'RequesterAnnotation', 'RequesterFeedback', 'Reward', 'SubmitTime', 'Title']
-nextmove_results.drop(columns=unneeded, inplace=True)
-noadvice_results.drop(columns=unneeded, inplace=True)
+    # remove unneeded columns
+    nextmove_results.drop(columns=unneeded, inplace=True)
+    noadvice_results.drop(columns=unneeded, inplace=True)
 
-# apply likert scale transformation
-likert_scales = [('agitated', 'AgitatedCalm'),
-                 ('anxious', 'AnxiousRelaxed'),
-                 ('foolish', 'FoolishSensible'),
-                 ('ignorant', 'IgnorantKnowledgeable'),
-                 ('incompetent', 'IncompetentCompetent'),
-                 ('incompliant', 'IncompliantCompliant'),
-                 ('irresponsible', 'IrresponsibleResponsible'),
-                 ('predict', 'UnpredictablePredictable'),
-                 ('quiescent', 'QuiescentSurprised'),
-                 ('restrictive', 'UnrestrictiveRestrictive'),
-                 ('unintelligent', 'UnintelligentIntelligent'),
-                 ]
-nextmove_results = apply_all_scales(nextmove_results, likert_scales)
-noadvice_results = apply_all_scales(noadvice_results, likert_scales)
+    # apply likert scale transformation
+    nextmove_results = apply_all_scales(nextmove_results, likert_scales)
+    noadvice_results = apply_all_scales(noadvice_results, likert_scales)
 
-# write bonus file
-# write_bonus_file(nextmove_results, 'nextmove')
-# write_bonus_file(noadvice_results, 'noadvice')
+    # demographics
+    nextmove_results = apply_demographics(nextmove_results)
+    noadvice_results = apply_demographics(noadvice_results)
 
-debug_info(nextmove_results, 'NextMove')
-debug_info(noadvice_results, 'NoAdvice')
-# print(nextmove_results.reindex(sorted(nextmove_results.columns), axis=1).to_string())
-print(nextmove_results.to_string())
+    # put comment columns to the end for readability
+    push_to_end = ['Answer.additionalComments', 'Answer.techicalIssues']
+    nextmove_results = nextmove_results[[c for c in nextmove_results if c not in push_to_end] + push_to_end]
+
+    debug_info(nextmove_results, 'NextMove')
+    debug_info(noadvice_results, 'NoAdvice')
+    print(nextmove_results.to_string())
+
+    # write bonus file
+    # write_bonus_file(nextmove_results, 'nextmove')
+    # write_bonus_file(noadvice_results, 'noadvice')
