@@ -16,5 +16,3 @@ Cargo.lock
 # python result scripts 
 study_results/venv/*
 study_results/.idea/*
-study_results/data/*
-study_results/automatic_bonus_assignment.py

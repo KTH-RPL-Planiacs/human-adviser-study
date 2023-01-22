@@ -1,0 +1,121 @@
+participant_id,WorkTimeInSeconds,Age,adviser_mode,steps_taken,safety_violated,human_burgers,robot_burgers,attention_check,AgitatedCalm,AnxiousRelaxed,FoolishSensible,IgnorantKnowledgeable,IncompetentCompetent,IncompliantCompliant,IrresponsibleResponsible,UnpredictablePredictable,QuiescentSurprised,UnrestrictiveRestrictive,UnintelligentIntelligent,Gender,Fluency,VideoGameHabit,Answer.additionalComments,Answer.techicalIssues
+777506,3161,35,NextMove,4.0,4.0,0.0,0.0,False,5.0,5.0,5,5,5,5,5,5,5.0,5,5,Female,Native,Daily,Good,NO
+212680,424,67,NextMove,79.0,20.0,0.0,0.0,True,1.0,1.0,1,1,1,1,1,5,4.0,5,1,Female,Native,Daily,No,No
+831478,381,44,NextMove,183.0,8.0,5.0,5.0,True,4.0,4.0,5,5,5,5,5,5,3.0,4,5,Male,Native,Daily,no,no
+960951,1073,25,,,,,,True,4.0,4.0,4,5,5,3,5,5,3.0,3,5,Male,Native,Daily,nice,nothing
+953969,1069,24,NextMove,38.0,2.0,0.0,1.0,True,4.0,5.0,5,5,4,5,5,5,5.0,4,5,Female,Native,Weekly,interesting study,No
+279240,996,57,NextMove,44.0,4.0,0.0,1.0,True,5.0,5.0,4,5,5,4,5,3,4.0,4,5,Male,Native,Daily,,
+971902,1015,25,NextMove,0.0,0.0,0.0,0.0,False,3.0,4.0,1,5,5,4,4,5,4.0,2,2,Male,Native,Daily,very interesting,nothing
+656260,1723,43,NextMove,80.0,15.0,0.0,0.0,True,2.0,2.0,1,1,1,1,2,1,4.0,5,1,Female,Native,Weekly,"I tried to follow the robot's advice but it did not seem to make sense and when I deviated from the robots advice, the game went black and I was placed back on the starting point even when it did not appear that safety rules were being violated. Nonetheless, this was a fun game. Thanks for the opportunity to participate.",No
+316483,799,37,NextMove,113.0,13.0,0.0,0.0,True,1.0,4.0,1,1,1,1,1,1,1.0,5,1,Male,Native,Daily,No,No
+183289,2379,32,NextMove,176.0,5.0,6.0,6.0,True,3.0,2.0,3,3,5,3,3,5,1.0,3,3,NonBinary,Native,Daily,No.,No.
+852870,1261,29,NextMove,49.0,34.0,0.0,0.0,False,5.0,5.0,5,5,5,4,5,5,5.0,5,4,Male,Fluent,Weekly,good,no
+852629,1962,25,NextMove,41.0,14.0,0.0,0.0,True,3.0,4.0,4,5,4,5,3,4,5.0,3,5,Male,Fluent,,NCE,NO
+778229,1018,59,NextMove,3.0,1.0,0.0,0.0,False,5.0,5.0,5,5,5,5,5,5,5.0,5,5,Male,Native,Monthly,It was a nice study.,No
+235241,3026,53,NextMove,50.0,36.0,0.0,0.0,True,2.0,2.0,3,3,2,2,3,3,3.0,4,3,Male,Native,Weekly,No.,No.
+677736,753,39,NextMove,129.0,3.0,4.0,4.0,True,5.0,5.0,4,4,5,3,3,4,2.0,5,5,Male,Native,Weekly,none,no issues
+259265,506,49,NextMove,112.0,12.0,2.0,2.0,True,5.0,5.0,4,4,4,3,4,5,2.0,4,4,Male,Native,Monthly,,no
+659408,869,72,NextMove,61.0,22.0,0.0,0.0,True,2.0,2.0,4,4,4,4,4,4,4.0,4,4,Female,Native,Monthly,,"took a while to learn how to best move, but no technical issues."
+129459,1111,28,NextMove,98.0,11.0,0.0,0.0,False,1.0,1.0,1,1,1,1,1,1,1.0,1,1,Female,Fluent,Weekly,,
+154542,1105,45,NextMove,55.0,0.0,2.0,2.0,False,4.0,5.0,5,5,5,3,4,4,4.0,3,4,Male,Fluent,Weekly,thank you,no issues
+148105,1114,45,NextMove,157.0,7.0,4.0,4.0,True,3.0,3.0,5,5,5,5,5,5,4.0,4,5,Male,Native,Weekly,"None, thanks!",Nope
+477787,1872,47,NextMove,36.0,11.0,0.0,0.0,True,3.0,4.0,4,4,4,4,4,3,4.0,3,3,Male,Native,Daily,none,none
+699997,1134,31,NextMove,42.0,14.0,0.0,0.0,True,4.0,4.0,5,5,4,3,4,3,2.0,4,4,Female,,Weekly,fun,none
+619094,576,44,NextMove,86.0,22.0,1.0,1.0,False,4.0,5.0,5,4,4,1,4,2,4.0,2,4,Male,Native,Weekly,,none
+784449,1010,35,NextMove,152.0,5.0,4.0,4.0,True,1.0,2.0,3,4,4,1,3,4,2.0,5,3,Female,Native,Weekly,No,No
+492221,491,51,NextMove,80.0,33.0,0.0,0.0,True,2.0,2.0,3,3,2,2,3,2,3.0,3,3,Female,Native,Weekly,No.,No.
+132421,3277,29,NextMove,70.0,46.0,0.0,0.0,True,5.0,3.0,4,5,4,5,3,3,4.0,4,5,Female,,,Thank you.,No
+885191,380,47,NextMove,136.0,15.0,2.0,2.0,True,1.0,1.0,4,5,5,3,5,4,3.0,4,5,Female,Native,Weekly,The game was so frustrating,No
+886824,1182,28,NextMove,68.0,2.0,1.0,2.0,True,4.0,5.0,4,5,5,4,4,5,5.0,5,5,Female,Native,Daily,Thanks,No
+868956,974,36,NextMove,45.0,13.0,0.0,0.0,False,4.0,3.0,3,2,1,4,3,3,3.0,3,2,Male,Native-Like,Daily,none,none
+164301,1057,44,NextMove,69.0,5.0,0.0,0.0,True,1.0,1.0,4,4,4,3,4,3,2.0,3,4,Female,Native,Daily,,None.
+320524,984,28,NextMove,63.0,5.0,1.0,2.0,True,5.0,4.0,5,5,5,4,5,5,5.0,5,5,Female,Native,Daily,Thanks for the opportunity,No
+385554,1826,48,NextMove,62.0,26.0,0.0,0.0,True,2.0,2.0,3,3,3,2,3,4,4.0,4,3,Female,Native,Monthly,,no
+664378,1079,32,NextMove,38.0,10.0,0.0,0.0,True,2.0,3.0,2,2,2,3,3,2,3.0,3,2,Male,Fluent,Monthly,"It was fun, I suggest having a practice round next time.",no
+218684,1930,25,NextMove,22.0,15.0,0.0,0.0,True,5.0,3.0,4,5,4,3,3,4,4.0,5,4,Male,Fluent,Weekly,NICE,NO
+966154,528,40,NextMove,71.0,36.0,0.0,0.0,True,1.0,1.0,1,1,1,1,1,1,5.0,4,1,Female,Native,Monthly,,"Yes, I was unable to make any burgers no matter how I navigated the screen. The robot didn't make burgers when I skipped and pressed space so I ended up with no burgers! I tried everything, following the robots directions and arrow methods, nothing worked."
+725128,878,57,NextMove,98.0,13.0,0.0,0.0,True,1.0,1.0,1,1,1,1,1,5,5.0,5,1,Female,Native,Weekly,,No
+996718,655,29,NextMove,92.0,6.0,2.0,2.0,True,5.0,4.0,5,5,5,5,5,4,4.0,5,5,Female,Native,Weekly,great game,no
+875095,370,55,NextMove,125.0,7.0,2.0,2.0,True,5.0,5.0,4,4,4,4,4,5,3.0,4,4,Male,Native,Weekly,,
+794459,2391,33,NextMove,33.0,9.0,0.0,0.0,False,2.0,2.0,3,2,2,2,2,2,3.0,4,3,Male,Fluent,Monthly,i did not enjoy the game since the robot kept moving to other objects other than my target,No
+441957,1491,41,NextMove,134.0,15.0,0.0,0.0,True,2.0,2.0,2,2,2,2,2,3,2.0,2,2,Male,Native,Daily,ty,no
+660903,856,27,None,0.0,0.0,0.0,0.0,False,4.0,4.0,4,4,5,4,4,3,4.0,4,3,Male,Native,Daily,NO,NO
+375120,304,28,None,37.0,0.0,0.0,1.0,True,3.0,2.0,5,5,5,3,5,3,3.0,4,5,Male,Native,Daily,,None
+481266,467,33,None,165.0,1.0,4.0,2.0,True,5.0,5.0,3,3,2,2,2,4,3.0,4,2,Male,Native,Weekly,Nothing comes to mind. Thank you.,"No, I don't believe so."
+305956,526,40,None,77.0,0.0,0.0,1.0,True,4.0,3.0,4,4,3,4,2,3,3.0,3,3,Female,Fluent,Daily,none,no
+816071,2268,42,None,51.0,1.0,1.0,1.0,False,1.0,2.0,5,5,5,2,5,2,2.0,2,5,Female,Native,Weekly,no,no
+317637,1006,36,None,29.0,0.0,0.0,0.0,True,5.0,4.0,5,5,5,5,4,5,5.0,5,5,Female,Native,Daily,Good,No
+592821,979,42,None,95.0,0.0,1.0,1.0,True,4.0,4.0,4,5,4,4,4,4,4.0,4,4,Female,Native-Like,Weekly,NO,NO
+251783,1086,35,None,62.0,0.0,0.0,1.0,True,4.0,5.0,5,4,4,3,2,4,4.0,4,4,Male,Native,Daily,none,no
+632929,2436,58,None,152.0,6.0,1.0,2.0,False,2.0,4.0,4,4,4,2,4,3,3.0,3,4,Female,Native,Daily,No,No but I don't know how long the game lasted so I guessed.
+218581,609,47,None,75.0,1.0,0.0,1.0,True,5.0,4.0,4,5,4,5,4,4,5.0,4,5,Male,Native-Like,Weekly,NONE,NO
+514551,2549,49,None,83.0,0.0,2.0,1.0,True,4.0,5.0,4,5,4,5,4,4,5.0,4,5,Female,Native,Weekly,none,none
+858049,264,34,None,237.0,1.0,8.0,6.0,True,5.0,5.0,4,4,4,4,5,4,2.0,3,4,Male,Native,Daily,No comments,No issues
+457632,1456,38,None,220.0,2.0,6.0,5.0,True,4.0,4.0,3,3,3,4,4,4,2.0,4,2,Female,Native,Monthly,no,no
+629187,901,38,None,133.0,0.0,1.0,2.0,True,2.0,1.0,3,5,4,4,4,5,1.0,5,5,Male,Native,Weekly,none,none
+495972,1031,35,None,43.0,0.0,0.0,0.0,False,5.0,4.0,5,5,5,5,5,4,5.0,3,5,Female,Native,Daily,very interesting,no
+706973,510,43,None,79.0,1.0,0.0,0.0,True,5.0,5.0,2,3,1,2,3,1,3.0,3,1,Male,Native,Monthly,No further comment.,Laggy interface in the game.
+466202,973,35,None,64.0,0.0,1.0,2.0,True,5.0,4.0,5,4,5,3,4,5,4.0,3,4,Male,Native,Daily,none,no
+612901,341,46,None,214.0,2.0,6.0,5.0,True,5.0,5.0,4,4,4,5,4,5,3.0,5,3,Male,Native,Weekly,,no
+610048,1571,57,None,16.0,0.0,0.0,0.0,True,5.0,4.0,4,3,4,3,5,4,5.0,5,4,Female,Fluent,Weekly,Interesting,No
+948258,2569,26,None,207.0,1.0,7.0,7.0,True,5.0,5.0,4,4,4,5,5,5,3.0,1,4,Female,Native,Weekly,No,No
+113324,431,25,None,63.0,1.0,1.0,0.0,True,5.0,4.0,5,4,4,4,4,5,4.0,5,4,Female,Fluent,Daily,We appreciate your inputs,Nothing
+446543,239,27,None,253.0,2.0,8.0,4.0,True,5.0,5.0,2,3,2,2,2,2,2.0,2,2,Male,Native,Daily,Thanks!,No
+478963,1802,43,None,212.0,2.0,7.0,3.0,True,4.0,4.0,3,3,3,2,3,2,2.0,2,2,Male,Native,Weekly,thanksforadecentpayrate,noproblemsexceptmyspacebardoesntworkinthisboxlol
+517284,594,36,None,69.0,0.0,0.0,1.0,True,4.0,4.0,4,4,4,2,4,3,3.0,2,4,Male,Native,,none,none
+715806,1829,35,None,61.0,2.0,1.0,1.0,True,4.0,5.0,3,4,3,4,4,3,3.0,5,4,Male,Native,Daily,,
+522657,591,38,None,161.0,1.0,5.0,4.0,True,5.0,5.0,5,4,4,5,4,4,3.0,4,4,Female,Native,Weekly,none,none
+729443,982,35,None,82.0,1.0,1.0,1.0,True,4.0,5.0,4,5,4,4,4,5,5.0,4,5,Male,Native-Like,Weekly,NONE,NO
+814955,651,32,None,102.0,5.0,0.0,0.0,False,2.0,2.0,2,2,2,2,2,4,2.0,3,2,Male,Native,Daily,the robot was not really reacting like i thought it would at all. that was just odd,
+423323,457,43,None,223.0,1.0,7.0,7.0,True,4.0,2.0,4,3,4,3,3,4,3.0,3,3,Female,Native,Monthly,no,no
+801784,1748,45,None,106.0,1.0,1.0,2.0,True,5.0,4.0,4,4,5,5,4,4,5.0,4,5,Male,Native-Like,Weekly,NONE,NO
+528343,452,57,None,97.0,2.0,0.0,0.0,True,1.0,1.0,3,2,1,2,3,3,2.0,2,2,Female,Native,Monthly,,"no, I just sucked"
+330500,873,35,None,47.0,1.0,1.0,0.0,True,4.0,5.0,5,5,5,5,5,5,5.0,4,5,Male,Native,Daily,very interesting playing.,none
+403328,381,37,None,226.0,0.0,8.0,5.0,True,4.0,4.0,2,2,2,3,2,4,3.0,4,2,NonBinary,Native,Weekly,No,No
+228678,674,33,None,59.0,0.0,0.0,1.0,False,5.0,5.0,5,5,5,5,5,5,5.0,5,5,Male,Native,Daily,good,no
+624263,2112,35,None,64.0,1.0,1.0,1.0,True,4.0,5.0,4,3,4,4,2,3,3.0,5,4,Male,Native,Daily,,
+244230,1037,45,None,140.0,0.0,0.0,3.0,True,1.0,1.0,3,3,5,5,5,1,5.0,1,3,Male,Native,Monthly,None,No technical issues
+242532,829,35,None,32.0,0.0,0.0,0.0,False,5.0,5.0,5,5,5,5,4,5,4.0,5,5,Female,Native,Weekly,good experience,no
+833546,723,48,None,0.0,0.0,0.0,0.0,False,4.0,5.0,5,4,5,4,5,5,5.0,5,4,Female,Basic,Daily,good,NO
+864852,2607,48,None,136.0,2.0,3.0,2.0,True,5.0,5.0,5,5,5,5,5,5,3.0,1,5,Male,Native,Weekly,no,no
+514812,1565,35,None,103.0,1.0,2.0,2.0,True,4.0,5.0,4,5,4,5,4,4,5.0,4,5,Female,Native,Weekly,none,none
+882970,695,30,LeastLimiting,243.0,1.0,8.0,8.0,True,4.0,4.0,5,4,5,5,5,5,2.0,2,5,Male,Native,Weekly,Thank you.,"Took a while to load (I thought it was broken), but after a few minutes it loaded."
+393821,554,52,LeastLimiting,45.0,1.0,0.0,0.0,False,5.0,5.0,4,4,5,4,5,2,4.0,4,5,Male,Native,Weekly,Thank you,None
+494136,1253,47,LeastLimiting,214.0,0.0,6.0,7.0,True,5.0,5.0,5,4,4,4,4,4,3.0,3,4,Male,Native,Weekly,No.,No.
+267535,342,35,LeastLimiting,71.0,1.0,2.0,1.0,True,4.0,4.0,5,5,4,4,4,4,4.0,4,4,Female,Native-Like,Daily,no,no
+631891,455,56,LeastLimiting,193.0,1.0,4.0,5.0,True,4.0,4.0,5,5,5,5,5,5,2.0,3,5,Female,Native,Daily,Thank you for the opportunity to participate in this study,No issues
+871187,744,33,LeastLimiting,13.0,0.0,0.0,0.0,True,4.0,5.0,4,5,4,5,4,4,4.0,4,4,Male,Native,Daily,Happy to participate.,No issue.
+190533,868,25,,,,,,True,4.0,5.0,4,4,5,3,5,5,5.0,4,5,Female,Native,Daily,Nice,Nothing
+687762,1034,24,LeastLimiting,41.0,2.0,0.0,1.0,True,4.0,4.0,5,4,4,4,4,4,5.0,5,4,Female,Native,Daily,Very nice study,no
+357836,1092,25,LeastLimiting,56.0,0.0,0.0,0.0,False,3.0,4.0,3,3,4,3,3,4,4.0,4,4,Male,Native,Daily,INTERESTING,Nothing
+502097,335,45,LeastLimiting,76.0,1.0,0.0,2.0,True,2.0,2.0,3,3,2,2,3,1,4.0,3,2,Male,Native,Daily,none,no problems
+418998,622,28,LeastLimiting,161.0,0.0,1.0,5.0,True,2.0,2.0,5,5,5,5,5,4,4.0,3,5,Male,Native,Weekly,The robot did well.,Timer top half was tough to see on my screen but I think it was 2 minutes. So that is what I put here.
+520892,1308,32,,,,,,True,4.0,4.0,4,5,4,4,4,4,4.0,4,3,Male,Native,Monthly,good,no
+197031,1318,25,LeastLimiting,33.0,1.0,0.0,0.0,False,3.0,5.0,5,4,5,4,5,3,4.0,4,3,Female,Native,Daily,Good,NO
+790821,553,39,LeastLimiting,67.0,1.0,1.0,1.0,True,4.0,5.0,4,5,4,5,4,4,5.0,5,3,Male,Native,Daily,none,no
+478242,813,47,LeastLimiting,43.0,0.0,0.0,1.0,True,5.0,5.0,5,5,4,4,4,4,4.0,5,4,Male,Native,Daily,None,None
+342015,402,35,LeastLimiting,17.0,0.0,0.0,0.0,True,3.0,3.0,4,4,4,3,3,3,4.0,4,4,Male,Native,Daily,none,no
+499790,548,39,LeastLimiting,133.0,0.0,0.0,3.0,True,3.0,2.0,5,5,4,3,4,2,2.0,2,4,Female,Fluent,Monthly,,no
+0,855,25,,,,,,False,3.0,4.0,4,4,3,3,3,4,4.0,4,2,Female,Fluent,Monthly,good,no
+866172,3147,35,LeastLimiting,230.0,1.0,6.0,5.0,True,3.0,3.0,4,5,5,4,4,3,2.0,2,5,Female,Native,Weekly,,no
+423299,855,25,LeastLimiting,61.0,0.0,0.0,1.0,True,4.0,5.0,5,4,5,4,4,5,5.0,5,5,Female,Native,Weekly,Very interesting,Nothing
+390567,1519,25,LeastLimiting,64.0,0.0,0.0,1.0,True,5.0,5.0,5,5,5,4,2,5,5.0,5,1,Male,Native,Daily,Good,Nothing
+664164,1753,40,LeastLimiting,55.0,1.0,2.0,0.0,False,,,4,4,4,4,4,4,,4,4,Female,Native,Weekly,,
+193698,2154,36,LeastLimiting,44.0,0.0,1.0,1.0,True,4.0,4.0,2,3,2,3,2,4,4.0,4,2,Male,Native,,none,none
+385235,265,37,LeastLimiting,180.0,3.0,5.0,5.0,True,5.0,5.0,5,5,5,5,5,5,3.0,4,5,Female,Native,Daily,no,no
+304027,1903,50,LeastLimiting,24.0,0.0,0.0,0.0,True,3.0,4.0,4,4,3,4,4,4,3.0,3,3,Female,Fluent,Weekly,good,no
+240742,626,52,LeastLimiting,47.0,0.0,0.0,0.0,False,5.0,4.0,5,5,4,5,4,4,5.0,5,4,Female,Native,Weekly,good one.,no more technical issue.
+760667,1170,35,LeastLimiting,62.0,0.0,2.0,1.0,False,4.0,5.0,5,5,5,4,5,5,5.0,5,4,Male,Native,Weekly,good,no
+893065,1835,35,LeastLimiting,100.0,1.0,0.0,2.0,True,5.0,4.0,4,4,5,5,5,4,5.0,5,5,Female,Native,Daily,interesting game,none
+581754,1227,60,LeastLimiting,137.0,0.0,3.0,4.0,True,5.0,5.0,4,4,4,4,5,4,2.0,3,3,Male,Native,Monthly,,NO
+207565,2464,45,LeastLimiting,49.0,0.0,0.0,1.0,False,5.0,3.0,4,4,3,1,3,4,3.0,3,2,Male,Fluent,Weekly,THANK YOU,NO ISSUES
+917261,600,35,LeastLimiting,54.0,0.0,0.0,2.0,True,5.0,4.0,5,4,4,4,4,4,5.0,5,5,Female,,,no,no
+655855,1192,25,LeastLimiting,38.0,0.0,0.0,0.0,True,4.0,5.0,4,5,5,4,5,5,5.0,5,5,Male,Native,Daily,VERY NICE,NOTHING
+291297,431,40,LeastLimiting,181.0,0.0,5.0,5.0,True,2.0,2.0,3,4,3,2,4,4,3.0,4,4,Female,Native,Daily,no,no
+114757,320,33,LeastLimiting,205.0,0.0,6.0,6.0,True,5.0,5.0,3,3,4,4,3,5,2.0,3,3,Male,Native,Weekly,,
+756590,280,40,LeastLimiting,63.0,0.0,0.0,1.0,True,5.0,4.0,4,4,3,5,3,4,4.0,4,4,Male,,,none,none
+862520,401,35,LeastLimiting,62.0,0.0,1.0,1.0,True,4.0,5.0,4,4,3,4,3,4,4.0,4,4,Female,,,nol,no
+504746,537,34,LeastLimiting,227.0,1.0,7.0,7.0,True,5.0,5.0,1,1,2,3,1,5,3.0,3,1,Female,Native,Monthly,No,No
+787355,903,24,LeastLimiting,77.0,2.0,1.0,1.0,True,5.0,5.0,4,5,4,4,4,4,5.0,4,4,Female,Native,Daily,It's Interesting,None
+389955,2231,25,LeastLimiting,83.0,0.0,0.0,2.0,True,3.0,4.0,5,4,5,3,4,4,4.0,5,2,Male,Fluent,Weekly,nice survey the game was good,no issues thay a great survey
+222222,349,35,LeastLimiting,60.0,2.0,1.0,0.0,True,5.0,5.0,4,5,4,3,4,3,4.0,3,5,Male,Native,Daily,NONE,NO

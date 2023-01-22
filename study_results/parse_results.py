@@ -3,7 +3,7 @@ import pandas as pd
 unneeded = ['AcceptTime', 'ApprovalTime', 'Approve', 'AssignmentDurationInSeconds', 'AssignmentStatus', 'AutoApprovalDelayInSeconds',
             'AutoApprovalTime', 'CreationTime', 'Description', 'Expiration', 'HITId', 'HITTypeId', 'Keywords', 'Last30DaysApprovalRate',
             'Last7DaysApprovalRate', 'LifetimeApprovalRate', 'LifetimeInSeconds', 'MaxAssignments', 'NumberOfSimilarHITs', 'Reject', 'RejectionTime',
-            'RequesterAnnotation', 'RequesterFeedback', 'Reward', 'SubmitTime', 'Title']
+            'RequesterAnnotation', 'RequesterFeedback', 'Reward', 'SubmitTime', 'Title', 'AssignmentId', 'WorkerId']
 
 likert_scales = [('agitated', 'AgitatedCalm'),
                  ('anxious', 'AnxiousRelaxed'),
@@ -160,30 +160,46 @@ if __name__ == '__main__':
     noadvice_results.rename(columns=lambda c: 'participant_id' if c == 'Answer.participantId' else c, inplace=True)
     noadvice_results = noadvice_results.join(db_results.set_index('participant_id'), on='participant_id')
 
+    lla_results = pd.read_csv('data/results_lla.csv')
+    lla_results.rename(columns=lambda c: 'participant_id' if c == 'Answer.participantId' else c, inplace=True)
+    lla_results = lla_results.join(db_results.set_index('participant_id'), on='participant_id')
+
     # filter results with failed attention check and less than 10 moves in the game
     nextmove_results = apply_attention_check(nextmove_results, should_filter=False)
     noadvice_results = apply_attention_check(noadvice_results, should_filter=False)
+    lla_results = apply_attention_check(lla_results, should_filter=False)
 
     # remove unneeded columns
     nextmove_results.drop(columns=unneeded, inplace=True)
     noadvice_results.drop(columns=unneeded, inplace=True)
+    lla_results.drop(columns=unneeded, inplace=True)
 
     # apply likert scale transformation
     nextmove_results = apply_all_scales(nextmove_results, likert_scales)
     noadvice_results = apply_all_scales(noadvice_results, likert_scales)
+    lla_results = apply_all_scales(lla_results, likert_scales)
 
     # demographics
     nextmove_results = apply_demographics(nextmove_results)
     noadvice_results = apply_demographics(noadvice_results)
+    lla_results = apply_demographics(lla_results)
 
     # put comment columns to the end for readability
     push_to_end = ['Answer.additionalComments', 'Answer.techicalIssues']
     nextmove_results = nextmove_results[[c for c in nextmove_results if c not in push_to_end] + push_to_end]
+    noadvice_results = noadvice_results[[c for c in noadvice_results if c not in push_to_end] + push_to_end]
+    lla_results = lla_results[[c for c in lla_results if c not in push_to_end] + push_to_end]
 
     debug_info(nextmove_results, 'NextMove')
     debug_info(noadvice_results, 'NoAdvice')
-    print(nextmove_results.to_string())
+    debug_info(lla_results, 'LeastLimiting')
+
+    all_data = pd.concat([nextmove_results, noadvice_results, lla_results])
+    all_data = all_data.set_index('participant_id')
+    all_data.to_csv('data/processed_data.csv')
+    print(all_data.to_string())
 
     # write bonus file
     # write_bonus_file(nextmove_results, 'nextmove')
     # write_bonus_file(noadvice_results, 'noadvice')
+    # write_bonus_file(lla_results, 'lla')
