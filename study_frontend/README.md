@@ -1,6 +1,6 @@
 # study_frontend
 
-a WASM app that runs in the browser. this is the interactive study itself. to run inside the browser, try:
+A WASM app that runs in the browser. This is the interactive study itself. To run inside the browser, try:
 
 ```sh
 cargo run --target wasm32-unknown-unknown
