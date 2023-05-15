@@ -1,8 +1,12 @@
 # Human-Adviser Study
 
-🚧 **This work is currently under double-blind review. This readme file does not contain full information until the review process has concluded.** 🚧
+Source code for the study appearing in:
 
-Code for the human-adviser study. Please read the README files inside the subfolders for additional instructions. 
+```
+Schuppe, Georg Friedrich, et al. "Follow my Advice: Assume-Guarantee Approach to Task Planning with Human in the Loop." In: Robotics: Science and Systems 2023, (2023).
+```
+
+Please read the README files inside the subfolders for additional instructions. 
 
 You can try the study yourself [[here]](https://kth-rpl-planiacs.github.io/human-adviser-study/)!
 
